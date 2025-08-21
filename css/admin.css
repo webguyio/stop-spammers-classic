@@ -1,0 +1,226 @@
+#toplevel_page_stop_spammers .wp-menu-image img, #oam_toplevel_page_stop_spammers .wp-menu-image {
+	max-height: 20px;
+	padding: 7px 0 0;
+}
+
+.icon-action {
+	max-width: 16px;
+	max-height: 16px;
+	cursor: pointer;
+}
+
+.edit-comments-php .icon-action {
+	max-width: 12px;
+	max-height: 12px;
+	vertical-align: middle;
+}
+
+#ss-plugin, #ss-plugin * {
+	box-sizing: border-box;
+}
+
+#ss-plugin .ss_head {
+	font-size: 30px;
+	font-weight: bold;
+}
+
+#ss-plugin .keyhead {
+	display: block;
+	font-size: 16px !important;
+}
+
+#ss-plugin img {
+	margin-right: 5px;
+}
+
+#ss-plugin ul, #ss-plugin ol {
+	margin: 30px 0 30px 60px;
+}
+
+#ss-plugin ul ul, #ss-plugin ol ol, #ss-plugin ul ol, #ss-plugin ol ul {
+	margin-top: 0;
+	margin-bottom: 0;
+}
+
+#ss-plugin ol {
+	list-style: decimal outside;
+	list-style-type: decimal-leading-zero;
+	margin-left: 70px;
+}
+
+#ss-plugin ul li {
+	list-style-type: '— ';
+}
+
+#ss-plugin li {
+	line-height: 125%;
+	margin: 20px 0;
+}
+
+#ss-plugin input[type="text"] {
+	max-width: 400px;
+}
+
+#ss-plugin textarea {
+	width: 100% !important;
+	max-width: 500px !important;
+}
+
+#ss-plugin fieldset {
+	width: 100%;
+	padding: 15px;
+	margin: 30px 0 0;
+}
+
+#ss-plugin .phpinfodisplay table {
+	width: 100%;
+}
+
+#ss-plugin #sstable {
+	width: 100%;
+	background-color: #eee;
+}
+
+#ss-plugin td {
+	padding: 10px;
+}
+
+#ss-plugin .stat-box {
+	padding: 5px 10px;
+	background: #fff;
+	margin: 5px;
+	border-radius: 2;
+	float: left;
+}
+
+#ss-plugin .button-primary {
+	padding: 5px 15px;
+	border-color: #4aa863;
+	background-color: #4aa863;
+}
+
+#ss-plugin .button-primary:hover, #ss-plugin .button-primary:focus {
+	opacity: 0.8;
+}
+
+#ss-plugin .postbox .inside {
+	padding-bottom: 0;
+}
+
+#ss-plugin .ss_sup a {
+	display: inline-block;
+	width: 22px;
+	height: 22px;
+	font-size: 16px;
+	font-weight: bold;
+	color: #fff;
+	text-align: center;
+	text-decoration: none;
+	padding: 1.5px;
+	border-radius: 50%;
+	background: #4aa863;
+}
+
+#ss-plugin #ssinput {
+	width: 170px !important;
+	max-width: 170px !important;
+}
+
+#ss-plugin .filterhead {
+	cursor: pointer;
+}
+
+#ss-plugin #ss_subhead {
+	color: #333;
+	font-size: 20px !important;
+	font-weight: 500;
+}
+
+#ss-plugin #ss_subhead div.container {
+	padding: 5% 0;
+}
+
+#ss-plugin #ss_subhead2 {
+	color: #333;
+	font-size: 16px;
+	font-weight: 500;
+}
+
+#ss-plugin .tooltip {
+	position: relative;
+	display: inline-block;
+	top: 10px;
+	margin-left: 5px;
+}
+
+#ss-plugin .tooltip .tooltiptext {
+	visibility: hidden;
+	width: 400px;
+	background-color: rgba(0, 0, 0, 0.8);
+	color: #fff;
+	text-align: justify;
+	font-size: 13px;
+	line-height: 16px;
+	border-radius: 3px;
+	padding: 5px 0;
+	/* position the tooltip */
+	position: absolute;
+	z-index: 1;
+	bottom: 100%;
+	left: 50%;
+	margin-left: -60px;
+	padding: 10px;
+}
+
+#ss-plugin .tooltip:hover .tooltiptext {
+	visibility: visible;
+}
+
+#ss-plugin .ss_option_header {
+	font-size: 16px !important;
+}
+
+#ss-plugin .ss_info_box {
+	background: white !important;
+	width: 100%;
+	padding: 1.5em;
+	margin: 20px 0;
+	box-sizing: border-box;
+}
+
+#ss-plugin i.fa.fa-question-circle {
+	color: #444 !important;
+}
+
+#ss-plugin i.fa.fa-question-circle:hover {
+	color: #4aa863 !important;
+}
+
+#ss-plugin .ss_icon {
+	max-height: 38px;
+	vertical-align: bottom;
+}
+
+#ss-plugin .ss-small-box {
+	width: 35px;
+	text-align: center;
+	display: initial !important;
+}
+
+#ss-plugin select.ss-small-dropbox{
+	vertical-align: baseline;
+}
+
+#ss-plugin div.mainsection {
+	font-weight: bold;
+	font-size: 18px;
+	margin: 30px 0 15px;
+}
+
+#ss-plugin .center {
+	text-align: center;
+}
+
+.wrap > div.notice {
+	margin-bottom: 30px;
+}
