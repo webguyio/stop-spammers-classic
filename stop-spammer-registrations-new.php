@@ -3,7 +3,7 @@
 Plugin Name: Stop Spammers
 Plugin URI: https://damspam.com/
 Description: A simplified, restored, and preserved version of the original Stop Spammers plugin.
-Version: 3000
+Version: 2025
 Requires at least: 3.0
 Requires PHP: 5.0
 Author: Web Guy
@@ -13,7 +13,7 @@ License URI: https://www.gnu.org/licenses/gpl.html
 */
 
 // networking requires a couple of globals
-define( 'SS_VERSION', '3000' );
+define( 'SS_VERSION', '2025' );
 define( 'SS_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'SS_PLUGIN_FILE', plugin_dir_path( __FILE__ ) );
 define( 'SS_PLUGIN_DATA', plugin_dir_path( __FILE__ ) . 'data/' );
@@ -46,7 +46,7 @@ function ss_admin_notice() {
 	$admin_url = ( isset( $_SERVER['HTTPS'] ) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http' ) . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
 	$param = ( count( $_GET ) ) ? '&' : '?';
 	if ( !get_user_meta( $user_id, 'ss_notice_dismissed_100' ) && current_user_can( 'manage_options' ) ) {
-		echo '<div class="notice notice-info"><p><a href="' . $admin_url, $param . 'dismiss" class="alignright" style="text-decoration:none"><big>Ⓧ</big></a><big><strong>Stop Spammers Development Has Slowed Down</strong></big><p><a href="https://github.com/webguyio/stop-spammers/issues/188" class="button-primary" style="border-color:#4aa863;background:#4aa863" target="_blank">What happened?</a></p></div>';
+		echo '<div class="notice notice-info"><p><a href="' . esc_url( $admin_url ), esc_url_raw( $param ) . 'dismiss" class="alignright" style="text-decoration:none"><big>Ⓧ</big></a><big><strong>Stop Spammers Development Has Slowed Down</strong></big><p><a href="https://github.com/webguyio/dam-spam/issues/8" class="button-primary" style="border-color:#4aa863;background:#4aa863" target="_blank">What happened?</a></p></div>';
 	}
 }
 add_action( 'admin_notices', 'ss_admin_notice' );
@@ -479,7 +479,7 @@ function be_load( $file, $ip, &$stats = array(), &$options = array(), &$post = a
 		$fd	= str_replace( "/", DIRECTORY_SEPARATOR, $fd ); // Windows fix
 	}
 	if ( !file_exists( $fd ) ) {
-		echo '<br><br>Missing ' . $file, $fd . '<br><br>';
+		echo '<br><br>Missing ' . esc_html( $file ), esc_html( $fd ) . '<br><br>';
 		return false;
 	}
 	require_once( $fd );
@@ -842,7 +842,7 @@ function ss_add_captcha() {
 			$html  .= '</noscript>';
 		break;
 	}
-	echo $html;
+	echo wp_kses_post( $html );
 }
 
 function ss_captcha_verify() {

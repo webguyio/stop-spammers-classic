@@ -253,8 +253,7 @@ class be_module {
 					$ipe = be_module::ip2numstr( $ipe );
 					if ( $ipt >= $ips && $ipt <= $ipe ) {
 						if ( is_array( $ip ) ) {
-							echo 'Array in IP: ' . print_r( $ip, true )
-								 . "<br>";
+							echo 'Array in IP: ' . esc_html( print_r( $ip, true ) ) . "<br>";
 							$ip = $ip[0];
 						}
 						return $this->searchname . ': ' . $ip;

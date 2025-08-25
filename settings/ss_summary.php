@@ -243,13 +243,13 @@ $nonce = wp_create_nonce( 'ss_stopspam_update' );
 ?>
 
 <div id="ss-plugin" class="wrap">
-	<h1 class="ss_head"><img src="<?php echo plugin_dir_url( dirname( __FILE__ ) ) . 'images/stop-spammers-icon.png'; ?>" class="ss_icon">Summary</h1><br>
-	Version: <strong><?php echo SS_VERSION; ?></strong>
+	<h1 class="ss_head"><img src="<?php echo esc_url( plugin_dir_url( dirname( __FILE__ ) ) . 'images/stop-spammers-icon.png' ); ?>" class="ss_icon">Summary</h1><br>
+	Version: <strong><?php echo esc_html( SS_VERSION ); ?></strong>
 	<?php if ( !empty( $summary ) ) { ?>
 	<?php }
 	$ip = ss_get_ip();
 	?>
-	| Your current IP address is: <strong><?php echo $ip; ?></strong>
+	| Your current IP address is: <strong><?php echo esc_html( $ip ); ?></strong>
 	<?php
 	// check the IP to see if we are local
 	$ansa = be_load( 'chkvalidip', ss_get_ip() );
@@ -258,7 +258,7 @@ $nonce = wp_create_nonce( 'ss_stopspam_update' );
 	}
 	if ( $ansa !== false ) { ?>
 		<p><?php echo 'This address is invalid for testing for the following reason:
-			  <span style="font-weight:bold;font-size:1.2em">' . $ansa . '</span>.<br>
+			  <span style="font-weight:bold;font-size:1.2em">' . esc_html( $ansa ) . '</span>.<br>
 			  If you working on a local installation of WordPress, this might be
 			  OK. However, if the plugin reports that your
 			  IP is invalid it may be because you are using Cloudflare or a proxy
@@ -291,7 +291,7 @@ $nonce = wp_create_nonce( 'ss_stopspam_update' );
 		$sname = substr( $sname, 0, strpos( $sname, '?' ) );
 	}
 	if ( !empty( $msg ) ) {
-		echo $msg;
+		echo wp_kses_post( $msg );
 	}
 	$current_user_name = wp_get_current_user()->user_login;
 	if ( $current_user_name == 'admin' ) {
@@ -305,17 +305,17 @@ $nonce = wp_create_nonce( 'ss_stopspam_update' );
 	<h2>Summary of Spam</h2>
 	<div class="main-stats">
 	<?php if ( $spcount > 0 ) { ?>
-		<p><?php echo 'Stop Spammers has stopped <strong>' . $spcount . '</strong> spammers since ' . $spdate . '.'; ?></p>
+		<p><?php echo 'Stop Spammers has stopped <strong>' . esc_html( $spcount ) . '</strong> spammers since ' . esc_html( $spdate ) . '.'; ?></p>
 	<?php }
 	$num_comm = wp_count_comments();
 	$num	  = number_format_i18n( $num_comm->spam );
 	if ( $num_comm->spam > 0 && SS_MU != 'Y' ) { ?>
-		<p><?php echo 'There are <a href="edit-comments.php?comment_status=spam">' . $num . '</a> spam comments waiting for you to report.'; ?></p>
+		<p><?php echo 'There are <a href="edit-comments.php?comment_status=spam">' . esc_html( $num ) . '</a> spam comments waiting for you to report.'; ?></p>
 	<?php }
 	$num_comm = wp_count_comments();
 	$num	  = number_format_i18n( $num_comm->moderated );
 	if ( $num_comm->moderated > 0 && SS_MU != 'Y' ) { ?>
-		<p><?php echo 'There are <a href="edit-comments.php?comment_status=moderated">' . $num . '</a> comments waiting to be moderated.'; ?></p></div>
+		<p><?php echo 'There are <a href="edit-comments.php?comment_status=moderated">' . esc_html( $num ) . '</a> comments waiting to be moderated.'; ?></p></div>
 	<?php }
 	$summary = '';
 	foreach ( $counters as $v1 => $v2 ) {
@@ -331,10 +331,10 @@ $nonce = wp_create_nonce( 'ss_stopspam_update' );
 		$summary .= "<div class='stat-box'>$key: " . $data[0] . "</div>";
 	} ?>
 	<?php
-		echo $summary;
+		echo wp_kses_post( $summary );
 	?>
 	<form method="post" action="">
-		<input type="hidden" name="ss_stop_spammers_control" value="<?php echo $nonce; ?>">
+		<input type="hidden" name="ss_stop_spammers_control" value="<?php echo esc_html( $nonce ); ?>">
 		<input type="hidden" name="clear" value="clear summary">
 		<p class="submit" style="clear:both"><input class="button-primary" value="Clear Summary" type="submit"></p>
 	</form>

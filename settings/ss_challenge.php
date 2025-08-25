@@ -121,21 +121,21 @@ $nonce = wp_create_nonce( 'ss_stopspam_update' );
 ?>
 
 <div id="ss-plugin" class="wrap">
-	<h1 class="ss_head"><img src="<?php echo plugin_dir_url( dirname( __FILE__ ) ) . 'images/stop-spammers-icon.png'; ?>" class="ss_icon">Challenge & Block</h1>
+	<h1 class="ss_head"><img src="<?php echo esc_url( plugin_dir_url( dirname( __FILE__ ) ) . 'images/stop-spammers-icon.png' ); ?>" class="ss_icon">Challenge & Block</h1>
 	<?php if ( !empty( $update ) ) {
-		echo "$update";
+		echo wp_kses_post( "$update" );
 	} ?>
 	<?php if ( !empty( $msg ) ) {
-		echo '<span style="color:red;font-size:1.2em">' . $msg . '</span>';
+		echo '<span style="color:red;font-size:1.2em">' . wp_kses_post( $msg ) . '</span>';
 	} ?>
 	<form method="post" action="">
-		<input type="hidden" name="ss_stop_spammers_control" value="<?php echo $nonce; ?>">
+		<input type="hidden" name="ss_stop_spammers_control" value="<?php echo esc_html( $nonce ); ?>">
 		<input type="hidden" name="action" value="update challenge">
 		<br>
 		<div class="mainsection">Access Blocked Message
 			<sup class="ss_sup"><a href="https://github.com/webguyio/stop-spammers/wiki/Docs:-Challenge-&-Block#access-blocked-message" target="_blank">?</a></sup>
 		</div>
-		<textarea id="rejectmessage" name="rejectmessage" cols="40" rows="5"><?php echo $rejectmessage; ?></textarea>
+		<textarea id="rejectmessage" name="rejectmessage" cols="40" rows="5"><?php echo wp_kses_post( $rejectmessage ); ?></textarea>
 		<br>
 		<div class="mainsection">Routing and Notifications
 			<sup class="ss_sup"><a href="https://github.com/webguyio/stop-spammers/wiki/Docs:-Challenge-&-Block#send-visitor-to-another-web-page" target="_blank">?</a></sup>
@@ -148,7 +148,7 @@ $nonce = wp_create_nonce( 'ss_stopspam_update' );
 		</div>
 		<br>
 		<span id="ss_show_option" style="margin-bottom:15px;display:none">Redirect URL:
-		<input size="77" name="redirurl" type="text" placeholder="e.g. https://example.com/privacy-policy/" value="<?php echo $redirurl; ?>"></span>
+		<input size="77" name="redirurl" type="text" placeholder="e.g. https://example.com/privacy-policy/" value="<?php echo esc_url( $redirurl ); ?>"></span>
 		<script>
 		function ss_show_option() {
 			var checkBox = document.getElementById("redir");
@@ -176,7 +176,7 @@ $nonce = wp_create_nonce( 'ss_stopspam_update' );
 		</div>
 		<br>
 		<span id="ss_show_notify" style="margin-bottom:15px;display:none">(Optional) Specify where email requests are sent:
-		<input id="ssinput" size="48" name="wlreqmail" type="text" value="<?php echo $wlreqmail; ?>"></span>
+		<input id="ssinput" size="48" name="wlreqmail" type="text" value="<?php echo esc_attr( $wlreqmail ); ?>"></span>
 		<script>
 		function ss_show_notify() {
 			var checkBox = document.getElementById("notify");
@@ -203,7 +203,7 @@ $nonce = wp_create_nonce( 'ss_stopspam_update' );
 		<div>
 			<?php
 			if ( !empty( $msg ) ) {
-				echo '<span style="color:red;font-size:1.2em">' . $msg . '</span>';
+				echo '<span style="color:red;font-size:1.2em">' . wp_kses_post( $msg ) . '</span>';
 			}
 			?>
 		</div>

@@ -61,10 +61,10 @@ $nonce = wp_create_nonce( 'ss_stopspam_update' );
 ?>
 
 <div id="ss-plugin" class="wrap">
-	<h1 class="ss_head"><img src="<?php echo plugin_dir_url( dirname( __FILE__ ) ) . 'images/stop-spammers-icon.png'; ?>" class="ss_icon">Cache</h1>
+	<h1 class="ss_head"><img src="<?php echo esc_url( plugin_dir_url( dirname( __FILE__ ) ) . 'images/stop-spammers-icon.png' ); ?>" class="ss_icon">Cache</h1>
 	<?php
 	if ( !empty( $msg ) ) {
-		echo $msg;
+		echo wp_kses_post( $msg );
 	} ?>
 	<br>
 	<div class="ss_info_box">
@@ -77,7 +77,7 @@ $nonce = wp_create_nonce( 'ss_stopspam_update' );
 	'; ?>
 	<form method="post" action="">
 		<input type="hidden" name="update_options" value="update">
-		<input type="hidden" name="ss_stop_spammers_control" value="<?php echo $nonce; ?>">
+		<input type="hidden" name="ss_stop_spammers_control" value="<?php echo esc_html( $nonce ); ?>">
 		<label class="keyhead">
 			Bad IP Cache Size
 			<br>
@@ -119,7 +119,7 @@ $nonce = wp_create_nonce( 'ss_stopspam_update' );
 		?>
 		<h2>Cached Values</h2>
 		<form method="post" action="">
-			<input type="hidden" name="ss_stop_spammers_control" value="<?php echo $nonce; ?>">
+			<input type="hidden" name="ss_stop_spammers_control" value="<?php echo esc_html( $nonce ); ?>">
 			<input type="hidden" name="ss_stop_clear_cache" value="true">
 			<p class="submit"><input class="button-primary" value="Clear the Cache" type="submit"></p>
 		</form>
@@ -149,7 +149,7 @@ $nonce = wp_create_nonce( 'ss_stopspam_update' );
 						// use the be_load to get badips
 						$show = be_load( 'ss_get_bcache', 'x', $stats,
 							$options );
-						echo $show;
+						echo wp_kses_post( $show );
 						?></td>
 					<?php
 				}
@@ -162,7 +162,7 @@ $nonce = wp_create_nonce( 'ss_stopspam_update' );
 						// use the be_load to get badips
 						$show = be_load( 'ss_get_gcache', 'x', $stats,
 							$options );
-						echo $show;
+						echo wp_kses_post( $show );
 						?></td>
 					<?php
 				}

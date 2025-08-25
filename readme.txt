@@ -6,7 +6,7 @@ Tags: spam, security, anti-spam, spam protection, no spam
 Tested up to: 6.8
 Requires at least: 3.0
 Requires PHP: 5.0
-Stable tag: 3000
+Stable tag: 2025
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl.html
 
@@ -18,7 +18,7 @@ A simplified, restored, and preserved version of the original Stop Spammers plug
 
 Development for Stop Spammers has slowed down. I recommend switching to the new fork [Dam Spam](https://damspam.com/).
 
-[Why, what happened?](https://github.com/webguyio/stop-spammers/issues/188)
+[Why, what happened?](https://github.com/webguyio/dam-spam/issues/8)
 
 However, rest-assured that if you can't or won't migrate to Dam Spam, I'll still continue making sure that Stop Spammers is stable, safe, and supported.
 
@@ -64,10 +64,16 @@ Toggle off the "Check Credentials on All Login Attempts" option and try again.
 
 Yes. See: [https://law.stackexchange.com/questions/28603/how-to-satisfy-gdprs-consent-requirement-for-ip-logging](https://law.stackexchange.com/questions/28603/how-to-satisfy-gdprs-consent-requirement-for-ip-logging). Stop Spammers does not collect any data for any other purpose (like marketing or tracking). It is purely for legitimate security purposes only. Additionally, if any of your users ever requested it, all data can be deleted.
 
+= What third-party services are used and what data is sent to them? =
+
+There are several optional services you may use that involve sending data to third parties including: [Google reCAPTCHA](https://policies.google.com/privacy), [hCaptcha](https://www.hcaptcha.com/privacy), [2Captcha](https://2captcha.com/privacy-policy), [Spamhaus](https://www.spamhaus.org/privacy-notice/), [Stop Forum Spam](https://www.stopforumspam.com/privacy), [Project Honeypot](https://www.projecthoneypot.org/privacy_policy.php), and [BotScout](https://botscout.com/w3c/privacy.htm). You may wish to read each services' privacy policy to see if you're comfortable using them, but generally speaking, whenever someone for example tries to use a contact form on your website, their IP address, name, and email may be sent to these services to check against spam blocklists.
+
 == Changelog ==
 
-= 3000 =
+= 2025 =
 * Recovered version, which has been cleaned up
 
 = 2024.7 =
 * Previous version, which I still consider safe to use
+
+Credits: Created and maintained by Keith P. Graham (@kpgraham) from 2010-2017. Adopted and maintained by Web Guy (@bhadaway) from 2017-2025.

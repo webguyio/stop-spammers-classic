@@ -21,7 +21,7 @@ $now	  = date( 'Y/m/d H:i:s', time() + ( get_option( 'gmt_offset' ) * 3600 ) );
 ?>
 
 <div id="ss-plugin" class="wrap">
-	<h1 class="ss_head"><img src="<?php echo plugin_dir_url( dirname( __FILE__ ) ) . 'images/stop-spammers-icon.png'; ?>" class="ss_icon">Log Report</h1>
+	<h1 class="ss_head"><img src="<?php echo esc_url( plugin_dir_url( dirname( __FILE__ ) ) . 'images/stop-spammers-icon.png' ); ?>" class="ss_icon">Log Report</h1>
 	<?php
 	// $ip=ss_get_ip();
 	$stats = ss_get_stats();
@@ -59,17 +59,17 @@ $now	  = date( 'Y/m/d H:i:s', time() + ( get_option( 'gmt_offset' ) * 3600 ) );
 		}
 	}
 	if ( !empty( $msg ) ) {
-		echo $msg;
+		echo wp_kses_post( $msg );
 	}
 	$num_comm = wp_count_comments();
 	$num	  = number_format_i18n( $num_comm->spam );
 	if ( $num_comm->spam > 0 && SS_MU != 'Y' ) { ?>
-		<p><?php echo 'There are <a href="edit-comments.php?comment_status=spam">' . $num . '</a> spam comments waiting for you to report them.'; ?></p>
+		<p><?php echo 'There are <a href="edit-comments.php?comment_status=spam">' . esc_html( $num ) . '</a> spam comments waiting for you to report them.'; ?></p>
 	<?php }
 	$num_comm = wp_count_comments();
 	$num	  = number_format_i18n( $num_comm->moderated );
 	if ( $num_comm->moderated > 0 && SS_MU != 'Y' ) { ?>
-		<p><?php echo 'There are <a href="edit-comments.php?comment_status=moderated">' . $num . '</a> comments waiting to be moderated.'; ?></p>
+		<p><?php echo 'There are <a href="edit-comments.php?comment_status=moderated">' . esc_html( $num ) . '</a> comments waiting to be moderated.'; ?></p>
 	<?php }
 	$nonce = wp_create_nonce( 'ss_stopspam_update' );
 	?>
@@ -79,7 +79,7 @@ $now	  = date( 'Y/m/d H:i:s', time() + ( get_option( 'gmt_offset' ) * 3600 ) );
 	}, 10000);
 	</script> -->
 	<form method="post" action="">
-		<input type="hidden" name="ss_stop_spammers_control" value="<?php echo $nonce; ?>">
+		<input type="hidden" name="ss_stop_spammers_control" value="<?php echo esc_html( $nonce ); ?>">
 		<input type="hidden" name="ss_stop_update_log_size" value="true">
 		<h2>History Size</h2>
 		Select the number of events to save in the history.<br>
@@ -95,7 +95,7 @@ $now	  = date( 'Y/m/d H:i:s', time() + ( get_option( 'gmt_offset' ) * 3600 ) );
 			<input class="button-primary" value="Update Log Size" type="submit">
 		</p>
 		<form method="post" action="">
-			<input type="hidden" name="ss_stop_spammers_control" value="<?php echo $nonce; ?>">
+			<input type="hidden" name="ss_stop_spammers_control" value="<?php echo esc_html( $nonce ); ?>">
 			<input type="hidden" name="ss_stop_clear_hist" value="true">
 			<p class="submit"><input class="button-primary" value="Clear Recent Activity" type="submit"></p>
 		</form>
@@ -152,32 +152,32 @@ $now	  = date( 'Y/m/d H:i:s', time() + ( get_option( 'gmt_offset' ) * 3600 ) );
 				$who		 = '<br><a title="Look Up WHOIS" target="_stopspam" href="https://whois.domaintools.com/' . $ip . '"><img src="' . $whois . '" class="icon-action"></a>';
 				echo '
 					<tr style="background-color:white">
-					<td>' . $dt . '</td>
-					<td>' . $em . '</td>
-					<td>' . $ip, $who, $stopper, $honeysearch, $botsearch . '';
+					<td>' . wp_kses_post( $dt ) . '</td>
+					<td>' . wp_kses_post( $em ) . '</td>
+					<td>' . wp_kses_post( $ip ), wp_kses_post( $who ), wp_kses_post( $stopper ), wp_kses_post( $honeysearch ), wp_kses_post( $botsearch );
 				if ( stripos( $reason, 'passed' ) !== false && ( $id == '/' || strpos( $id, 'login' ) ) !== false || strpos( $id, 'register' ) !== false && !in_array( $ip, $blist ) && !in_array( $ip, $wlist ) ) {
 					$ajaxurl = admin_url( 'admin-ajax.php' );
-					echo '<a href="" onclick="sfs_ajax_process(\'' . $ip . '\',\'log\',\'add_black\',\'' . $ajaxurl . '\');return false;" title="Add to Block List" alt="Add to Block List"><img src="' . $tdown . '" class="icon-action"></a>';
+					echo '<a href="" onclick="sfs_ajax_process(\'' . esc_attr( $ip ) . '\',\'log\',\'add_black\',\'' . esc_url( $ajaxurl ) . '\');return false;" title="Add to Block List" alt="Add to Block List"><img src="' . esc_url( $tdown ) . '" class="icon-action"></a>';
 					$options = get_option( 'ss_stop_sp_reg_options' );
 					$apikey  = $options['apikey'];
 					if ( !empty( $apikey ) && !empty( $em ) ) {
 						$href = 'href="#"';
 						$onclick = 'onclick="sfs_ajax_report_spam(this,\'registration\',\'' . $blog . '\',\'' . $ajaxurl . '\',\'' . $em . '\',\'' . $ip . '\',\'' . $au . '\');return false;"';
 						echo '| ';
-						echo '<a title="Report to Stop Forum Spam (SFS)" ' . $href, $onclick . ' class="delete:the-comment-list:comment-$id::delete=1 delete vim-d vim-destructive">Report to SFS</a>';
+						echo '<a title="Report to Stop Forum Spam (SFS)" ' . wp_kses_post( $href ), wp_kses_post( $onclick ) . ' class="delete:the-comment-list:comment-$id::delete=1 delete vim-d vim-destructive">Report to SFS</a>';
 					}
 				}
 				echo '
-					</td><td>' . $au . '</td>
-					<td>' . $id . '</td>
-					<td>' . $reason . '</td>';
+					</td><td>' . wp_kses_post( $au ) . '</td>
+					<td>' . wp_kses_post( $id ) . '</td>
+					<td>' . wp_kses_post( $reason ) . '</td>';
 				if ( function_exists( 'is_multisite' ) && is_multisite() ) {
 					// switch to blog and back
 					$blogname  = get_blog_option( $blog, 'blogname' );
 					$blogadmin = esc_url( get_admin_url( $blog ) );
 					$blogadmin = trim( $blogadmin, '/' );
 					echo '<td style="font-size:.9em;padding:2px" align="center">';
-					echo '<a href="' . $blogadmin . '/edit-comments.php">' . $blogname . '</a>';
+					echo '<a href="' . esc_url( $blogadmin ) . '/edit-comments.php">' . esc_html( $blogname ) . '</a>';
 					echo '</td>';
 				}
 				echo '</tr>';

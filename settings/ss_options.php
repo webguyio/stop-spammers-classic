@@ -240,15 +240,15 @@ $nonce = wp_create_nonce( 'ss_stopspam_update' );
 
 <!-- <sup class="ss_sup"><?php echo 'NEW!'; ?></sup> -->
 <div id="ss-plugin" class="wrap">
-	<h1 class="ss_head"><img src="<?php echo plugin_dir_url( dirname( __FILE__ ) ) . 'images/stop-spammers-icon.png'; ?>" class="ss_icon">Protection Options</h1>
+	<h1 class="ss_head"><img src="<?php echo esc_url( plugin_dir_url( dirname( __FILE__ ) ) . 'images/stop-spammers-icon.png' ); ?>" class="ss_icon">Protection Options</h1>
 	<br>
 	<?php if ( !empty( $msg ) ) {
-		echo $msg;
+		echo wp_kses_post( $msg );
 	} ?>
 	<br>
 	<form method="post" action="" name="ss">
 		<input type="hidden" name="action" value="update">
-		<input type="hidden" name="ss_stop_spammers_control" value="<?php echo $nonce; ?>">
+		<input type="hidden" name="ss_stop_spammers_control" value="<?php echo esc_html( $nonce ); ?>">
 		<div id="formchecking" class="mainsection">Form Checking
 			<sup class="ss_sup"><a href="https://github.com/webguyio/stop-spammers/wiki/Docs:-Protection-Options#form-checking" target="_blank">?</a></sup>
 		</div>

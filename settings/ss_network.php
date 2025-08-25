@@ -14,7 +14,7 @@ ss_fix_post_vars();
 ?>
 
 <div id="ss-plugin" class="wrap">
-	<h1 class="ss_head"><img src="<?php echo plugin_dir_url( dirname( __FILE__ ) ) . 'images/stop-spammers-icon.png'; ?>" class="ss_icon">Multisite</h1>
+	<h1 class="ss_head"><img src="<?php echo esc_url( plugin_dir_url( dirname( __FILE__ ) ) . 'images/stop-spammers-icon.png' ); ?>" class="ss_icon">Multisite</h1>
 	<?php
 	$now	  = date( 'Y/m/d H:i:s', time() + ( get_option( 'gmt_offset' ) * 3600 ) );
 	// $ip=ss_get_ip();
@@ -47,7 +47,7 @@ ss_fix_post_vars();
 	$nonce = wp_create_nonce( 'ss_stopspam_update' );
 	?>
 	<form method="post" action="">
-		<input type="hidden" name="ss_stop_spammers_control" value="<?php echo $nonce; ?>">
+		<input type="hidden" name="ss_stop_spammers_control" value="<?php echo esc_html( $nonce ); ?>">
 		<input type="hidden" name="action" value="update mu settings">
 		<span style="font-weight:bold;font-size:1.2em">Network Blog Option</span>
 		<p>Networked ON: <input name="muswitch" type="radio" value='Y' <?php if ( $muswitch == 'Y' ) { echo 'checked="true"'; } ?>>

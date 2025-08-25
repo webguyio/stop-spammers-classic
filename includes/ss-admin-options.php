@@ -95,12 +95,12 @@ function ss_sp_rightnow() {
 	$options = ss_get_options();
 	if ( $spmcount > 0 ) {
 		// get the path to the plugin
-		echo '<p>Stop Spammers has prevented <strong>' . $spmcount . '</strong> spammers from registering or leaving comments.</p>';
+		echo '<p>Stop Spammers has prevented <strong>' . esc_html( $spmcount ) . '</strong> spammers from registering or leaving comments.</p>';
 	}
 	if ( count( $wlrequests ) == 1 ) {
-		echo '<p><strong>' . count( $wlrequests ) . '</strong> ' . 'user has been blocked and <a href="admin.php?page=ss_allow_list">requested</a> that you add them to the Allow List.</p>';
+		echo '<p><strong>' . esc_html( count( $wlrequests ) ) . '</strong> ' . 'user has been blocked and <a href="admin.php?page=ss_allow_list">requested</a> that you add them to the Allow List.</p>';
 	} else if ( count( $wlrequests ) > 0 ) {
-		echo '<p><strong>' . count( $wlrequests ) . '</strong> ' . 'users have been blocked and <a href="admin.php?page=ss_allow_list">requested</a> that you add them to the Allow List.</p>';
+		echo '<p><strong>' . esc_html( count( $wlrequests ) ) . '</strong> ' . 'users have been blocked and <a href="admin.php?page=ss_allow_list">requested</a> that you add them to the Allow List.</p>';
 	}
 }
 
@@ -233,7 +233,7 @@ function sfs_handle_ajax_sub( $data ) {
 		);
 	} else {
 		if ( empty( $comment ) ) {
-			echo ' No Comment Found for ' . $comment_id . '';
+			echo ' No Comment Found for ' . esc_html( $comment_id );
 			exit();
 		}
 	}
@@ -283,11 +283,11 @@ function sfs_handle_ajax_sub( $data ) {
 	// echo $hget;
 	$ret  = ss_read_file( $hget );
 	if ( stripos( $ret, 'data submitted successfully' ) !== false ) {
-		echo $ret;
+		echo esc_html( $ret );
 	} else if ( stripos( $ret, 'recent duplicate entry' ) !== false ) {
 		echo ' Recent Duplicate Entry ';
 	} else {
-		echo ' Returning from AJAX: ' . $hget . ' - ' . $ret;
+		echo ' Returning from AJAX: ' . esc_html( $hget ) . ' - ' . esc_html( $ret );
 	}
 	exit();
 }
@@ -334,13 +334,13 @@ function sfs_handle_ajax_check( $data ) {
 		$check = trim( $check, '0' );
 		if ( substr( $check, 0, 4 ) == "ERR:" ) {
 			echo ' Access to the Stop Forum Spam Database Shows Errors\r\n';
-			echo ' Response Was: ' . $check . '\r\n';
+			echo ' Response Was: ' . esc_html( $check ) . '\r\n';
 		}
 		// access to the Stop Forum Spam database is working
 		$n = strpos( $check, '<response success="true">' );
 		if ( $n === false ) {
 			echo ' Access to the Stop Forum Spam Database is Not Working\r\n';
-			echo ' Response was\r\n ' . $check . '\r\n';
+			echo ' Response was\r\n ' . esc_html( $check ) . '\r\n';
 		} else {
 			echo ' Access to the Stop Forum Spam Database is Working';
 		}
@@ -392,14 +392,14 @@ function sfs_handle_ajax_sfs_process_watch( $data ) {
 			// deletes a Good Cache item
 			$ansa = be_load( 'ss_remove_gcache', $ip, $stats, $options );
 			$show = be_load( 'ss_get_gcache', 'x', $stats, $options );
-			echo $show;
+			echo wp_kses_post( $show );
 			exit();
 			break;
 		case 'delete_bcache':
 			// deletes a Bad Cache item
 			$ansa = be_load( 'ss_remove_bcache', $ip, $stats, $options );
 			$show = be_load( 'ss_get_bcache', 'x', $stats, $options );
-			echo $show;
+			echo wp_kses_post( $show );
 			exit();
 			break;
 		case 'add_black':
@@ -427,21 +427,21 @@ function sfs_handle_ajax_sfs_process_watch( $data ) {
 			break;
 		case 'delete_wl_row': // this is from the Allow Requests list
 			$ansa = be_load( 'ss_get_alreq', $ip, $stats, $options );
-			echo $ansa;
+			echo wp_kses_post( $ansa );
 			exit();
 			break;
 		case 'delete_wlip': // this is from the Allow Requests list
 			$ansa = be_load( 'ss_get_alreq', $ip, $stats, $options );
-			echo $ansa;
+			echo wp_kses_post( $ansa );
 			exit();
 			break;
 		case 'delete_wlem': // this is from the Allow Requests list
 			$ansa = be_load( 'ss_get_alreq', $ip, $stats, $options );
-			echo $ansa;
+			echo wp_kses_post( $ansa );
 			exit();
 			break;
 		default:
-			echo '\r\n\r\nUnrecognized function "' . $func . '"';
+			echo '\r\n\r\nUnrecognized function "' . esc_html( $func ) . '"';
 			exit();
 	}
 	$ajaxurl  = admin_url( 'admin-ajax.php' );
@@ -449,21 +449,21 @@ function sfs_handle_ajax_sfs_process_watch( $data ) {
 	switch ( $container ) {
 		case 'badips':
 			$show = be_load( 'ss_get_bcache', 'x', $stats, $options );
-			echo $show;
+			echo wp_kses_post( $show );
 			exit();
 			break;
 		case 'goodips':
 			$show = be_load( 'ss_get_gcache', 'x', $stats, $options );
-			echo $show;
+			echo wp_kses_post( $show );
 			exit();
 			break;
 		case 'wlreq':
 			$ansa = be_load( 'ss_get_alreq', $ip, $stats, $options );
-			echo $ansa;
+			echo wp_kses_post( $ansa );
 			exit();
 		default:
 			// coming from logs report we need to display an appropriate message, I think
-			echo 'Something is missing ' . $container . ' ';
+			echo 'Something is missing ' . wp_kses_post( $container ) . ' ';
 			exit();
 	}
 }

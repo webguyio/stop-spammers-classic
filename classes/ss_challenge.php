@@ -87,7 +87,7 @@ class ss_challenge extends be_module {
 				}
 				if ( empty( $chkcaptcha ) || $chkcaptcha == 'N' ) {
 					// send out the thank you message
-					wp_die( $msg, "Stop Spammers", array( 'response' => 200 ) );
+					wp_die( esc_html( $msg ), "Stop Spammers", array( 'response' => 200 ) );
 					exit();
 				}
 				// they submitted a CAPTCHA
@@ -349,9 +349,9 @@ class ss_challenge extends be_module {
 		// have a display
 		// need to send it to the display
 		if ( empty( $msg ) ) {
-			$msg = html_entity_decode($rejectmessage);
-			$msg = str_replace('[ip]', $ip, $msg);
-			$msg = str_replace('[reason]', $post['reason'], $msg);
+			$msg = html_entity_decode( $rejectmessage );
+			$msg = str_replace( '[ip]', $ip, $msg );
+			$msg = str_replace( '[reason]', $post['reason'], $msg );
 		}
 		$ansa = "
 			$msg
@@ -362,7 +362,7 @@ class ss_challenge extends be_module {
 			$capbot
 			$formbot
 		";
-		wp_die( $ansa, "Stop Spammers", array( 'response' => 200 ) );
+		wp_die( wp_kses_post( $ansa ), "Stop Spammers", array( 'response' => 200 ) );
 		exit();
 	}
 

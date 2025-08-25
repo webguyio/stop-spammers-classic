@@ -85,9 +85,9 @@ $nonce = wp_create_nonce( 'ss_stopspam_update' );
 ?>
 
 <div id="ss-plugin" class="wrap">
-	<h1 class="ss_head"><img src="<?php echo plugin_dir_url( dirname( __FILE__ ) ) . 'images/stop-spammers-icon.png'; ?>" class="ss_icon">Allow Requests & Lists</h1>
+	<h1 class="ss_head"><img src="<?php echo esc_url( plugin_dir_url( dirname( __FILE__ ) ) . 'images/stop-spammers-icon.png' ); ?>" class="ss_icon">Allow Requests & Lists</h1>
 	<?php if ( !empty( $msg ) ) {
-		echo $msg;
+		echo wp_kses_post( $msg );
 	} ?>
 	<br>
 	<br>
@@ -99,7 +99,7 @@ $nonce = wp_create_nonce( 'ss_stopspam_update' );
 		echo '<p><strong>There are currently no pending requests.</strong></p>';
 	} else { ?>
 	<form method="post" action="">
-		<input type="hidden" name="ss_stop_spammers_control" value="<?php echo $nonce; ?>">
+		<input type="hidden" name="ss_stop_spammers_control" value="<?php echo esc_html( $nonce ); ?>">
 		<input type="hidden" name="ss_stop_clear_wlreq" value="true">
 		<p class="submit"><input class="button-primary" value="Clear the Requests" type="submit"></p>
 	</form>
@@ -124,14 +124,14 @@ $nonce = wp_create_nonce( 'ss_stopspam_update' );
 			$options = ss_get_options();
 			$stats   = ss_get_stats();
 			$show	 = be_load( 'ss_get_alreq', 'x', $stats, $options );
-			echo $show;
+			echo wp_kses_post( $show );
 			?>
 		</tbody>
 	</table>
 	<?php } ?>
 	<form method="post" action="">
 		<input type="hidden" name="action" value="update">
-		<input type="hidden" name="ss_stop_spammers_control" value="<?php echo $nonce; ?>">
+		<input type="hidden" name="ss_stop_spammers_control" value="<?php echo esc_html( $nonce ); ?>">
 		<div class="mainsection">Personalized Allow List
 			<sup class="ss_sup"><a href="https://github.com/webguyio/stop-spammers/wiki/Docs:-Allow-Requests-&-Lists#personalized-allow-list" target="_blank">?</a></sup>
 		</div>
@@ -149,7 +149,7 @@ $nonce = wp_create_nonce( 'ss_stopspam_update' );
 		<br>
 		<textarea name="wlist" cols="40" rows="8" class="ipbox"><?php
 			for ( $k = 0; $k < count( $wlist ); $k ++ ) {
-				echo $wlist[$k] . "\r\n";
+				echo esc_html( $wlist[$k] ) . "\r\n";
 			}
 		?></textarea>
 		<br>

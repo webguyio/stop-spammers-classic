@@ -61,17 +61,17 @@ $nonce = wp_create_nonce( 'ss_stopspam_update' );
 ?>
 
 <div id="ss-plugin" class="wrap">
-	<h1 class="ss_head"><img src="<?php echo plugin_dir_url( dirname( __FILE__ ) ) . 'images/stop-spammers-icon.png'; ?>" class="ss_icon">Diagnostics & Threat Scan</h1>
+	<h1 class="ss_head"><img src="<?php echo esc_url( plugin_dir_url( dirname( __FILE__ ) ) . 'images/stop-spammers-icon.png' ); ?>" class="ss_icon">Diagnostics & Threat Scan</h1>
 	<form method="post" action="">
 		<div class="ss_info_box">
 			<input type="hidden" name="action" value="update">
-			<input type="hidden" name="ss_stop_spammers_control" value="<?php echo $nonce; ?>">
+			<input type="hidden" name="ss_stop_spammers_control" value="<?php echo esc_attr( $nonce ); ?>">
 			<div class="mainsection">Option Testing
 				<sup class="ss_sup"><a href="https://github.com/webguyio/stop-spammers/wiki/Docs:-Diagnostics-&-Threat-Scan#option-testing" target="_blank">?</a></sup>
 			</div>
 			<p>Run the settings against an IP address to see the results.</p>IP Address:<br>
 			<input id="ssinput" name="ip" type="text" value="<?php echo esc_attr( $ip ); ?>">
-			(Your server address is <?php echo $hip; ?>)<br><br>
+			(Your server address is <?php echo esc_html( $hip ); ?>)<br><br>
 			Email:<br>
 			<input id="ssinput" name="email" type="text" value="<?php echo esc_attr( $email ); ?>"><br><br>
 			Author/User:<br>
@@ -118,14 +118,14 @@ $nonce = wp_create_nonce( 'ss_stopspam_update' );
 					);
 					$m1 = memory_get_usage( true );
 					$m2 = memory_get_peak_usage( true );
-					echo '<br>Memory Used: ' . $m1 . ' Peak: ' . $m2 . '<br>';
+					echo '<br>Memory Used: ' . esc_html( $m1 ) . ' Peak: ' . esc_html( $m2 ) . '<br>';
 					echo '<ul>Allow Checks<br>';
 					foreach ( $optionlist as $chk ) {
 						$ansa = be_load( $chk, $ip, $stats, $options, $post );
 						if ( empty( $ansa ) ) {
 							$ansa = 'OK';
 						}
-						echo "$chk: $ansa<br>";
+						echo wp_kses_post( "$chk: $ansa<br>" );
 					}
 					echo "</ul>";
 					$optionlist = array(
@@ -163,14 +163,14 @@ $nonce = wp_create_nonce( 'ss_stopspam_update' );
 					);
 					$m1 = memory_get_usage( true );
 					$m2 = memory_get_peak_usage( true );
-					echo '<br>Memory Used: ' . $m1 . ' Peak: ' . $m2 . '<br>';
+					echo '<br>Memory Used: ' . esc_html( $m1 ) . ' Peak: ' . esc_html( $m2 ) . '<br>';
 					echo '<ul>Block Checks<br>';
 					foreach ( $optionlist as $chk ) {
 						$ansa = be_load( $chk, $ip, $stats, $options, $post );
 						if ( empty( $ansa ) ) {
 							$ansa = 'OK';
 						}
-						echo "$chk: $ansa<br>";
+						echo wp_kses_post( "$chk: $ansa<br>" );
 					}
 					echo "</ul>";
 					$optionlist = array();
@@ -186,13 +186,13 @@ $nonce = wp_create_nonce( 'ss_stopspam_update' );
 								$ansa = 'OK';
 							}
 							$nm = $chk[1];
-							echo "$nm: $ansa<br>";
+							echo wp_kses_post( "$nm: $ansa<br>" );
 						}
 						echo "</ul>";
 					}
 					$m1 = memory_get_usage( true );
 					$m2 = memory_get_peak_usage( true );
-					echo '<br>Memory Used: ' . $m1 . ' Peak: ' . $m2 . '<br>';
+					echo '<br>Memory Used: ' . esc_html( $m1 ) . ' Peak: ' . esc_html( $m2 ) . '<br>';
 				}
 				if ( array_key_exists( 'testcountry', $_POST ) ) {
 					$optionlist = array(
@@ -342,17 +342,17 @@ $nonce = wp_create_nonce( 'ss_stopspam_update' );
 					// SC - Seychelles
 					$m1 = memory_get_usage( true );
 					$m2 = memory_get_peak_usage( true );
-					echo '<br>Memory Used: ' . $m1 . ' Peak: ' . $m2 . '<br>';
+					echo '<br>Memory Used: ' . esc_html( $m1 ) . ' Peak: ' . esc_html( $m2 ) . '<br>';
 					foreach ( $optionlist as $chk ) {
 						$ansa = be_load( $chk, $ip, $stats, $options, $post );
 						if ( empty( $ansa ) ) {
 							$ansa = 'OK';
 						}
-						echo "$chk: $ansa<br>";
+						echo wp_kses_post( "$chk: $ansa<br>" );
 					}
 					$m1 = memory_get_usage( true );
 					$m2 = memory_get_peak_usage( true );
-					echo '<br>Memory Used: ' . $m1 . ' Peak: ' . $m2 . '<br>';
+					echo '<br>Memory Used: ' . esc_html( $m1 ) . ' Peak: ' . esc_html( $m2 ) . '<br>';
 				}
 			}
 			?>
@@ -386,7 +386,7 @@ $nonce = wp_create_nonce( 'ss_stopspam_update' );
 						if ( is_array( $val ) ) {
 							$val = print_r( $val, true );
 						}
-						echo "<strong>&bull; $key</strong> = $val\r\n";
+						echo wp_kses_post( "<strong>&bull; $key</strong> = $val\r\n" );
 					}
 					echo "\r\n";
 					echo '</pre>';
@@ -408,7 +408,7 @@ $nonce = wp_create_nonce( 'ss_stopspam_update' );
 						if ( is_array( $val ) ) {
 							$val = print_r( $val, true );
 						}
-						echo "<strong>&bull; $key</strong> = $val\r\n";
+						echo wp_kses_post( "<strong>&bull; $key</strong> = $val\r\n" );
 					}
 					echo "\r\n";
 					echo '</pre>';
@@ -455,14 +455,14 @@ $nonce = wp_create_nonce( 'ss_stopspam_update' );
 		<div style="width:50%;float:left">
 			<form method="post" action="">
 				<input type="hidden" name="update_options" value="update">
-				<input type="hidden" name="ss_stop_spammers_control" value="<?php echo $nonce; ?>">
+				<input type="hidden" name="ss_stop_spammers_control" value="<?php echo esc_html( $nonce ); ?>">
 				<p class="submit"><input class="button-primary" name="showdebug" value="Show Debug File" type="submit"></p>
 			</form>
 		</div>
 		<div style="width:50%;float:right">
 			<form method="post" action="">
 				<input type="hidden" name="update_options" value="update">
-				<input type="hidden" name="ss_stop_spammers_control" value="<?php echo $nonce; ?>">
+				<input type="hidden" name="ss_stop_spammers_control" value="<?php echo esc_html( $nonce ); ?>">
 				<p class="submit"><input class="button-primary" name="killdebug" value="Delete Debug File" type="submit"></p>
 			</form>
 		</div>
@@ -524,7 +524,7 @@ $nonce = wp_create_nonce( 'ss_stopspam_update' );
 		<p>A very simple scan that looks for things out of place in the content directory as well as the database.</p>
 		<form method="post" action="">
 			<input type="hidden" name="update_options" value="update">
-			<input type="hidden" name="ss_stop_spammers_control" value="<?php echo $nonce; ?>">
+			<input type="hidden" name="ss_stop_spammers_control" value="<?php echo esc_html( $nonce ); ?>">
 			<p class="submit"><input class="button-primary" value="Run Scan" type="submit"></p>
 		</form>
 	</div>
@@ -619,7 +619,7 @@ $nonce = wp_create_nonce( 'ss_stopspam_update' );
 				if ( strpos( strtolower( $myrow->post_mime_type ), 'script' ) !== false ) {
 					$reason .= "post_mime_type:script ";
 				}
-				echo 'found possible problems in post (' . $reason . ') ID: ' . $myrow->ID . '<br>';
+				echo 'found possible problems in post (' . esc_html( $reason ) . ') ID: ' . esc_html( $myrow->ID ) . '<br>';
 			}
 		} else {
 			echo '<br>Nothing found in posts.<br>';
@@ -715,7 +715,7 @@ $nonce = wp_create_nonce( 'ss_stopspam_update' );
 				if ( strpos( strtolower( $myrow->comment_content ), 'javascript:' ) !== false ) {
 					$reason .= "comment_content:javascript: ";
 				}
-				echo 'found possible problems in comment (' . $reason . ') ID' . $myrow->comment_ID . '<br>';
+				echo 'found possible problems in comment (' . esc_html( $reason ) . ') ID' . esc_html( $myrow->comment_ID ) . '<br>';
 			}
 		} else {
 			echo '<br>Nothing found in comments.<br>';
@@ -798,7 +798,7 @@ $nonce = wp_create_nonce( 'ss_stopspam_update' );
 				if ( strpos( strtolower( $myrow->link_url ), 'javascript:' ) !== false ) {
 					$reason .= "link_url:javascript: ";
 				}
-				echo 'found possible problems in links (' . $reason . ') ID:' . $myrow->link_ID . '<br>';
+				echo 'found possible problems in links (' . esc_html( $reason ) . ') ID:' . esc_html( $myrow->link_ID ) . '<br>';
 			}
 		} else {
 			echo '<br>Nothing found in links.<br>';
@@ -885,7 +885,7 @@ $nonce = wp_create_nonce( 'ss_stopspam_update' );
 				if ( strpos( strtolower( $myrow->user_url ), 'javascript:' ) !== false ) {
 					$reason .= "user_url:javascript: ";
 				}
-				echo 'found possible problems in Users (' . $reason . ') ID:' . $myrow->ID . '<br>';
+				echo 'found possible problems in Users (' . esc_html( $reason ) . ') ID:' . esc_html( $myrow->ID ) . '<br>';
 			}
 		} else {
 			echo '<br>Nothing found in users.<br>';
@@ -936,8 +936,8 @@ $nonce = wp_create_nonce( 'ss_stopspam_update' );
 						}
 					}
 				}
-				echo '<strong>Found possible problems in Option $name (' . $reason . ')</strong> option_id:'
-					 . $myrow->option_id . ', value: $line<br><br>';
+				echo '<strong>Found possible problems in Option $name (' . esc_html( $reason ) . ')</strong> option_id:'
+					 . esc_html( $myrow->option_id ) . ', value: $line<br><br>';
 			}
 		} else {
 			echo '<br>Nothing found in options.<br>';
@@ -996,9 +996,9 @@ $nonce = wp_create_nonce( 'ss_stopspam_update' );
 				if ( count( $ansa ) > 0 ) {
 					$disp = true;
 					// echo "Think we got something<br>";
-					echo '<li>' . $phparray[$j] . ' <br> ';
+					echo '<li>' . esc_html( $phparray[$j] ) . ' <br> ';
 					for ( $k = 0; $k < count( $ansa ); $k ++ ) {
-						echo $ansa[$k] . ' <br>';
+						echo wp_kses_post( $ansa[$k] ) . ' <br>';
 					}
 					echo '</li>';
 				}

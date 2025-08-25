@@ -133,15 +133,15 @@ $nonce = wp_create_nonce( 'ss_stopspam_update' );
 ?>
 
 <div id="ss-plugin" class="wrap">
-	<h1 class="ss_head"><img src="<?php echo plugin_dir_url( dirname( __FILE__ ) ) . 'images/stop-spammers-icon.png'; ?>" class="ss_icon">Block Lists</h1>
+	<h1 class="ss_head"><img src="<?php echo esc_url( plugin_dir_url( dirname( __FILE__ ) ) . 'images/stop-spammers-icon.png' ); ?>" class="ss_icon">Block Lists</h1>
 	<br>
 	<br>
 	<?php if ( !empty( $msg ) ) {
-		echo $msg;
+		echo wp_kses_post( $msg );
 	} ?>
 	<form method="post" action="">
 		<input type="hidden" name="action" value="update">
-		<input type="hidden" name="ss_stop_spammers_control" value="<?php echo $nonce; ?>">
+		<input type="hidden" name="ss_stop_spammers_control" value="<?php echo esc_html( $nonce ); ?>">
 		<div class="mainsection">Personalized Block List
 			<sup class="ss_sup"><a href="https://github.com/webguyio/stop-spammers/wiki/Docs:-Block-Lists#personalized-block-list" target="_blank">?</a></sup>
 		</div>
@@ -155,7 +155,7 @@ $nonce = wp_create_nonce( 'ss_stopspam_update' );
 		<br>
 		<textarea name="blist" cols="40" rows="8"><?php
 			foreach ( $blist as $p ) {
-				echo $p . "\r\n";
+				echo esc_html( $p ) . "\r\n";
 			}
 		?></textarea>
 		<br>
@@ -172,7 +172,7 @@ $nonce = wp_create_nonce( 'ss_stopspam_update' );
 		<br>
 		<textarea name="spamwords" cols="40" rows="8"><?php
 			foreach ( $spamwords as $p ) {
-				echo $p . "\r\n";
+				echo esc_html( $p ) . "\r\n";
 			}
 		?></textarea>
 		<br>
@@ -189,7 +189,7 @@ $nonce = wp_create_nonce( 'ss_stopspam_update' );
 		<br>
 		<textarea name="blockurlshortners" cols="40" rows="8"><?php
 			foreach ( $blockurlshortners as $p ) {
-				echo $p . "\r\n";
+				echo esc_html( $p ) . "\r\n";
 			}
 		?></textarea>
 		<div class="mainsection">Check for URLs
@@ -214,7 +214,7 @@ $nonce = wp_create_nonce( 'ss_stopspam_update' );
 		<br>
 		<textarea name="badagents" cols="40" rows="8"><?php
 			foreach ( $badagents as $p ) {
-				echo $p . "\r\n";
+				echo esc_html( $p ) . "\r\n";
 			}
 		?></textarea>
 		<br>
@@ -225,7 +225,7 @@ $nonce = wp_create_nonce( 'ss_stopspam_update' );
 		<?php echo '<p>Enter the TLD name including the period (for example .xxx). A TLD is the last part of a domain like .com or .net.</p>'; ?>
 		<textarea name="badTLDs" cols="40" rows="8"><?php
 			foreach ( $badTLDs as $p ) {
-				echo $p . "\r\n";
+				echo esc_html( $p ) . "\r\n";
 			}
 		?></textarea>
 		<br>

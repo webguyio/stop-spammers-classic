@@ -161,7 +161,7 @@ function include_setting( $file ) {
 	if ( file_exists( $ppath . $file ) ) {
 		require_once( $ppath . $file );
 	} else {
-		echo '<br>Missing File: ' . $ppath, $file . ' <br>';
+		echo '<br>Missing File: ' . esc_html( $ppath ), esc_html( $file ) . ' <br>';
 	}
 	sfs_errorsonoff( 'off' );
 }
