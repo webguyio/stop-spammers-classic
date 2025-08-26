@@ -209,7 +209,7 @@ function sfs_handle_ajax_sub( $data ) {
 	// print_r( $options );
 	extract( $options );
 	// get the comment_id parameter
-	$comment_id = sanitize_text_field( urlencode( $_GET['comment_id'] ) );
+	$comment_id = sanitize_text_field( urlencode( wp_unslash( $_GET['comment_id'] ) ) );
 	if ( empty( $comment_id ) ) {
 		echo ' No Comment ID Found';
 		exit();
@@ -225,9 +225,9 @@ function sfs_handle_ajax_sub( $data ) {
 	$comment = get_comment( $comment_id, ARRAY_A );
 	if ( $comment_id == 'registration' ) {
 		$comment = array(
-			'comment_author_email' => sanitize_email( $_GET['email'] ),
-			'comment_author'	   => sanitize_user( $_GET['user'] ),
-			'comment_author_IP'	   => sanitize_text_field( $_GET['ip'] ),
+			'comment_author_email' => sanitize_email( wp_unslash( $_GET['email'] ) ),
+			'comment_author'	   => sanitize_user( wp_unslash( $_GET['user'] ) ),
+			'comment_author_IP'	   => sanitize_text_field( wp_unslash( $_GET['ip'] ) ),
 			'comment_content'	   => 'registration',
 			'comment_author_url'   => ''
 		);
@@ -376,10 +376,10 @@ function sfs_handle_ajax_sfs_process_watch( $data ) {
 	$tdown	   = SS_PLUGIN_URL . 'images/tdown.png';
 	$tup	   = SS_PLUGIN_URL . 'images/tup.png'; // fix this
 	$whois	   = SS_PLUGIN_URL . 'images/whois.png'; // fix this
-	$ip		   = sanitize_text_field( $_GET['ip'] );
-	$email	   = sanitize_email( $_GET['email'] );
-	$container = sanitize_text_field( $_GET['cont'] );
-	$func	   = sanitize_text_field( $_GET['func'] );
+	$ip		   = sanitize_text_field( wp_unslash( $_GET['ip'] ) );
+	$email	   = sanitize_email( wp_unslash( $_GET['email'] ) );
+	$container = sanitize_text_field( wp_unslash( $_GET['cont'] ) );
+	$func	   = sanitize_text_field( wp_unslash( $_GET['func'] ) );
 	// echo "error $ip, $func, $container," . print_r( $_GET, true ) ;exit();
 	// container is blank, goodips, badips or log
 	// func is add_black, add_white, delete_gcache or delete_bcache

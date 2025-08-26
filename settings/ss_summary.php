@@ -17,7 +17,7 @@ if ( class_exists( 'Jetpack' ) && Jetpack::is_module_active( 'protect' ) ) {
 ss_fix_post_vars();
 $stats = ss_get_stats();
 extract( $stats );
-$now = date( 'Y/m/d H:i:s', time() + ( get_option( 'gmt_offset' ) * 3600 ) );
+$now = gmdate( 'Y/m/d H:i:s', time() + ( get_option( 'gmt_offset' ) * 3600 ) );
 
 // counter list - this should be copied from the get option utility
 // counters should have the same name as the YN switch for the check
@@ -216,7 +216,7 @@ $message  = '';
 $nonce	  = '';
 
 if ( array_key_exists( 'ss_stop_spammers_control', $_POST ) ) {
-	$nonce = $_POST['ss_stop_spammers_control'];
+	$nonce = sanitize_text_field( wp_unslash( $_POST['ss_stop_spammers_control'] ) );
 }
 
 if ( wp_verify_nonce( $nonce, 'ss_stopspam_update' ) ) {
@@ -231,8 +231,8 @@ if ( wp_verify_nonce( $nonce, 'ss_stopspam_update' ) ) {
 		extract( $stats ); // extract again to get the new options
 	}
 	if ( array_key_exists( 'update_total', $_POST ) ) {
-		$stats['spmcount'] = sanitize_text_field( $_POST['spmcount'] );
-		$stats['spmdate']  = sanitize_text_field( $_POST['spmdate'] );
+		$stats['spmcount'] = sanitize_text_field( wp_unslash( $_POST['spmcount'] ) );
+		$stats['spmdate']  = sanitize_text_field( wp_unslash( $_POST['spmdate'] ) );
 		ss_set_stats( $stats );
 		extract( $stats ); // extract again to get the new options
 	}
@@ -281,11 +281,11 @@ $nonce = wp_create_nonce( 'ss_stopspam_update' );
 	// need the current guy
 	$sname = '';
 	if ( isset( $_SERVER['REQUEST_URI'] ) ) {
-		$sname = $_SERVER["REQUEST_URI"];
+		$sname = sanitize_text_field( wp_unslash( $_SERVER["REQUEST_URI"] ) );
 	}
 	if ( empty( $sname ) ) {
-		$_SERVER['REQUEST_URI'] = $_SERVER['SCRIPT_NAME'];
-		$sname			  	    = $_SERVER["SCRIPT_NAME"];
+		$_SERVER['REQUEST_URI'] = sanitize_text_field( wp_unslash( $_SERVER['SCRIPT_NAME'] ) );
+		$sname			  	    = sanitize_text_field( wp_unslash( $_SERVER["SCRIPT_NAME"] ) );
 	}
 	if ( strpos( $sname, '?' ) !== false ) {
 		$sname = substr( $sname, 0, strpos( $sname, '?' ) );
@@ -350,7 +350,7 @@ $nonce = wp_create_nonce( 'ss_stopspam_update' );
 		extract( $options );
 	}
 	function ss_force_reset_options() {
-		$ss_opt = sanitize_text_field( $_POST['ss_opt'] );
+		$ss_opt = sanitize_text_field( wp_unslash( $_POST['ss_opt'] ) );
 		if ( !wp_verify_nonce( $ss_opt, 'ss_options' ) ) {	
 			echo 'Session Timeout — Please Refresh the Page';
 			exit;

@@ -19,7 +19,7 @@ class chkakismet {
 		if ( empty( $api_key ) ) {
 			return false;
 		}
-		$agent   = $_SERVER['HTTP_USER_AGENT'];
+		$agent   = sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) );
 		$blogurl = site_url();
 		$api_key = urlencode( $api_key );
 		$agent   = urlencode( $agent );
@@ -27,7 +27,7 @@ class chkakismet {
 		if ( empty( $api_key ) || empty( $agent ) || empty( $blogurl ) ) {
 			return false;
 		}
-		$refer	 = $_SERVER['HTTP_REFERER'];
+		$refer	 = sanitize_text_field( wp_unslash( $_SERVER['HTTP_REFERER'] ) );
 		$data	 = array(
 			'blog'				   => $blogurl,
 			'user_ip'			   => $ip,
@@ -44,43 +44,38 @@ class chkakismet {
 		return $response;
 	}
 	function akismet_comment_check( $key, $data ) {
-		$request = 'blog=' . urlencode( $data['blog'] ) .
-				   '&user_ip=' . urlencode( $data['user_ip'] ) .
-				   '&user_agent=' . urlencode( $data['user_agent'] ) .
-				   '&referrer=' . urlencode( $data['referrer'] ) .
-				   '&permalink=' . urlencode( $data['permalink'] ) .
-				   '&comment_type=' . urlencode( $data['comment_type'] ) .
-				   '&comment_author=' . urlencode( $data['comment_author'] ) .
-				   '&comment_author_email=' . urlencode( $data['comment_author_email'] ) .
-				   '&comment_author_url=' . urlencode( $data['comment_author_url'] ) .
-				   '&comment_content=' . urlencode( $data['comment_content'] );
-		$host	= $http_host = $key . '.rest.akismet.com';
-		$path	= '/1.1/comment-check';
-		$port	= 80;
-		// $akismet_ua = "WordPress/3.8.1 | Akismet/2.5.9";
-		$akismet_ua	    = sprintf( 'WordPress/%s | Akismet/%s', $GLOBALS['wp_version'], constant( 'AKISMET_VERSION' ) );
-		$content_length = strlen( $request );
-		$http_request   = "POST $path HTTP/1.0\r\n";
-		$http_request  .= "Host: $host\r\n";
-		$http_request  .= "Content-Type: application/x-www-form-urlencoded\r\n";
-		$http_request  .= "Content-Length: {$content_length}\r\n";
-		$http_request  .= "User-Agent: {$akismet_ua}\r\n";
-		$http_request  .= "\r\n";
-		$http_request  .= $request;
-		$response	    = '';
-		if ( false != ( $fs = @fsockopen( $http_host, $port, $errno, $errstr, 10 ) ) ) {
-			fwrite( $fs, $http_request );
-			while ( !feof( $fs ) ) {
-				$response .= fgets( $fs, 1160 );
-			} // one TCP-IP packet
-			$r = print_r( $response, true );
-			fclose( $fs );
-			$response = explode( "\r\n\r\n", $response, 2 );
+		$data = wp_unslash( $data );
+		$request = array(
+			'blog'                 => esc_url_raw( $data['blog'] ),
+			'user_ip'              => sanitize_text_field( $data['user_ip'] ),
+			'user_agent'           => sanitize_text_field( $data['user_agent'] ),
+			'referrer'             => esc_url_raw( $data['referrer'] ),
+			'permalink'            => esc_url_raw( $data['permalink'] ),
+			'comment_type'         => sanitize_text_field( $data['comment_type'] ),
+			'comment_author'       => sanitize_text_field( $data['comment_author'] ),
+			'comment_author_email' => sanitize_email( $data['comment_author_email'] ),
+			'comment_author_url'   => esc_url_raw( $data['comment_author_url'] ),
+			'comment_content'      => sanitize_textarea_field( $data['comment_content'] ),
+		);
+		$host = sanitize_text_field( $key ) . '.rest.akismet.com';
+		$path = '/1.1/comment-check';
+		$url  = 'https://' . $host . $path;
+		$akismet_ua = sprintf( 'WordPress/%s | Akismet/%s', $GLOBALS['wp_version'], constant( 'AKISMET_VERSION' ) );
+		$args = array(
+			'body'       => $request,
+			'user-agent' => $akismet_ua,
+			'timeout'    => 10,
+		);
+		$response = wp_remote_post( $url, $args );
+		if ( is_wp_error( $response ) ) {
+			error_log( 'Akismet request failed: ' . $response->get_error_message() );
+			return false;
 		}
-		if ( 'true' == $response[1] ) {
-			return $r;
+		$response_body = wp_remote_retrieve_body( $response );
+		if ( 'true' === trim( $response_body ) ) {
+			return true; // comment is spam
 		} else {
-			return $r;
+			return false; // comment is not spam
 		}
 	}
 }

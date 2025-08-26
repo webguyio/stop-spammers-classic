@@ -8,7 +8,7 @@ if ( !defined( 'ABSPATH' ) ) {
 class ss_addtoallowlist {
 	public function process( $ip, &$stats = array(), &$options = array(), &$post = array() ) {
 		// adds to Allow List - used to add admin to Allow List or to add a comment author to Allow List
-		$now = date( 'Y/m/d H:i:s', time() + ( get_option( 'gmt_offset' ) * 3600 ) );
+		$now = gmdate( 'Y/m/d H:i:s', time() + ( get_option( 'gmt_offset' ) * 3600 ) );
 		$wlist = $options['wlist'];
 		if ( !isset( $options['wlist_email'] ) ) {
 			$wlist_email = array();
@@ -23,7 +23,7 @@ class ss_addtoallowlist {
 		$options['wlist'] = $wlist;
 		// add this email to your Allow List
 		if ( isset( $_GET['email'] ) and is_email( $_GET['email'] ) and !in_array( $_GET['email'], $wlist_email ) ) {
-			$wlist_email[] = sanitize_email( $_GET['email'] );
+			$wlist_email[] = sanitize_email( wp_unslash( $_GET['email'] ) );
 		}
 		$options['wlist_email'] = $wlist_email;
 		ss_set_options( $options );
@@ -39,7 +39,7 @@ class ss_addtoallowlist {
 			$stats['goodips'] = $goodips;
 		}
 		ss_set_stats( $stats );
-		if ( isset( $_GET['func'] ) and $_GET['func'] == 'add_white' )
+		if ( isset( $_GET['func'] ) and wp_unslash( $_GET['func'] ) == 'add_white' )
 			$this->ss_send_approval_email( $ip, $stats, $options, $post );
 		return false;
 	}

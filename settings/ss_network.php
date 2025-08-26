@@ -16,21 +16,21 @@ ss_fix_post_vars();
 <div id="ss-plugin" class="wrap">
 	<h1 class="ss_head"><img src="<?php echo esc_url( plugin_dir_url( dirname( __FILE__ ) ) . 'images/stop-spammers-icon.png' ); ?>" class="ss_icon">Multisite</h1>
 	<?php
-	$now	  = date( 'Y/m/d H:i:s', time() + ( get_option( 'gmt_offset' ) * 3600 ) );
+	$now	  = gmdate( 'Y/m/d H:i:s', time() + ( get_option( 'gmt_offset' ) * 3600 ) );
 	// $ip=ss_get_ip();
-	$ip	      = $_SERVER['REMOTE_ADDR'];
+	$ip	      = sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) );
 	$nonce	  = '';
 	$muswitch = get_option( 'ss_muswitch' );
 	if ( empty( $muswitch ) ) {
 		$muswitch = 'N';
 	}
 	if ( array_key_exists( 'ss_stop_spammers_control', $_POST ) ) {
-		$nonce = $_POST['ss_stop_spammers_control'];
+		$nonce = sanitize_text_field( wp_unslash( $_POST['ss_stop_spammers_control'] ) );
 	}
 	if ( wp_verify_nonce( $nonce, 'ss_stopspam_update' ) ) {
 		if ( array_key_exists( 'action', $_POST ) ) {
 			if ( array_key_exists( 'muswitch', $_POST ) ) {
-				$muswitch = trim( stripslashes( sanitize_text_field( $_POST['muswitch'] ) ) );
+				$muswitch = trim( stripslashes( sanitize_text_field( wp_unslash( $_POST['muswitch'] ) ) ) );
 			}
 			if ( empty( $muswitch ) ) {
 				$muswitch = 'N';

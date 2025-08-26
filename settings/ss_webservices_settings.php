@@ -10,59 +10,59 @@ if ( !current_user_can( 'manage_options' ) ) {
 }
 
 ss_fix_post_vars();
-$now	 = date( 'Y/m/d H:i:s', time() + ( get_option( 'gmt_offset' ) * 3600 ) );
+$now	 = gmdate( 'Y/m/d H:i:s', time() + ( get_option( 'gmt_offset' ) * 3600 ) );
 $options = ss_get_options();
 extract( $options );
 $nonce   = '';
 
 if ( array_key_exists( 'ss_stop_spammers_control', $_POST ) ) {
-	$nonce = $_POST['ss_stop_spammers_control'];
+	$nonce = sanitize_text_field( wp_unslash( $_POST['ss_stop_spammers_control'] ) );
 }
 
 if ( !empty( $nonce ) && wp_verify_nonce( $nonce, 'ss_stopspam_update' ) ) {
 	if ( array_key_exists( 'action', $_POST ) ) {
 		// other API keys
 		if ( array_key_exists( 'apikey', $_POST ) ) {
-			$apikey			   = stripslashes( sanitize_text_field( $_POST['apikey'] ) );
+			$apikey			   = stripslashes( sanitize_text_field( wp_unslash( $_POST['apikey'] ) ) );
 			$options['apikey'] = $apikey;
 		}
 		if ( array_key_exists( 'googleapi', $_POST ) ) {
-			$googleapi			  = stripslashes( sanitize_text_field( $_POST['googleapi'] ) );
+			$googleapi			  = stripslashes( sanitize_text_field( wp_unslash( $_POST['googleapi'] ) ) );
 			$options['googleapi'] = $googleapi;
 		}
 		if ( array_key_exists( 'honeyapi', $_POST ) ) {
-			$honeyapi			 = stripslashes( sanitize_text_field( $_POST['honeyapi'] ) );
+			$honeyapi			 = stripslashes( sanitize_text_field( wp_unslash( $_POST['honeyapi'] ) ) );
 			$options['honeyapi'] = $honeyapi;
 		}
 		if ( array_key_exists( 'botscoutapi', $_POST ) ) {
-			$botscoutapi			= stripslashes( sanitize_text_field( $_POST['botscoutapi'] ) );
+			$botscoutapi			= stripslashes( sanitize_text_field( wp_unslash( $_POST['botscoutapi'] )) );
 			$options['botscoutapi'] = $botscoutapi;
 		}
 		if ( array_key_exists( 'sfsfreq', $_POST ) ) {
-			$sfsfreq			= stripslashes( sanitize_text_field( $_POST['sfsfreq'] ) );
+			$sfsfreq			= stripslashes( sanitize_text_field( wp_unslash( $_POST['sfsfreq'] ) ) );
 			$options['sfsfreq'] = $sfsfreq;
 		}
 		if ( array_key_exists( 'sfsage', $_POST ) ) {
-			$sfsage			   = stripslashes( sanitize_text_field( $_POST['sfsage'] ) );
+			$sfsage			   = stripslashes( sanitize_text_field( wp_unslash( $_POST['sfsage'] ) ) );
 			$options['sfsage'] = $sfsage;
 		}
 		if ( array_key_exists( 'hnyage', $_POST ) ) {
-			$hnyage			   = stripslashes( sanitize_text_field( $_POST['hnyage'] ) );
+			$hnyage			   = stripslashes( sanitize_text_field( wp_unslash( $_POST['hnyage'] ) ) );
 			$options['hnyage'] = $hnyage;
 		}
 		if ( array_key_exists( 'hnylevel', $_POST ) ) {
-			$hnylevel			 = stripslashes( sanitize_text_field( $_POST['hnylevel'] ) );
+			$hnylevel			 = stripslashes( sanitize_text_field( wp_unslash( $_POST['hnylevel'] ) ) );
 			$options['hnylevel'] = $hnylevel;
 		}
 		if ( array_key_exists( 'botfreq', $_POST ) ) {
-			$botfreq			= stripslashes( sanitize_text_field( $_POST['botfreq'] ) );
+			$botfreq			= stripslashes( sanitize_text_field( wp_unslash( $_POST['botfreq'] ) ) );
 			$options['botfreq'] = $botfreq;
 		}
 		$optionlist = array( 'chksfs', 'chkdnsbl' );
 		foreach ( $optionlist as $check ) {
 			$v = 'N';
 			if ( array_key_exists( $check, $_POST ) ) {
-				$v = $_POST[$check];
+				$v = sanitize_text_field( wp_unslash( $_POST[$check] ) );
 				if ( $v != 'Y' ) {
 					$v = 'N';
 				}

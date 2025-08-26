@@ -13,7 +13,7 @@ if ( !current_user_can( 'manage_options' ) ) {
 }
 
 ss_fix_post_vars();
-$now = date( 'Y/m/d H:i:s', time() + ( get_option( 'gmt_offset' ) * 3600 ) );
+$now = gmdate( 'Y/m/d H:i:s', time() + ( get_option( 'gmt_offset' ) * 3600 ) );
 
 // for session speed checks
 // if ( !isset( $_POST ) || empty( $_POST ) ) { // no post defined
@@ -26,7 +26,7 @@ $ip  = ss_get_ip();
 $hip = "unknown";
 
 if ( array_key_exists( 'SERVER_ADDR', $_SERVER ) ) {
-	$hip = $_SERVER["SERVER_ADDR"];
+	$hip = sanitize_text_field( wp_unslash( $_SERVER["SERVER_ADDR"] ) );
 }
 
 $email   = '';
@@ -36,24 +36,24 @@ $body	 = '';
 
 if ( array_key_exists( 'ip', $_POST ) ) {
 	if ( filter_var( $_POST['ip'], FILTER_VALIDATE_IP ) ) {
-		$ip = sanitize_text_field( $_POST['ip'] );
+		$ip = sanitize_text_field( wp_unslash( $_POST['ip'] ) );
 	}
 }
 
 if ( array_key_exists( 'email', $_POST ) ) {
-	$email = sanitize_email( $_POST['email'] );
+	$email = sanitize_email( wp_unslash( $_POST['email'] ) );
 }
 
 if ( array_key_exists( 'author', $_POST ) ) {
-	$author = sanitize_text_field( $_POST['author'] );
+	$author = sanitize_text_field( wp_unslash( $_POST['author'] ) );
 }
 
 if ( array_key_exists( 'subject', $_POST ) ) {
-	$subject = sanitize_text_field( $_POST['subject'] );
+	$subject = sanitize_text_field( wp_unslash( $_POST['subject'] ) );
 }
 
 if ( array_key_exists( 'body', $_POST ) ) {
-	$body = sanitize_textarea_field( $_POST['body'] );
+	$body = sanitize_textarea_field( wp_unslash( $_POST['body'] ) );
 }
 
 $nonce = wp_create_nonce( 'ss_stopspam_update' );
@@ -92,7 +92,7 @@ $nonce = wp_create_nonce( 'ss_stopspam_update' );
 			$nonce = '';
 
 			if ( array_key_exists( 'ss_stop_spammers_control', $_POST ) ) {
-					$nonce = $_POST['ss_stop_spammers_control'];
+					$nonce = sanitize_text_field( wp_unslash( $_POST['ss_stop_spammers_control'] ) );
 			}
 
 			if ( !empty( $nonce ) && wp_verify_nonce( $nonce, 'ss_stopspam_update' ) ) {
@@ -374,7 +374,7 @@ $nonce = wp_create_nonce( 'ss_stopspam_update' );
 			<br style="clear:both">
 			<?php
 			if ( array_key_exists( 'ss_stop_spammers_control', $_POST ) ) {
-				$nonce = $_POST['ss_stop_spammers_control'];
+				$nonce = sanitize_text_field( wp_unslash( $_POST['ss_stop_spammers_control'] ) );
 			}
 			if ( !empty( $nonce ) && wp_verify_nonce( $nonce, 'ss_stopspam_update' ) ) {
 				if ( array_key_exists( 'dumpoptions', $_POST ) ) { ?>
@@ -396,7 +396,7 @@ $nonce = wp_create_nonce( 'ss_stopspam_update' );
 			?>
 			<?php
 			if ( array_key_exists( 'ss_stop_spammers_control', $_POST ) ) {
-				$nonce = $_POST['ss_stop_spammers_control'];
+				$nonce = sanitize_text_field( wp_unslash( $_POST['ss_stop_spammers_control'] ) );
 			}
 			if ( !empty( $nonce ) && wp_verify_nonce( $nonce, 'ss_stopspam_update' ) ) {
 				if ( array_key_exists( 'dumpstats', $_POST ) ) { ?>
@@ -423,10 +423,10 @@ $nonce = wp_create_nonce( 'ss_stopspam_update' );
 		<div class="mainsection">Debugging</div>
 		<?php
 		// if there is a log file we can display it here
-		$dfile = SS_PLUGIN_DATA . '.sfs_debug_output.txt';
+		$dfile = SS_PLUGIN_DATA . 'debug.txt';
 		if ( file_exists( $dfile ) ) {
 			if ( array_key_exists( 'ss_stop_spammers_control', $_POST ) ) {
-				$nonce = $_POST['ss_stop_spammers_control'];
+				$nonce = sanitize_text_field( wp_unslash( $_POST['ss_stop_spammers_control'] ) );
 			}
 			if ( !empty( $nonce ) && wp_verify_nonce( $nonce, 'ss_stopspam_update' ) ) {
 				if ( array_key_exists( 'killdebug', $_POST ) ) {
@@ -441,13 +441,15 @@ $nonce = wp_create_nonce( 'ss_stopspam_update' );
 			$to	   = get_option( 'admin_email' );
 			$f	   = file_get_contents( $dfile );
 			$ff	   = wordwrap( $f, 70, "\r\n" );
+		} else {
+			$f = '';
 		}
 		if ( array_key_exists( 'ss_stop_spammers_control', $_POST ) ) {
-			$nonce = $_POST['ss_stop_spammers_control'];
+			$nonce = sanitize_text_field( wp_unslash( $_POST['ss_stop_spammers_control'] ) );
 		}
 		if ( !empty( $nonce ) && wp_verify_nonce( $nonce, 'ss_stopspam_update' ) ) {
 			if ( array_key_exists( 'showdebug', $_POST ) ) {
-				echo '<p><strong>Debug Output:</strong></p><pre>$f</pre><p><strong>end of file (if empty, there are no errors to display)</p></strong>';
+				echo wp_kses_post( "<p><strong>Debug Output:</strong></p><pre>$f</pre><p><strong>end of file (if empty, there are no errors to display)</p></strong>" );
 			}
 		}
 		$nonce = wp_create_nonce( 'ss_stopspam_update' );
@@ -469,37 +471,72 @@ $nonce = wp_create_nonce( 'ss_stopspam_update' );
 	<br style="clear:both">
 	</div>
 	<?php
-	$ini  = '';
-	$pinf = true;
-	$ini  = @ini_get( 'disable_functions' );
-	if ( !empty( $ini ) ) {
-		$disabled = explode( ',', $ini );
-		if ( is_array( $disabled ) && in_array( 'phpinfo', $disabled ) ) {
-			$pinf = false;
-		}
-	}
+	$ini  = function_exists( 'ini_get' ) ? ini_get( 'disable_functions' ) : '';
+	$pinf = empty( $ini ) || !in_array( 'phpinfo', explode( ',', $ini ) );
 	if ( $pinf ) { ?>
-		<a href="" onclick="document.getElementById('shpinf').style.display='block';return false;" class="button-primary">Show PHP Info</a>
+		<a href="#phpinfo" onclick="togglePhpInfo(); return false;" class="button-primary">Show PHP Info</a>
+		<div id="phpinfo" class="phpinfodisplay" style="display:none">
 		<?php
 		ob_start();
 		phpinfo();
-		preg_match( '%<style type="text/css">(.*?)</style>.*?(<body>.*</body>)%s', ob_get_clean(), $matches );
-		# $matches [1]; # Style information
-		# $matches [2]; # Body information
-		echo "<div class='phpinfodisplay' id=\"shpinf\" style=\"display:none;\"><style type='text/css'>\n",
-		join( "\n",
-			array_map(
-				function($i) {
-					return ".phpinfodisplay " . preg_replace( "/,/", ",.phpinfodisplay ", $i );
-				},
-				preg_split( '/\n/', $matches[1] )
-			)
-		),
-		"</style>\n",
-		$matches[2],
-		"\n</div>\n";
-	}
-	?>
+		$phpinfo = ob_get_clean();
+		preg_match( '%<style type="text/css">(.*?)</style>.*?(<body>.*</body>)%s', $phpinfo, $matches );
+		if ( isset( $matches[1] ) && isset( $matches[2] ) ) {
+			echo wp_kses(
+				"<style type=\"text/css\">\n
+					#phpinfo{max-width:100%}
+					#phpinfo pre{margin:0;font-family:monospace}
+					#phpinfo a:link{color:#009;text-decoration:none;background-color:#fff}
+					#phpinfo a:hover{text-decoration:underline}
+					#phpinfo table{border-collapse:collapse;border:0;width:100%;box-shadow:1px 2px 3px #ccc}
+					#phpinfo .center{text-align:center}
+					#phpinfo .center table{margin:1em auto;text-align:left}
+					#phpinfo .center th{text-align:center !important}
+					#phpinfo td, th{border:1px solid #666;font-size:75%;vertical-align:baseline;padding:10px}
+					#phpinfo h1{font-size:150%}
+					#phpinfo h2{font-size:125%}
+					#phpinfo .p{text-align:left}
+					#phpinfo .e{background-color:#ccf;max-width:300px;font-weight:bold}
+					#phpinfo .h{background-color:#99c;font-weight:bold}
+					#phpinfo .v{background-color:#ddd;max-width:300px;overflow-x:auto;word-wrap:break-word}
+					#phpinfo .v i{color:#999}
+					#phpinfo img{float:right;border:0}
+					#phpinfo hr{width:100%;background-color:#ccc;border:0;height:1px}
+				</style>\n" .
+				$matches[2],
+				array(
+					'style' => array( 'type' => array() ),
+					'div'   => array( 'class' => array(), 'id' => array(), 'style' => array() ),
+					'h1'    => array( 'class' => array(), 'id' => array() ),
+					'h2'    => array( 'class' => array(), 'id' => array() ),
+					'h3'    => array( 'class' => array(), 'id' => array() ),
+					'h4'    => array( 'class' => array(), 'id' => array() ),
+					'h5'    => array( 'class' => array(), 'id' => array() ),
+					'h6'    => array( 'class' => array(), 'id' => array() ),
+					'p'     => array( 'class' => array(), 'id' => array() ),
+					'table' => array( 'class' => array(), 'id' => array() ),
+					'tr'    => array( 'class' => array(), 'id' => array() ),
+					'td'    => array( 'class' => array(), 'id' => array() ),
+					'th'    => array( 'class' => array(), 'id' => array() ),
+					'ul'    => array( 'class' => array(), 'id' => array() ),
+					'ol'    => array( 'class' => array(), 'id' => array() ),
+					'li'    => array( 'class' => array(), 'id' => array() ),
+					'a'     => array( 'href' => array(), 'title' => array(), 'class' => array(), 'id' => array() ),
+				)
+			);
+		}
+		?>
+		</div>
+		<?php
+		wp_register_script( 'ss-phpinfo', '' );
+		wp_enqueue_script( 'ss-phpinfo' );
+		wp_add_inline_script( 'ss-phpinfo', '
+			function togglePhpInfo() {
+				var phpInfoDiv = document.getElementById("phpinfo");
+				phpInfoDiv.style.display = (phpInfoDiv.style.display === "none" || phpInfoDiv.style.display === "") ? "block" : "none";
+			}
+		' );
+	} ?>
 	<?php
 	ss_fix_post_vars();
 	global $wpdb;
@@ -508,7 +545,7 @@ $nonce = wp_create_nonce( 'ss_stopspam_update' );
 	$runscan = false;
 	$nonce   = '';
 	if ( array_key_exists( 'ss_stop_spammers_control', $_POST ) ) {
-		$nonce = $_POST['ss_stop_spammers_control'];
+		$nonce = sanitize_text_field( wp_unslash( $_POST['ss_stop_spammers_control'] ) );
 	}
 	if ( !empty( $nonce ) && wp_verify_nonce( $nonce, 'ss_stopspam_update' ) ) {
 		if ( array_key_exists( 'update_options', $_POST ) ) {
@@ -522,10 +559,10 @@ $nonce = wp_create_nonce( 'ss_stopspam_update' );
 			<sup class="ss_sup"><a href="https://github.com/webguyio/stop-spammers/wiki/Docs:-Diagnostics-&-Threat-Scan#threat-scan" target="_blank">?</a></sup>
 		</div>
 		<p>A very simple scan that looks for things out of place in the content directory as well as the database.</p>
-		<form method="post" action="">
+		<form method="post" action="#scan">
 			<input type="hidden" name="update_options" value="update">
 			<input type="hidden" name="ss_stop_spammers_control" value="<?php echo esc_html( $nonce ); ?>">
-			<p class="submit"><input class="button-primary" value="Run Scan" type="submit"></p>
+			<p id="scan" class="submit"><input class="button-primary" value="Run Scan" type="submit"></p>
 		</form>
 	</div>
 	<?php if ( $runscan ) { ?>
@@ -537,8 +574,10 @@ $nonce = wp_create_nonce( 'ss_stopspam_update' );
 		// lets try the posts - looking for script tags in data
 		echo '<br><br>Testing Posts<br>';
 		$ptab = $pre . 'posts';
-		$sql  = "select ID,post_author,post_title,post_name,guid,post_content,post_mime_type
-			from $ptab where 
+		$sql  = "
+			SELECT ID, post_author, post_title, post_name, guid, post_content, post_mime_type
+			FROM $ptab 
+			WHERE 
 			INSTR(LCASE(post_author), '<script') +
 			INSTR(LCASE(post_title), '<script') +
 			INSTR(LCASE(post_name), '<script') +
@@ -556,11 +595,12 @@ $nonce = wp_create_nonce( 'ss_stopspam_update' );
 			INSTR(LCASE(post_content), 'document.write(unescape(') +
 			INSTR(LCASE(post_content), 'try{window.onload') +
 			INSTR(LCASE(post_content), 'setAttribute(\'src\'') +
-			INSTR(LCASE(post_mime_type), 'script') > 0
+			INSTR(LCASE(post_mime_type), 'script') > %d
 		";
 		$sql = str_replace( "\t", '', $sql );
 		flush();
-		$myrows = $wpdb->get_results( $sql );
+		$threshold = 0;
+		$myrows = $wpdb->get_results( $wpdb->prepare( $sql, $threshold ) );
 		if ( $myrows ) {
 			foreach ( $myrows as $myrow ) {
 				$disp   = true;
@@ -630,8 +670,10 @@ $nonce = wp_create_nonce( 'ss_stopspam_update' );
 		$ptab = $pre . 'comments';
 		echo '<br><br>Testing Comments<br>';
 		flush();
-		$sql = "select comment_ID,comment_author_url,comment_agent,comment_author,comment_author_email,comment_content
-			from $ptab where 
+		$sql = "
+			SELECT comment_ID, comment_author_url, comment_agent, comment_author, comment_author_email, comment_content
+			FROM $ptab 
+			WHERE 
 			INSTR(LCASE(comment_author_url), '<script') +
 			INSTR(LCASE(comment_agent), '<script') +
 			INSTR(LCASE(comment_author), '<script') +
@@ -650,10 +692,11 @@ $nonce = wp_create_nonce( 'ss_stopspam_update' );
 			INSTR(LCASE(comment_content), 'document.write(unescape(') +
 			INSTR(LCASE(comment_content), 'try{window.onload') +
 			INSTR(LCASE(comment_content), 'setAttribute(\'src\'') +
-			INSTR(LCASE(comment_author_url), 'javascript:') >0
+			INSTR(LCASE(comment_author_url), 'javascript:') > %d
 		";
 		$sql = str_replace( "\t", '', $sql );
-		$myrows = $wpdb->get_results( $sql );
+		$threshold = 0;
+		$myrows = $wpdb->get_results( $wpdb->prepare( $sql, $threshold ) );
 		if ( $myrows ) {
 			foreach ( $myrows as $myrow ) {
 				$disp   = true;
@@ -726,8 +769,10 @@ $nonce = wp_create_nonce( 'ss_stopspam_update' );
 		$ptab   = $pre . 'links';
 		echo '<br><br>Testing Links<br>';
 		flush();
-		$sql = "select link_ID,link_url,link_image,link_description,link_notes
-			from $ptab where 
+		$sql = "
+			SELECT link_ID, link_url, link_image, link_description, link_notes
+			FROM $ptab 
+			WHERE 
 			INSTR(LCASE(link_url), '<script') +
 			INSTR(LCASE(link_image), '<script') +
 			INSTR(LCASE(link_description), '<script') +
@@ -743,10 +788,11 @@ $nonce = wp_create_nonce( 'ss_stopspam_update' );
 			INSTR(LCASE(link_description), 'eval (') +
 			INSTR(LCASE(link_notes), 'eval (') +
 			INSTR(LCASE(link_rss), 'eval (') +
-			INSTR(LCASE(link_url), 'javascript:') >0
+			INSTR(LCASE(link_url), 'javascript:') > %d
 		";
 		$sql = str_replace( "\t", '', $sql );
-		$myrows = $wpdb->get_results( $sql );
+		$threshold = 0;
+		$myrows = $wpdb->get_results( $wpdb->prepare( $sql, $threshold ) );
 		if ( $myrows ) {
 			foreach ( $myrows as $myrow ) {
 				$reason = '';
@@ -808,8 +854,10 @@ $nonce = wp_create_nonce( 'ss_stopspam_update' );
 		$ptab = $pre . 'users';
 		echo '<br><br>Testing Users<br>';
 		flush();
-		$sql = "select ID,user_login,user_nicename,user_email,user_url,display_name 
-			from $ptab where 
+		$sql = "
+			SELECT ID, user_login, user_nicename, user_email, user_url, display_name 
+			FROM $ptab 
+			WHERE 
 			INSTR(LCASE(user_login), '<script') +
 			INSTR(LCASE(user_nicename), '<script') +
 			INSTR(LCASE(user_email), '<script') +
@@ -826,10 +874,11 @@ $nonce = wp_create_nonce( 'ss_stopspam_update' );
 			INSTR(user_url, 'eval (') +
 			INSTR(display_name, 'eval (') +
 			INSTR(LCASE(user_url), 'javascript:') +
-			INSTR(LCASE(user_email), 'javascript:')>0
+			INSTR(LCASE(user_email), 'javascript:') > %d
 		";
 		$sql = str_replace( "\t", '', $sql );
-		$myrows = $wpdb->get_results( $sql );
+		$threshold = 0;
+		$myrows = $wpdb->get_results( $wpdb->prepare( $sql, $threshold ) );
 		if ( $myrows ) {
 			foreach ( $myrows as $myrow ) {
 				$disp   = true;
@@ -911,12 +960,13 @@ $nonce = wp_create_nonce( 'ss_stopspam_update' );
 			'w.wpquery.o'						 => 'Malicious jquery in bootleg plugin or theme',
 			'<scr\\\'+'						     => 'Obfuscated script tag, usually in bootleg plugin or theme'
 		);
-		$sql = "select option_id,option_value,option_name from $ptab where";
+		$sql = "SELECT option_id, option_value, option_name FROM $ptab WHERE ";
+		$conditions = [];
 		foreach ( $badguys as $baddie => $reas ) {
-			$sql .= "INSTR(LCASE(option_value), '$baddie') +";
+			$conditions[] = "INSTR(LCASE(option_value), %s)";
 		}
-		$sql	= trim( $sql, '+' );
-		$myrows = $wpdb->get_results( $sql );
+		$sql .= implode( ' + ', $conditions );
+		$myrows = $wpdb->get_results( $wpdb->prepare( $sql, array_keys( $badguys ) ) );
 		if ( $myrows ) {
 			foreach ( $myrows as $myrow ) {
 				// get the option and then red the string
@@ -1050,8 +1100,15 @@ $nonce = wp_create_nonce( 'ss_stopspam_update' );
 		if ( strpos( $file, '.php' ) === false ) {
 			return false;
 		}
-		$handle = @fopen( $file, 'r' );
-		if ( $handle === false ) {
+		// initialize the WordPress filesystem
+		global $wp_filesystem;
+		if ( empty( $wp_filesystem ) ) {
+			require_once ABSPATH . 'wp-admin/includes/file.php';
+			WP_Filesystem();
+		}
+		// read the file contents
+		$file_contents = $wp_filesystem->get_contents( $file );
+		if ( $file_contents === false ) {
 			return array();
 		}
 		$ansa	 = array();
@@ -1075,8 +1132,9 @@ $nonce = wp_create_nonce( 'ss_stopspam_update' );
 			'w.wpquery.o',
 			"<scr'+"
 		);
-		while ( !@feof( $handle ) ) {
-			$line = fgets( $handle );
+		// split the file contents into lines
+		$lines = explode( "\n", $file_contents );
+		foreach ( $lines as $line ) {
 			$line = htmlentities( $line );
 			$n ++;
 			foreach ( $badguys as $baddie ) {
@@ -1126,7 +1184,6 @@ $nonce = wp_create_nonce( 'ss_stopspam_update' );
 				}
 			}
 		}
-		fclose( $handle );
 		return $ansa;
 	}
 	function ss_make_red( $needle, $haystack ) {

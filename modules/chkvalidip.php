@@ -108,18 +108,18 @@ class chkvalidip {
 		}
 		// see if server and browser are running on same server
 		if ( array_key_exists( 'SERVER_ADDR', $_SERVER ) ) {
-			$lip = $_SERVER["SERVER_ADDR"];
+			$lip = sanitize_text_field( wp_unslash( $_SERVER["SERVER_ADDR"] ) );
 			if ( $ip == $lip ) {
 				return 'IP Same as Server: ' . $ip;
 			}
 		} else if ( array_key_exists( 'LOCAL_ADDR', $_SERVER ) ) { // IIS 7?
-			$lip = $_SERVER["LOCAL_ADDR"];
+			$lip = sanitize_text_field( wp_unslash( $_SERVER["LOCAL_ADDR"] ) );
 			if ( $ip == $lip ) {
 				return 'IP Same as Server: ' . $ip;
 			}
 		} else { // IIS 6 no server address use a gethost by name? hope we never get here
 			try {
-				$lip = @gethostbyname( $_SERVER['SERVER_NAME'] );
+				$lip = @gethostbyname( sanitize_text_field( wp_unslash( $_SERVER['SERVER_NAME'] ) ) );
 				if ( $ip == $lip ) {
 					return 'IP Same as Server: ' . $ip;
 				}

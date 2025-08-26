@@ -10,7 +10,7 @@ if ( !current_user_can( 'manage_options' ) ) {
 }
 
 ss_fix_post_vars();
-$now	 = date( 'Y/m/d H:i:s', time() + ( get_option( 'gmt_offset' ) * 3600 ) );
+$now	 = gmdate( 'Y/m/d H:i:s', time() + ( get_option( 'gmt_offset' ) * 3600 ) );
 $options = ss_get_options();
 
 extract( $options );
@@ -19,7 +19,7 @@ extract( $options );
 $nonce = '';
 
 if ( array_key_exists( 'ss_stop_spammers_control', $_POST ) ) {
-	$nonce = $_POST['ss_stop_spammers_control'];
+	$nonce = sanitize_text_field( wp_unslash( $_POST['ss_stop_spammers_control'] ) );
 }
 
 if ( !empty( $nonce ) && wp_verify_nonce( $nonce, 'ss_stopspam_update' ) ) {
@@ -56,7 +56,7 @@ if ( !empty( $nonce ) && wp_verify_nonce( $nonce, 'ss_stopspam_update' ) ) {
 	foreach ( $optionlist as $check ) {
 		$v = 'N';
 		if ( array_key_exists( $check, $_POST ) ) {
-			$v = $_POST[$check];
+			$v = sanitize_text_field( wp_unslash( $_POST[$check] ) );
 			if ( $v != 'Y' ) {
 				$v = 'N';
 			}
@@ -209,7 +209,7 @@ if ( !empty( $nonce ) && wp_verify_nonce( $nonce, 'ss_stopspam_update' ) ) {
 	foreach ( $optionlist as $check ) {
 		$v = 'N';
 		if ( array_key_exists( $check, $_POST ) ) {
-			$v = $_POST[$check];
+			$v = sanitize_text_field( wp_unslash( $_POST[$check] ) );
 			if ( $v != 'Y' ) {
 				$v = 'N';
 			}
@@ -218,15 +218,15 @@ if ( !empty( $nonce ) && wp_verify_nonce( $nonce, 'ss_stopspam_update' ) ) {
 	}
 	// text options
 	if ( array_key_exists( 'sesstime', $_POST ) ) {
-		$sesstime			 = stripslashes( sanitize_text_field( $_POST['sesstime'] ) );
+		$sesstime			 = stripslashes( sanitize_text_field( wp_unslash( $_POST['sesstime'] ) ) );
 		$options['sesstime'] = $sesstime;
 	}
 	if ( array_key_exists( 'multitime', $_POST ) ) {
-		$multitime			  = stripslashes( sanitize_text_field( $_POST['multitime'] ) );
+		$multitime			  = stripslashes( sanitize_text_field( wp_unslash( $_POST['multitime'] ) ) );
 		$options['multitime'] = $multitime;
 	}
 	if ( array_key_exists( 'multicnt', $_POST ) ) {
-		$multicnt			 = stripslashes( sanitize_text_field( $_POST['multicnt'] ) );
+		$multicnt			 = stripslashes( sanitize_text_field( wp_unslash( $_POST['multicnt'] ) ) );
 		$options['multicnt'] = $multicnt;
 	}
 	ss_set_options( $options );

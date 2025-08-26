@@ -21,15 +21,15 @@ class chksession {
 		// need to get sname
 		$sname = '';
 		if ( array_key_exists( "REQUEST_URI", $_SERVER ) ) {
-			$sname = $_SERVER["REQUEST_URI"];
+			$sname = sanitize_url( wp_unslash( $_SERVER["REQUEST_URI"] ) );
 		} else if ( array_key_exists( "SCRIPT_URI", $_SERVER ) ) {
-			$sname = $_SERVER["SCRIPT_URI"];
+			$sname = sanitize_url( wp_unslash( $_SERVER["SCRIPT_URI"] ) );
 			if ( strpos( $sname, '?' ) !== false ) {
 				$sname = substr( $sname, 0, strpos( $sname, '?' ) );
 			}
 			$sname = $sname;
 		} else if ( array_key_exists( "PHP_SELF", $_SERVER ) ) {
-			$sname = substr( $_SERVER['PHP_SELF'], 1 );
+			$sname = substr( sanitize_text_field( wp_unslash( $_SERVER['PHP_SELF'] ) ), 1 );
 		}
 		// echo "Testing Session '$sname'<br>";
 		if ( empty( $sname ) ) {
@@ -39,7 +39,7 @@ class chksession {
 		if ( !defined( "WP_CACHE" ) || ( !WP_CACHE ) ) {
 			if ( strpos( $sname, 'wp-login.php' ) === false ) {  // don't check for logins - too many failures
 				if ( isset( $_COOKIE['ss_stop_spammers_time'] ) ) {
-					$stime = $_COOKIE['ss_stop_spammers_time'];
+					$stime = sanitize_text_field( wp_unslash( $_COOKIE['ss_stop_spammers_time'] ) );
 					$tm	   = strtotime( "now" ) - $stime;
 					if ( $tm > 0 && $tm <= $sesstime ) { // zero seconds is wrong, too - it means that session was set somewhere
 						// takes longer than 2 seconds to really type a comment

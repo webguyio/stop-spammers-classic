@@ -43,13 +43,13 @@ class be_module {
 	// gets the module name from the URL address line
 		$sname = '';
 		if ( isset( $_SERVER['REQUEST_URI'] ) ) {
-			$sname = $_SERVER["REQUEST_URI"];
+			$sname = sanitize_text_field( wp_unslash( $_SERVER["REQUEST_URI"] ) );
 		}
 		if ( empty( $sname ) ) {
-			$_SERVER['REQUEST_URI'] = $_SERVER['SCRIPT_NAME'];
-			$sname				    = $_SERVER["SCRIPT_NAME"];
-			if ( $_SERVER['QUERY_STRING'] ) {
-				$_SERVER['REQUEST_URI'] .= '?' . $_SERVER['QUERY_STRING'];
+			$_SERVER['REQUEST_URI'] = sanitize_text_field( wp_unslash( $_SERVER['SCRIPT_NAME'] ) );
+			$sname				    = sanitize_text_field( wp_unslash( $_SERVER["SCRIPT_NAME"] ) );
+			if ( wp_unslash( $_SERVER['QUERY_STRING'] ) ) {
+				$_SERVER['REQUEST_URI'] .= '?' . sanitize_text_field( wp_unslash( $_SERVER['QUERY_STRING'] ) );
 			}
 		}
 		// echo "sname = $sname<br>";

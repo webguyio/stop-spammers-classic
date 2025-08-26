@@ -19,7 +19,7 @@ class ss_log_good extends be_module {
 			$stats['cnt' . $chk] = 1;
 		}
 		$sname = $this->getSname();
-		$now   = date( 'Y/m/d H:i:s', time() + ( get_option( 'gmt_offset' ) * 3600 ) );
+		$now   = gmdate( 'Y/m/d H:i:s', time() + ( get_option( 'gmt_offset' ) * 3600 ) );
 		// updates counters - adds to log list - adds to Good Cache - then updates stats when done
 		// start with the counters - does some extra checks in case the stats file gets corrupted
 		if ( array_key_exists( 'cntpass', $stats ) ) {
@@ -34,7 +34,7 @@ class ss_log_good extends be_module {
 		while ( count( $goodips ) > $ss_sp_good ) {
 			array_shift( $goodips );
 		}
-		$nowtimeout = date( 'Y/m/d H:i:s', time() - ( 4 * 3600 ) + ( get_option( 'gmt_offset' ) * 3600 ) );
+		$nowtimeout = gmdate( 'Y/m/d H:i:s', time() - ( 4 * 3600 ) + ( get_option( 'gmt_offset' ) * 3600 ) );
 		foreach ( $goodips as $key => $data ) {
 			if ( $data < $nowtimeout ) {
 				unset( $goodips[$key] );

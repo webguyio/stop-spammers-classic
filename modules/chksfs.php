@@ -25,7 +25,7 @@ class chksfs extends be_module {
 				$k		  = strpos( $check, '<lastseen>', $n );
 				$k		 += 10;
 				$j		  = strpos( $check, '</lastseen>', $k );
-				$lastseen = date( 'Y-m-d', time() );
+				$lastseen = gmdate( 'Y-m-d', time() );
 				if ( ( $j - $k ) > 12 && ( $j - $k ) < 24 ) {
 					$lastseen = substr( $check, $k, $j - $k );
 				} // should be about 20 characters

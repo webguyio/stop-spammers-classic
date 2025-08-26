@@ -12,7 +12,7 @@ class ss_remove_bcache {
 		while ( count( $badips ) > $ss_sp_cache ) {
 			array_shift( $badips );
 		}
-		$nowtimeout = date( 'Y/m/d H:i:s', time() - ( 4 * 3600 ) + ( get_option( 'gmt_offset' ) * 3600 ) );
+		$nowtimeout = gmdate( 'Y/m/d H:i:s', time() - ( 4 * 3600 ) + ( get_option( 'gmt_offset' ) * 3600 ) );
 		foreach ( $badips as $key => $data ) {
 			if ( $data < $nowtimeout ) {
 				unset( $badips[$key] );

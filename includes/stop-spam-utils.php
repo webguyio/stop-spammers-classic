@@ -9,16 +9,24 @@ if ( !defined( 'ABSPATH' ) ) {
 }
 
 function ss_append_file( $filename, &$content ) {
-	// this writes content to a file in the uploads director in the 'stop-spammer-registrations' directory
+	// this writes content to a file in the uploads directory in the 'stop-spammer-registrations' directory
 	// changed to write to the current directory - content_dir is a bad place
 	$file = SS_PLUGIN_DATA . $filename;
-	$f	  = @fopen( $file, 'a' );
-	if ( !$f ) {
-		return false;
+	// initialize the WordPress filesystem
+	global $wp_filesystem;
+	if ( empty( $wp_filesystem ) ) {
+		require_once ABSPATH . 'wp-admin/includes/file.php';
+		WP_Filesystem();
 	}
-	fwrite( $f, $content );
-	fclose( $f );
-	@chmod( $file, 0640 ); // read/write for owner and owner groups
+	// check if the file exists and append content
+	if ( $wp_filesystem->exists( $file ) ) {
+		$current_content = $wp_filesystem->get_contents( $file );
+		$content = $current_content . $content; // Append new content
+	} 
+	// write the content to the file
+	if ( $wp_filesystem->put_contents( $file, $content, FS_CHMOD_FILE ) === false ) {
+		return false; // failed to write to the file
+	}
 	return true;
 }
 
@@ -72,7 +80,7 @@ function ss_file_delete( $filename ) {
 
 // debug functions
 // change the debug = false to debug = true to start debugging
-// the plugin will drop a file sfs_debug_output.txt in the current directory (root, wp-admin, or network) 
+// the plugin will drop a file debug.txt in the current directory (root, wp-admin, or network) 
 // directory must be writeable or plugin will crash
 function sfs_errorsonoff( $old = null ) {
 	$debug = true; // change to true to debug, false to stop all debugging
@@ -92,10 +100,10 @@ function sfs_debug_msg( $msg ) {
 	if ( !$debug ) {
 		return;
 	}
-	$now = date( 'Y/m/d H:i:s', time() + ( get_option( 'gmt_offset' ) * 3600 ) );
+	$now = gmdate( 'Y/m/d H:i:s', time() + ( get_option( 'gmt_offset' ) * 3600 ) );
 	// get the program that is running
-	$sname = ( !empty( $_SERVER['REQUEST_URI'] ) ? $_SERVER['REQUEST_URI'] : $_SERVER['SCRIPT_NAME'] );
-	@file_put_contents( SS_PLUGIN_DATA . ".sfs_debug_output.txt", "$now: $sname, $msg, $ip \r\n", FILE_APPEND );
+	$sname = ( !empty( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : sanitize_text_field( wp_unslash( $_SERVER['SCRIPT_NAME'] ) ) );
+	@file_put_contents( SS_PLUGIN_DATA . "debug.txt", "$now: $sname, $msg, $ip \r\n", FILE_APPEND );
 }
 
 function sfs_ErrorHandler( $errno, $errmsg, $filename, $linenum ) {
@@ -123,7 +131,7 @@ function sfs_ErrorHandler( $errno, $errmsg, $filename, $linenum ) {
 	if ( strpos( $errmsg, 'modify header information' ) ) {
 		return false;
 	}
-	$now = date( 'Y/m/d H:i:s', time() + ( get_option( 'gmt_offset' ) * 3600 ) );
+	$now = gmdate( 'Y/m/d H:i:s', time() + ( get_option( 'gmt_offset' ) * 3600 ) );
 	$m1  = memory_get_usage( true );
 	$m2  = memory_get_peak_usage( true );
 	$ip  = ss_get_ip();
@@ -140,7 +148,7 @@ function sfs_ErrorHandler( $errno, $errmsg, $filename, $linenum ) {
 	';
 	$msg = str_replace( "\t", '', $msg );
 	// write out the error
-	@file_put_contents( SS_PLUGIN_DATA . '.sfs_debug_output.txt', $msg, FILE_APPEND );
+	@file_put_contents( SS_PLUGIN_DATA . 'debug.txt', $msg, FILE_APPEND );
 	return false;
 }
 

@@ -172,11 +172,11 @@ function ss_fix_post_vars() {
 		foreach ( $keys as $key ) {
 			try {
 				$key = sanitize_key( $key ); 
-				if ( is_string( $_POST[$key] ) ) {
-					if ( strpos( $_POST[$key], "\n" ) !== false ) {
-						$val2 = sanitize_textarea_field( $_POST[$key] );
+				if ( is_string( wp_unslash( $_POST[$key] ) ) ) {
+					if ( strpos( wp_unslash( $_POST[$key] ), "\n" ) !== false ) {
+						$val2 = sanitize_textarea_field( wp_unslash( $_POST[$key] ) );
 					} else {
-						$val2 = sanitize_text_field( $_POST[$key] );
+						$val2 = sanitize_text_field( wp_unslash( $_POST[$key] ) );
 					}
 					$_POST[$key] = $val2;
 				}

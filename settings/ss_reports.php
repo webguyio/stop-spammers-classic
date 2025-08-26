@@ -16,7 +16,7 @@ $tup	  = SS_PLUGIN_URL . 'images/tup.png';
 $whois	  = SS_PLUGIN_URL . 'images/whois.png';
 $stophand = SS_PLUGIN_URL . 'images/stop.png';
 $search   = SS_PLUGIN_URL . 'images/search.png';
-$now	  = date( 'Y/m/d H:i:s', time() + ( get_option( 'gmt_offset' ) * 3600 ) );
+$now	  = gmdate( 'Y/m/d H:i:s', time() + ( get_option( 'gmt_offset' ) * 3600 ) );
 
 ?>
 
@@ -28,11 +28,11 @@ $now	  = date( 'Y/m/d H:i:s', time() + ( get_option( 'gmt_offset' ) * 3600 ) );
 	extract( $stats );
 	$options = ss_get_options();
 	extract( $options );
-	$ip	   = $_SERVER['REMOTE_ADDR'];
+	$ip	   = sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) );
 	$nonce = '';
 	$msg   = '';
 	if ( array_key_exists( 'ss_stop_spammers_control', $_POST ) ) {
-		$nonce = $_POST['ss_stop_spammers_control'];
+		$nonce = sanitize_text_field( wp_unslash( $_POST['ss_stop_spammers_control'] ) );
 	}
 	if ( wp_verify_nonce( $nonce, 'ss_stopspam_update' ) ) {
 		if ( array_key_exists( 'ss_stop_clear_hist', $_POST ) ) {
@@ -50,7 +50,7 @@ $now	  = date( 'Y/m/d H:i:s', time() + ( get_option( 'gmt_offset' ) * 3600 ) );
 		if ( array_key_exists( 'ss_stop_update_log_size', $_POST ) ) {
 			// update log size
 			if ( array_key_exists( 'ss_sp_hist', $_POST ) ) {
-				$ss_sp_hist			   = stripslashes( sanitize_text_field( $_POST['ss_sp_hist'] ) );
+				$ss_sp_hist			   = stripslashes( sanitize_text_field( wp_unslash( $_POST['ss_sp_hist'] ) ) );
 				$options['ss_sp_hist'] = $ss_sp_hist;
 				$msg				   = '<div class="notice notice-success"><p>' . 'Options Updated' . '</p></div>';
 				// update the options
@@ -124,11 +124,11 @@ $now	  = date( 'Y/m/d H:i:s', time() + ( get_option( 'gmt_offset' ) * 3600 ) );
 			krsort( $hist );
 			foreach ( $hist as $key => $data ) {
 				// $hist[$now]=array($ip,$email,$author,$sname,'begin');
-				$em = strip_tags( trim( $data[1] ) );
-				$dt = strip_tags( $key );
+				$em = wp_strip_all_tags( trim( $data[1] ) );
+				$dt = wp_strip_all_tags( $key );
 				$ip = $data[0];
-				$au = strip_tags( $data[2] );
-				$id = strip_tags( $data[3] );
+				$au = wp_strip_all_tags( $data[2] );
+				$id = wp_strip_all_tags( $data[3] );
 				if ( empty( $au ) ) {
 					$au = ' -- ';
 				}

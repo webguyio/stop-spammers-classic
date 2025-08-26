@@ -16,7 +16,7 @@ License URI: https://www.gnu.org/licenses/gpl.html
 define( 'SS_VERSION', '2025' );
 define( 'SS_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'SS_PLUGIN_FILE', plugin_dir_path( __FILE__ ) );
-define( 'SS_PLUGIN_DATA', plugin_dir_path( __FILE__ ) . 'data/' );
+define( 'SS_PLUGIN_DATA', wp_upload_dir()['basedir'] . '/data/' );
 $ss_check_sempahore = false;
 
 if ( !defined( 'ABSPATH' ) ) {
@@ -27,6 +27,17 @@ if ( !defined( 'ABSPATH' ) ) {
 function ss_assets_version() {
 	return defined( 'WP_DEBUG' ) && WP_DEBUG ? ( string ) time() : SS_VERSION;
 }
+
+// add data folder
+function ss_create_data_folder() {
+	WP_Filesystem();
+	global $wp_filesystem;
+	$upload_dir = wp_upload_dir()['basedir'] . '/data';
+	if ( !$wp_filesystem->is_dir( $upload_dir ) ) {
+		$wp_filesystem->mkdir( $upload_dir, 0700 );
+	}
+}
+register_activation_hook( __FILE__, 'ss_create_data_folder' );
 
 // load admin styles
 function ss_styles() {
@@ -181,7 +192,7 @@ function ss_init() {
 		// see if we are returning from a block
 		if ( array_key_exists( 'ss_block', $_POST ) && array_key_exists( 'kn', $_POST ) ) {
 			// block form hit
-			if ( !empty( $_POST['kn'] ) && wp_verify_nonce( $_POST['kn'], 'ss_stopspam_block' ) ) {
+			if ( !empty( $_POST['kn'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['kn'] ) ), 'ss_stopspam_block' ) ) {
 				// call the checker program
 				sfs_errorsonoff();
 				$options = ss_get_options();
@@ -284,10 +295,10 @@ function ss_set_stats( &$stats, $addon = array() ) {
 	if ( empty( $addon ) || !is_array( $addon ) ) {
 		// need to know if the spam count has changed
 		if ( $stats['spcount'] == 0 || empty( $stats['spdate'] ) ) {
-			$stats['spdate'] = date( 'Y/m/d', time() + ( get_option( 'gmt_offset' ) * 3600 ) );
+			$stats['spdate'] = gmdate( 'Y/m/d', time() + ( get_option( 'gmt_offset' ) * 3600 ) );
 		}
 		if ( $stats['spmcount'] == 0 || empty( $stats['spmdate'] ) ) {
-			$stats['spmdate'] = date( 'Y/m/d', time() + ( get_option( 'gmt_offset' ) * 3600 ) );
+			$stats['spmdate'] = gmdate( 'Y/m/d', time() + ( get_option( 'gmt_offset' ) * 3600 ) );
 		}
 	} else {
 		// update addon stats
@@ -332,7 +343,7 @@ function ss_set_options( $options ) {
 }
 
 function ss_get_ip() {
-	return $_SERVER['REMOTE_ADDR'];
+	return sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) );
 }
 
 function ss_admin_menu() {
@@ -691,7 +702,7 @@ function ss_log_user_ip( $user_login = "", $user = "" ) {
 	}
 	$user_id = $user->ID;
 	// $ip = ss_get_ip();
-	$ip		 = $_SERVER['REMOTE_ADDR'];
+	$ip		 = sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) );
 	$oldip   = get_user_meta( $user_id, 'signup_ip', true );
 	if ( empty( $oldip ) || $ip != $oldip ) {
 		update_user_meta( $user_id, 'signup_ip', $ip );
@@ -715,7 +726,7 @@ class SSRegDate {
 	}
 	public static function users_custom_column( $value, $column_name, $user_id ) {
 		global $mode;
-		$mode = empty( $_REQUEST['mode'] ) ? 'list' : $_REQUEST['mode'];
+		$mode = empty( $_REQUEST['mode'] ) ? 'list' : sanitize_text_field( wp_unslash( $_REQUEST['mode'] ) );
 		if ( 'registerdate' != $column_name ) {
 			return $value;
 		} else {
@@ -821,20 +832,20 @@ function ss_add_captcha() {
 		case 'G':
 			// reCAPTCHA
 			$recaptchaapisite = $options['recaptchaapisite'];
-			$html  = '<script src="https://www.google.com/recaptcha/api.js" async defer></script>';
+			$html  = wp_enqueue_script( 'ss-recaptcha', 'https://www.google.com/recaptcha/api.js', array(), '1', true, array( 'async' => true, 'defer' => true ) );
 			$html .= '<input type="hidden" name="recaptcha" value="recaptcha">';
 			$html .= '<div class="g-recaptcha" data-sitekey="' . $recaptchaapisite . '"></div>';
 		break;
 		case 'H':
 			// hCaptcha
 			$hcaptchaapisite = $options['hcaptchaapisite'];
-			$html  = '<script src="https://hcaptcha.com/1/api.js" async defer></script>';
+			$html  = wp_enqueue_script( 'ss-hcaptcha', 'https://hcaptcha.com/1/api.js', array(), '1', true, array( 'async' => true, 'defer' => true ) );
 			$html .= '<input type="hidden" name="h-captcha" value="h-captcha">';
 			$html .= '<div class="h-captcha" data-sitekey="' . $hcaptchaapisite . '"></div>';
 		break;
 		case 'S':
 			$solvmediaapivchallenge = $options['solvmediaapivchallenge'];
-			$html   = '<script src="https://api-secure.solvemedia.com/papi/challenge.script?k=' . $solvmediaapivchallenge . '"></script>';
+			$html   = wp_enqueue_script( 'ss-solvemedia', 'https://api-secure.solvemedia.com/papi/challenge.script?k=' . $solvmediaapivchallenge, array(), '1', true, array( 'async' => true, 'defer' => true ) );
 			$html  .= '<noscript>';
 			$html  .= '<iframe src="https://api-secure.solvemedia.com/papi/challenge.noscript?k=' . $solvmediaapivchallenge . '" height="300" width="500" frameborder="0"></iframe><br>';
 			$html  .= '<textarea name="adcopy_challenge" rows="3" cols="40"></textarea>';
@@ -858,7 +869,7 @@ function ss_captcha_verify() {
 				if ( empty( $recaptchaapisecret ) || empty( $recaptchaapisite ) ) {
 					return '<strong>Error:</strong> reCAPTCHA keys are not set.';
 				} else {
-					$g    = sanitize_textarea_field( $_REQUEST['g-recaptcha-response'] );
+					$g    = sanitize_textarea_field( wp_unslash( $_REQUEST['g-recaptcha-response'] ) );
 					$url  = "https://www.google.com/recaptcha/api/siteverify?secret=$recaptchaapisecret&response=$g&remoteip=$ip";
 					$resp = ss_read_file( $url );
 					if ( strpos( $resp, '"success": true' ) === false ) {
@@ -875,7 +886,7 @@ function ss_captcha_verify() {
 				if ( empty( $hcaptchaapisecret ) || empty( $hcaptchaapisite ) ) {
 					return '<strong>Error:</strong> hCaptcha keys are not set.';
 				} else {
-					$h    = sanitize_textarea_field( $_REQUEST['h-captcha-response'] );
+					$h    = sanitize_textarea_field( wp_unslash( $_REQUEST['h-captcha-response'] ) );
 					$url  = "https://hcaptcha.com/siteverify?secret=$hcaptchaapisecret&response=$h&remoteip=$ip";
 					$resp = ss_read_file( $url );
 					$response = json_decode( $resp );
@@ -889,8 +900,8 @@ function ss_captcha_verify() {
 			if ( array_key_exists( 'adcopy_challenge', $_POST ) && !empty( $_POST['adcopy_challenge'] ) ) {
 				$solvmediaapivchallenge = $options['solvmediaapivchallenge'];
 				$solvmediaapiverify	    = $options['solvmediaapiverify'];
-				$adcopy_challenge	    = sanitize_textarea_field( $_REQUEST['adcopy_challenge'] );
-				$adcopy_response		= sanitize_textarea_field( $_REQUEST['adcopy_response'] );
+				$adcopy_challenge	    = sanitize_textarea_field( wp_unslash( $_REQUEST['adcopy_challenge'] ) );
+				$adcopy_response		= sanitize_textarea_field( wp_unslash( $_REQUEST['adcopy_response'] ) );
 				$postdata = http_build_query(
 					array(
 						'privatekey' => $solvmediaapiverify,

@@ -12,7 +12,7 @@ if ( !current_user_can( 'manage_options' ) ) {
 ss_fix_post_vars();
 $stats   = ss_get_stats();
 extract( $stats );
-$now	 = date( 'Y/m/d H:i:s', time() + ( get_option( 'gmt_offset' ) * 3600 ) );
+$now	 = gmdate( 'Y/m/d H:i:s', time() + ( get_option( 'gmt_offset' ) * 3600 ) );
 $options = ss_get_options();
 extract( $options );
 $stats   = ss_get_stats();
@@ -27,7 +27,7 @@ $ajaxurl = admin_url( 'admin-ajax.php' );
 
 // update options
 if ( array_key_exists( 'ss_stop_spammers_control', $_POST ) ) {
-	$nonce = $_POST['ss_stop_spammers_control'];
+	$nonce = sanitize_text_field( wp_unslash( $_POST['ss_stop_spammers_control'] ) );
 }
 
 if ( !empty( $nonce ) && wp_verify_nonce( $nonce, 'ss_stopspam_update' ) ) {
@@ -37,7 +37,7 @@ if ( !empty( $nonce ) && wp_verify_nonce( $nonce, 'ss_stopspam_update' ) ) {
 		ss_set_stats( $stats );
 	}
 	if ( array_key_exists( 'wlist', $_POST ) and !array_key_exists( 'ss_stop_clear_wlreq', $_POST ) ) {
-		$wlist  = sanitize_textarea_field( $_POST['wlist'] );
+		$wlist  = sanitize_textarea_field( wp_unslash( $_POST['wlist'] ) );
 		$wlist  = explode( "\n", $wlist );
 		$tblist = array();
 		foreach ( $wlist as $bl ) {
@@ -67,7 +67,7 @@ if ( !empty( $nonce ) && wp_verify_nonce( $nonce, 'ss_stopspam_update' ) ) {
 		foreach ( $optionlist as $check ) {
 			$v = 'N';
 			if ( array_key_exists( $check, $_POST ) ) {
-				$v = $_POST[$check];
+				$v = sanitize_text_field( wp_unslash( $_POST[$check] ) );
 				if ( $v != 'Y' ) {
 					$v = 'N';
 				}

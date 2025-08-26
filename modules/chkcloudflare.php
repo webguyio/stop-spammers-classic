@@ -83,7 +83,7 @@ class chkcloudflare extends be_module {
 		// we need to use the IP borrowed from Cloudflare
 		if ( array_key_exists( 'HTTP_CF_CONNECTING_IP', $_SERVER ) ) {
 			if ( array_key_exists( 'REMOTE_ADDR', $_SERVER ) ) {
-				$_SERVER["REMOTE_ADDR"] = $_SERVER["HTTP_CF_CONNECTING_IP"];
+				$_SERVER["REMOTE_ADDR"] = sanitize_text_field( wp_unslash( $_SERVER["HTTP_CF_CONNECTING_IP"] ) );
 				return false;
 			}
 		}

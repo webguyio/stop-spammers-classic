@@ -16,7 +16,7 @@ class chkagent extends be_module {
 		}
 		$agent = "";
 		if ( array_key_exists( 'HTTP_USER_AGENT', $_SERVER ) ) {
-			$agent = $_SERVER['HTTP_USER_AGENT'];
+			$agent = sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) );
 		}
 		if ( empty( $agent ) ) {
 			return 'Missing User Agent';

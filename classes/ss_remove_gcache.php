@@ -12,7 +12,7 @@ class ss_remove_gcache {
 		while ( count( $goodips ) > $ss_sp_good ) {
 			array_shift( $goodips );
 		}
-		$nowtimeout = date( 'Y/m/d H:i:s', time() - ( 4 * 3600 ) + ( get_option( 'gmt_offset' ) * 3600 ) );
+		$nowtimeout = gmdate( 'Y/m/d H:i:s', time() - ( 4 * 3600 ) + ( get_option( 'gmt_offset' ) * 3600 ) );
 		foreach ( $goodips as $key => $data ) {
 			if ( $data < $nowtimeout ) {
 				unset( $goodips[$key] );

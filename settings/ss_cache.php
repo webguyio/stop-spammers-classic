@@ -12,7 +12,7 @@ if ( !current_user_can( 'manage_options' ) ) {
 ss_fix_post_vars();
 $stats   = ss_get_stats();
 extract( $stats );
-$now	 = date( 'Y/m/d H:i:s', time() + ( get_option( 'gmt_offset' ) * 3600 ) );
+$now	 = gmdate( 'Y/m/d H:i:s', time() + ( get_option( 'gmt_offset' ) * 3600 ) );
 $options = ss_get_options();
 extract( $options );
 // temp: not used in file
@@ -21,17 +21,17 @@ $ajaxurl = admin_url( 'admin-ajax.php' );
 
 // update options
 if ( array_key_exists( 'ss_stop_spammers_control', $_POST ) ) {
-	$nonce = $_POST['ss_stop_spammers_control'];
+	$nonce = sanitize_text_field( wp_unslash( $_POST['ss_stop_spammers_control'] ) );
 }
 
 if ( !empty( $nonce ) && wp_verify_nonce( $nonce, 'ss_stopspam_update' ) ) {
 	if ( array_key_exists( 'update_options', $_POST ) ) {
 		if ( array_key_exists( 'ss_sp_cache', $_POST ) ) {
-			$ss_sp_cache			= stripslashes( sanitize_text_field( $_POST['ss_sp_cache'] ) );
+			$ss_sp_cache			= stripslashes( sanitize_text_field( wp_unslash( $_POST['ss_sp_cache'] ) ) );
 			$options['ss_sp_cache'] = $ss_sp_cache;
 		}
 		if ( array_key_exists( 'ss_sp_good', $_POST ) ) {
-			$ss_sp_good			   = stripslashes( sanitize_text_field( $_POST['ss_sp_good'] ) );
+			$ss_sp_good			   = stripslashes( sanitize_text_field( wp_unslash( $_POST['ss_sp_good'] ) ) );
 			$options['ss_sp_good'] = $ss_sp_good;
 		}
 		ss_set_options( $options );
@@ -40,7 +40,7 @@ if ( !empty( $nonce ) && wp_verify_nonce( $nonce, 'ss_stopspam_update' ) ) {
 
 // clear the cache
 if ( array_key_exists( 'ss_stop_spammers_control', $_POST ) ) {
-	$nonce = $_POST['ss_stop_spammers_control'];
+	$nonce = sanitize_text_field( wp_unslash( $_POST['ss_stop_spammers_control'] ) );
 }
 
 if ( wp_verify_nonce( $nonce, 'ss_stopspam_update' ) ) {

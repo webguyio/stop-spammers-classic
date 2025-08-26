@@ -15,11 +15,11 @@ class chkreferer extends be_module {
 		$ref = '';
 		// made it this far - there is a post
 		if ( array_key_exists( 'HTTP_REFERER', $_SERVER ) ) {
-			$ref = $_SERVER['HTTP_REFERER'];
+			$ref = sanitize_text_field( wp_unslash( $_SERVER['HTTP_REFERER'] ) );
 		}
 		$ua = '';
 		if ( array_key_exists( 'HTTP_USER_AGENT', $_SERVER ) ) {
-			$ua = $_SERVER['HTTP_USER_AGENT'];
+			$ua = sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) );
 		}
 		$a = array( false, '' );
 		if ( strpos( strtolower( $ua ), 'iphone' ) === false && strpos( strtolower( $ua ), 'ipad' ) === false ) {
@@ -27,7 +27,7 @@ class chkreferer extends be_module {
 		}
 		// require the referer
 		// check to see if our domain is found in the referer
-		$host = $_SERVER['HTTP_HOST'];
+		$host = sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) );
 		if ( empty( $ref ) ) {
 			return 'Missing HTTP_REFERER';
 		}

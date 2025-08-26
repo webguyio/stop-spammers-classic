@@ -47,27 +47,27 @@ class ss_challenge extends be_module {
 			// sfs_debug_msg( 'second time' );
 			// get the post items
 			if ( isset( $_POST['ke'] ) ) {
-				$ke = sanitize_email( $_POST['ke'] );
+				$ke = sanitize_email( wp_unslash( $_POST['ke'] ) );
 			}
 			if ( array_key_exists( 'ke', $_POST ) ) {
-				$ke = sanitize_email( $_POST['ke'] );
+				$ke = sanitize_email( wp_unslash( $_POST['ke'] ) );
 			}
 			if ( array_key_exists( 'km', $_POST ) ) {
-				$km = sanitize_text_field( $_POST['km'] );
+				$km = sanitize_text_field( wp_unslash( $_POST['km'] ) );
 			}
 			if ( strlen( $km ) > 80 ) {
 				$km = substr( $km, 0, 77 ) . '...';
 			}
 			if ( array_key_exists( 'kr', $_POST ) ) {
-				$kr = sanitize_text_field( $_POST['kr'] );
+				$kr = sanitize_text_field( wp_unslash( $_POST['kr'] ) );
 			}
 			if ( array_key_exists( 'ka', $_POST ) ) {
-				$ka = sanitize_text_field( $_POST['ka'] );
+				$ka = sanitize_text_field( wp_unslash( $_POST['ka'] ) );
 			}
 			if ( array_key_exists( 'kp', $_POST ) ) {
-				$kp = sanitize_textarea_field( $_POST['kp'] );
+				$kp = sanitize_textarea_field( wp_unslash( $_POST['kp'] ) );
 			} // serialized post
-			if ( !empty( $_POST['kn'] ) && wp_verify_nonce( $_POST['kn'], 'ss_stopspam_block' ) ) {
+			if ( !empty( $_POST['kn'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash ( wp_unslash( $_POST['kn'] ) ) ), 'ss_stopspam_block' ) ) {
 				// sfs_debug_msg( 'nonce is good' );
 				// have a form return
 				// 1) to see if the allow by request has been triggered
@@ -100,7 +100,7 @@ class ss_challenge extends be_module {
 							if ( empty( $recaptchaapisecret ) || empty( $recaptchaapisite ) ) {
 								$msg = 'reCAPTCHA keys are not set.';
 							} else {
-								$g = sanitize_textarea_field( $_REQUEST['g-recaptcha-response'] );
+								$g = sanitize_textarea_field( wp_unslash( $_REQUEST['g-recaptcha-response'] ) );
 								// $url = "https://www.google.com/recaptcha/api/siteverify";
 								$url  = "https://www.google.com/recaptcha/api/siteverify?secret=$recaptchaapisecret&response=$g&remoteip=$ip";
 								$resp = ss_read_file( $url );
@@ -131,7 +131,7 @@ class ss_challenge extends be_module {
 							if ( empty( $hcaptchaapisecret ) || empty( $hcaptchaapisite ) ) {
 								$msg = 'hCaptcha keys are not set.';
 							} else {
-								$h = sanitize_textarea_field( $_REQUEST['h-captcha-response'] );
+								$h = sanitize_textarea_field( wp_unslash( $_REQUEST['h-captcha-response'] ) );
 								// $url = "https://hcaptcha.com/siteverify";
 								$url  = "https://hcaptcha.com/siteverify?secret=$hcaptchaapisecret&response=$h&remoteip=$ip";
 								$resp = ss_read_file( $url );
@@ -156,8 +156,8 @@ class ss_challenge extends be_module {
 							// solve media
 							$solvmediaapivchallenge = $options['solvmediaapivchallenge'];
 							$solvmediaapiverify	    = $options['solvmediaapiverify'];
-							$adcopy_challenge	    = sanitize_textarea_field( $_REQUEST['adcopy_challenge'] );
-							$adcopy_response		= sanitize_textarea_field( $_REQUEST['adcopy_response'] );
+							$adcopy_challenge	    = sanitize_textarea_field( wp_unslash( $_REQUEST['adcopy_challenge'] ) );
+							$adcopy_response		= sanitize_textarea_field( wp_unslash( $_REQUEST['adcopy_response'] ) );
 							// $ip = '127.0.0.1';
 							$postdata = http_build_query(
 								array(
@@ -222,9 +222,9 @@ class ss_challenge extends be_module {
 							if ( !empty( $spdate ) ) {
 								$seed = strtotime( $spdate );
 							}
-							$nums  = really_clean( sanitize_text_field( $_POST['nums'] ) );
+							$nums  = really_clean( sanitize_text_field( wp_unslash( $_POST['nums'] ) ) );
 							$nums += $seed;
-							$sum   = really_clean( sanitize_text_field( $_POST['sum'] ) );
+							$sum   = really_clean( sanitize_text_field( wp_unslash( $_POST['sum'] ) ) );
 							if ( $sum == $nums ) {
 								$_POST = unserialize( base64_decode( $kp ), ['allowed_classes' => false] );
 								// sfs_debug_msg( "trying to return the post to the comments program" . print_r( $_POST, true ) );
@@ -294,7 +294,7 @@ class ss_challenge extends be_module {
 				// reCAPTCHA
 				$recaptchaapisite = $options['recaptchaapisite'];
 				$cap			  = "
-					<script src='https://www.google.com/recaptcha/api.js' async defer></script>\r\n
+					" . wp_enqueue_script( 'ss-recaptcha', 'https://www.google.com/recaptcha/api.js', array(), '1', true, array( 'async' => true, 'defer' => true ) ) . "
 					<input type='hidden' name='recaptcha' value='recaptcha'>
 					<div class='g-recaptcha' data-sitekey='$recaptchaapisite'></div>
 				";
@@ -303,7 +303,7 @@ class ss_challenge extends be_module {
 				// HCAPTCHA
 				$hcaptchaapisite = $options['hcaptchaapisite'];
 				$cap			  = "
-					<script src='https://hcaptcha.com/1/api.js' async defer></script>\r\n
+					" . wp_enqueue_script( 'ss-hcaptcha', 'https://hcaptcha.com/1/api.js', array(), '1', true, array( 'async' => true, 'defer' => true ) ) . "
 					<input type='hidden' name='h-captcha' value='h-captcha'>
 					<div class='h-captcha' data-sitekey='$hcaptchaapisite'></div>
 				";
@@ -311,7 +311,7 @@ class ss_challenge extends be_module {
 			case 'S':
 				$solvmediaapivchallenge = $options['solvmediaapivchallenge'];
 				$cap					= "
-					<script src='https://api-secure.solvemedia.com/papi/challenge.script?k=$solvmediaapivchallenge'></script>
+					" . wp_enqueue_script( 'ss-solvemedia', 'https://api-secure.solvemedia.com/papi/challenge.script?k=' . $solvmediaapivchallenge, array(), '1', true, array( 'async' => true, 'defer' => true ) ) . "
 					<noscript>
 					<iframe src='https://api-secure.solvemedia.com/papi/challenge.noscript?k=$solvmediaapivchallenge' height='300' width='500' frameborder='0'></iframe><br>
 					<textarea name='adcopy_challenge' rows='3' cols='40'></textarea>
@@ -322,8 +322,8 @@ class ss_challenge extends be_module {
 			case 'A':
 			case 'Y':
 				// arithmetic
-				$n1 = rand( 1, 9 );
-				$n2 = rand( 1, 9 );
+				$n1 = wp_rand( 1, 9 );
+				$n2 = wp_rand( 1, 9 );
 				// try a much more interesting way that can't be generalized
 				// use the "since" date from stats
 				$seed   = 5;
@@ -362,7 +362,7 @@ class ss_challenge extends be_module {
 			$capbot
 			$formbot
 		";
-		wp_die( wp_kses_post( $ansa ), "Stop Spammers", array( 'response' => 200 ) );
+		wp_die( $ansa, "Stop Spammers", array( 'response' => 200 ) );
 		exit();
 	}
 
@@ -377,16 +377,16 @@ class ss_challenge extends be_module {
 		}
 		if ( array_key_exists( 'ke', $_POST ) && !empty( $_POST['ke'] ) ) {
 			// send wp_mail to sysop
-			$now = date( 'Y/m/d H:i:s', time() + ( get_option( 'gmt_offset' ) * 3600 ) );
-			$ke  = sanitize_email( $_POST['ke'] );
+			$now = gmdate( 'Y/m/d H:i:s', time() + ( get_option( 'gmt_offset' ) * 3600 ) );
+			$ke  = sanitize_email( wp_unslash( $_POST['ke'] ) );
 			if ( !is_email( $ke ) || empty( $ke ) ) {
 				return false;
 			}
-			$km = sanitize_text_field( $_POST['km'] );
+			$km = sanitize_text_field( wp_unslash( $_POST['km'] ) );
 			if ( strlen( $km ) > 200 ) {
 				$km = substr( $km, 0, 197 ) . '...';
 			}
-			$kr = really_clean( sanitize_text_field( $_POST['kr'] ) );
+			$kr = really_clean( sanitize_text_field( wp_unslash( $_POST['kr'] ) ) );
 			$to = get_option( 'admin_email' );
 			if ( !empty( $wlreqmail ) ) {
 				$to = $wlreqmail;
@@ -427,10 +427,10 @@ class ss_challenge extends be_module {
 		// add to the wlrequest option
 		// time, ip, email, author, reasion, info, sname
 		$sname = $this->getSname();
-		$now   = date( 'Y/m/d H:i:s', time() + ( get_option( 'gmt_offset' ) * 3600 ) );
+		$now   = gmdate( 'Y/m/d H:i:s', time() + ( get_option( 'gmt_offset' ) * 3600 ) );
 		$ke	   = "";
 		if ( array_key_exists( 'ke', $_POST ) ) {
-			$ke = sanitize_text_field( $_POST['ke'] ); // email
+			$ke = sanitize_text_field( wp_unslash( $_POST['ke'] ) ); // email
 		}
 		// sfs_debug_msg( "in add allow: '$ke'" );
 		if ( empty( $ke ) ) {
@@ -439,12 +439,12 @@ class ss_challenge extends be_module {
 		if ( !is_email( $ke ) ) {
 			return false;
 		}
-		$km  = really_clean( sanitize_text_field( $_POST['km'] ) ); // user message
+		$km  = really_clean( sanitize_text_field( wp_unslash( $_POST['km'] ) ) ); // user message
 		if ( strlen( $km ) > 80 ) {
 			$km = substr( $km, 0, 77 ) . '...';
 		}
-		$kr  = really_clean( sanitize_text_field( $_POST['kr'] ) ); // reason
-		$ka  = really_clean( sanitize_user( $_POST['ka'] ) ); // author
+		$kr  = really_clean( sanitize_text_field( wp_unslash( $_POST['kr'] ) ) ); // reason
+		$ka  = really_clean( sanitize_user( wp_unslash( $_POST['ka'] ) ) ); // author
 		$req = array( $ip, $ke, $ka, $kr, $km, $sname );
 		// add to the request list
 		$wlrequests = $stats['wlrequests'];

@@ -12,7 +12,7 @@ class ss_log_bad extends be_module {
 		extract( $stats );
 		extract( $post );
 		$sname = $this->getSname();
-		$now   = date( 'Y/m/d H:i:s', time() + ( get_option( 'gmt_offset' ) * 3600 ) );
+		$now   = gmdate( 'Y/m/d H:i:s', time() + ( get_option( 'gmt_offset' ) * 3600 ) );
 		// updates counters - adds to log list - adds to Bad Cache - then updates stats when done
 		// start with the counters - does some extra checks in case the stats file gets corrupted
 		if ( array_key_exists( 'spcount', $stats ) ) {
@@ -37,7 +37,7 @@ class ss_log_bad extends be_module {
 		while ( count( $badips ) > $ss_sp_cache ) {
 			array_shift( $badips );
 		}
-		$nowtimeout = date( 'Y/m/d H:i:s', time() - ( 4 * 3600 ) + ( get_option( 'gmt_offset' ) * 3600 ) );
+		$nowtimeout = gmdate( 'Y/m/d H:i:s', time() - ( 4 * 3600 ) + ( get_option( 'gmt_offset' ) * 3600 ) );
 		foreach ( $badips as $key => $data ) {
 			if ( $data < $nowtimeout ) {
 				unset( $badips[$key] );

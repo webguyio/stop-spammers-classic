@@ -8,7 +8,7 @@ if ( !defined( 'ABSPATH' ) ) {
 class ss_addtoblocklist {
 	public function process( $ip, &$stats = array(), &$options = array(), &$post = array() ) {
 		// adds to Block List
-		$now = date( 'Y/m/d H:i:s', time() + ( get_option( 'gmt_offset' ) * 3600 ) );
+		$now = gmdate( 'Y/m/d H:i:s', time() + ( get_option( 'gmt_offset' ) * 3600 ) );
 		$blist = $options['blist'];
 		// add this IP to your Allow List
 		if ( !in_array( $ip, $blist ) ) {

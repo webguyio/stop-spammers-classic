@@ -76,9 +76,9 @@ class ss_get_stats {
 			'cntcap'   => 0, // CAPTCHA success
 			'cntncap'  => 0, // CAPTCHA not success
 			'cntpass'  => 0, // passed
-			'spmdate'  => date( 'Y/m/d',
+			'spmdate'  => gmdate( 'Y/m/d',
 				time() + ( get_option( 'gmt_offset' ) * 3600 ) ),
-			'spdate'   => date( 'Y/m/d',
+			'spdate'   => gmdate( 'Y/m/d',
 				time() + ( get_option( 'gmt_offset' ) * 3600 ) )
 		);
 		$defaultsCountries = array(
@@ -252,10 +252,10 @@ class ss_get_stats {
 			$ansa['spmcount'] = 0;
 		}
 		if ( $ansa['spcount'] == 0 ) {
-			$ansa['spdate'] = date( 'Y/m/d', time() + ( get_option( 'gmt_offset' ) * 3600 ) );
+			$ansa['spdate'] = gmdate( 'Y/m/d', time() + ( get_option( 'gmt_offset' ) * 3600 ) );
 		}
 		if ( $ansa['spmcount'] == 0 ) {
-			$ansa['spmdate'] = date( 'Y/m/d', time() + ( get_option( 'gmt_offset' ) * 3600 ) );
+			$ansa['spmdate'] = gmdate( 'Y/m/d', time() + ( get_option( 'gmt_offset' ) * 3600 ) );
 		}
 		$ansa['version'] = SS_VERSION;
 		ss_set_stats( $ansa );

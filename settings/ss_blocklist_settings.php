@@ -10,18 +10,18 @@ if ( !current_user_can( 'manage_options' ) ) {
 }
 
 ss_fix_post_vars();
-$now	 = date( 'Y/m/d H:i:s', time() + ( get_option( 'gmt_offset' ) * 3600 ) );
+$now	 = gmdate( 'Y/m/d H:i:s', time() + ( get_option( 'gmt_offset' ) * 3600 ) );
 $options = ss_get_options();
 extract( $options );
 $nonce   = '';
 
 if ( array_key_exists( 'ss_stop_spammers_control', $_POST ) ) {
-	$nonce = $_POST['ss_stop_spammers_control'];
+	$nonce = sanitize_text_field( wp_unslash( $_POST['ss_stop_spammers_control'] ) );
 }
 
 if ( !empty( $nonce ) && wp_verify_nonce( $nonce, 'ss_stopspam_update' ) ) {
 	if ( array_key_exists( 'blist', $_POST ) ) {
-		$blist = sanitize_textarea_field( $_POST['blist'] );
+		$blist = sanitize_textarea_field( wp_unslash( $_POST['blist'] ) );
 		if ( empty( $blist ) ) {
 			$blist = array();
 		} else {
@@ -38,7 +38,7 @@ if ( !empty( $nonce ) && wp_verify_nonce( $nonce, 'ss_stopspam_update' ) ) {
 		$blist			  = $tblist;
 	}
 	if ( array_key_exists( 'spamwords', $_POST ) ) {
-		$spamwords = sanitize_textarea_field( $_POST['spamwords'] );
+		$spamwords = sanitize_textarea_field( wp_unslash( $_POST['spamwords'] ) );
 		if ( empty( $spamwords ) ) {
 			$spamwords = array();
 		} else {
@@ -55,7 +55,7 @@ if ( !empty( $nonce ) && wp_verify_nonce( $nonce, 'ss_stopspam_update' ) ) {
 		$spamwords			  = $tblist;
 	}
 	if ( array_key_exists( 'blockurlshortners', $_POST ) ) {
-		$blockurlshortners = sanitize_textarea_field( $_POST['blockurlshortners'] );
+		$blockurlshortners = sanitize_textarea_field( wp_unslash( $_POST['blockurlshortners'] ) );
 		if ( empty( $blockurlshortners ) ) {
 			$blockurlshortners = array();
 		} else {
@@ -72,7 +72,7 @@ if ( !empty( $nonce ) && wp_verify_nonce( $nonce, 'ss_stopspam_update' ) ) {
 		$blockurlshortners			  = $tblist;
 	}
 	if ( array_key_exists( 'badTLDs', $_POST ) ) {
-		$badTLDs = sanitize_textarea_field( $_POST['badTLDs'] );
+		$badTLDs = sanitize_textarea_field( wp_unslash( $_POST['badTLDs'] ) );
 		if ( empty( $badTLDs ) ) {
 			$badTLDs = array();
 		} else {
@@ -89,7 +89,7 @@ if ( !empty( $nonce ) && wp_verify_nonce( $nonce, 'ss_stopspam_update' ) ) {
 		$badTLDs			= $tblist;
 	}
 	if ( array_key_exists( 'badagents', $_POST ) ) {
-		$badagents = sanitize_textarea_field( $_POST['badagents'] );
+		$badagents = sanitize_textarea_field( wp_unslash( $_POST['badagents'] ) );
 		if ( empty( $badagents ) ) {
 			$badagents = array();
 		} else {
@@ -116,7 +116,7 @@ if ( !empty( $nonce ) && wp_verify_nonce( $nonce, 'ss_stopspam_update' ) ) {
 	foreach ( $optionlist as $check ) {
 		$v = 'N';
 		if ( array_key_exists( $check, $_POST ) ) {
-			$v = $_POST[$check];
+			$v = sanitize_text_field( wp_unslash( $_POST[$check] ) );
 			if ( $v != 'Y' ) {
 				$v = 'N';
 			}
