@@ -2,8 +2,8 @@
 // Allow List - returns false if not found
 
 if ( !defined( 'ABSPATH' ) ) {
-	http_response_code( 404 );
-	die();
+	status_header( 404 );
+	exit;
 }
 
 // last updated from https://www.paypal.com/us/cshelp/article/what-are-the-ip-addresses-for-live-paypal-servers-ts1056 on 2/29/24

@@ -2,8 +2,8 @@
 // adds to the Good Cache and log
 
 if ( !defined( 'ABSPATH' ) ) {
-	http_response_code( 404 );
-	die();
+	status_header( 404 );
+	exit;
 }
 
 class ss_log_good extends be_module {

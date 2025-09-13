@@ -4,8 +4,8 @@
 // rename each function with an _l and then call after a load
 
 if ( !defined( 'ABSPATH' ) ) {
-	http_response_code( 404 );
-	die();
+	status_header( 404 );
+	exit;
 }
 
 function ss_append_file( $filename, &$content ) {
@@ -102,7 +102,7 @@ function sfs_debug_msg( $msg ) {
 	}
 	$now = gmdate( 'Y/m/d H:i:s', time() + ( get_option( 'gmt_offset' ) * 3600 ) );
 	// get the program that is running
-	$sname = ( !empty( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : sanitize_text_field( wp_unslash( $_SERVER['SCRIPT_NAME'] ) ) );
+	$sname = isset( $_SERVER['REQUEST_URI'] ) && ! empty( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : ( isset( $_SERVER['SCRIPT_NAME'] ) ? sanitize_text_field( wp_unslash( $_SERVER['SCRIPT_NAME'] ) ) : '' );
 	@file_put_contents( SS_PLUGIN_DATA . "debug.txt", "$now: $sname, $msg, $ip \r\n", FILE_APPEND );
 }
 

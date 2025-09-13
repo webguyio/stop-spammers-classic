@@ -2,8 +2,8 @@
 // Allow List - returns false if not found
 
 if ( !defined( 'ABSPATH' ) ) {
-	http_response_code( 404 );
-	die();
+	status_header( 404 );
+	exit;
 }
 
 // last updated from https://docs.aws.amazon.com/vpc/latest/userguide/aws-ip-ranges.html on 12/22/20

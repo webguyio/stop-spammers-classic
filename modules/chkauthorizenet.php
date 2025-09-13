@@ -2,8 +2,8 @@
 // Allow List - returns false if not found
 
 if ( !defined( 'ABSPATH' ) ) {
-	http_response_code( 404 );
-	die();
+	status_header( 404 );
+	exit;
 }
 
 // last updated from https://support.authorize.net/knowledgebase/Knowledgearticle/?code=000001158 on 2/29/24

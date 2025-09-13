@@ -1,14 +1,14 @@
 <?php
 
 if ( !defined( 'ABSPATH' ) ) {
-	http_response_code( 404 );
-	die();
+	status_header( 404 );
+	exit;
 }
 
 class chkbluserid extends be_module { // change name
+	public $searchname = 'Allow List Email';
 	public function process( $ip, &$stats = array(), &$options = array(), &$post = array() ) {
 		// checks the user author or login ID
-		$this->searchname = 'Allow List Email';
 		$user			  = $post['author'];
 		if ( empty( $user ) ) {
 			return false;

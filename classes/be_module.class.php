@@ -1,8 +1,8 @@
 <?php
 
 if ( !defined( 'ABSPATH' ) ) {
-	http_response_code( 404 );
-	die();
+	status_header( 404 );
+	exit;
 }
 
 class be_module {
@@ -40,23 +40,19 @@ class be_module {
 	}
 
 	public static function getSname() {
-	// gets the module name from the URL address line
+		// gets the module name from the URL address line
 		$sname = '';
 		if ( isset( $_SERVER['REQUEST_URI'] ) ) {
-			$sname = sanitize_text_field( wp_unslash( $_SERVER["REQUEST_URI"] ) );
+			$sname = sanitize_url( wp_unslash( $_SERVER['REQUEST_URI'] ) );
 		}
 		if ( empty( $sname ) ) {
-			$_SERVER['REQUEST_URI'] = sanitize_text_field( wp_unslash( $_SERVER['SCRIPT_NAME'] ) );
-			$sname				    = sanitize_text_field( wp_unslash( $_SERVER["SCRIPT_NAME"] ) );
-			if ( wp_unslash( $_SERVER['QUERY_STRING'] ) ) {
-				$_SERVER['REQUEST_URI'] .= '?' . sanitize_text_field( wp_unslash( $_SERVER['QUERY_STRING'] ) );
+			$_SERVER['REQUEST_URI'] = isset( $_SERVER['SCRIPT_NAME'] ) ? sanitize_url( wp_unslash( $_SERVER['SCRIPT_NAME'] ) ) : '';
+			$sname = isset( $_SERVER['SCRIPT_NAME'] ) ? sanitize_url( wp_unslash( $_SERVER['SCRIPT_NAME'] ) ) : '';
+			if ( isset( $_SERVER['QUERY_STRING'] ) && !empty( wp_unslash( $_SERVER['QUERY_STRING'] ) ) ) {
+				$_SERVER['REQUEST_URI'] .= '?' . sanitize_query_var( wp_unslash( $_SERVER['QUERY_STRING'] ) );
 			}
 		}
-		// echo "sname = $sname<br>";
-		if ( empty( $sname ) ) {
-			$sname = '';
-		}
-		return $sname;
+		return empty( $sname ) ? '' : $sname;
 	}
 
 	public static function cidr2str( $ipl, $bits ) {
@@ -216,6 +212,7 @@ class be_module {
 
 	public function ipListMatch( $ip ) {
 		// does a match agains a list of IP addresses
+		$ip = is_array( $ip ) ? $ip[0] : $ip;
 		$ipt = be_module::ip2numstr( $ip );
 		foreach ( $this->searchlist as $c ) {
 			if ( !is_array( $c ) ) {

@@ -1,8 +1,8 @@
 <?php
 
 if ( !defined( 'ABSPATH' ) ) {
-	http_response_code( 404 );
-	die();
+	status_header( 404 );
+	exit;
 }
 
 if ( !current_user_can( 'manage_options' ) ) {
@@ -21,89 +21,43 @@ if ( array_key_exists( 'ss_stop_spammers_control', $_POST ) ) {
 
 if ( !empty( $nonce ) && wp_verify_nonce( $nonce, 'ss_stopspam_update' ) ) {
 	if ( array_key_exists( 'blist', $_POST ) ) {
-		$blist = sanitize_textarea_field( wp_unslash( $_POST['blist'] ) );
-		if ( empty( $blist ) ) {
-			$blist = array();
-		} else {
-			$blist = explode( "\n", $blist );
-		}
-		$tblist = array();
-		foreach ( $blist as $bl ) {
-			$bl = trim( $bl );
-			if ( !empty( $bl ) ) {
-				$tblist[] = $bl;
-			}
-		}
-		$options['blist'] = $tblist;
-		$blist			  = $tblist;
+		$raw_input = sanitize_textarea_field( wp_unslash( $_POST['blist'] ) );
+		$blist = preg_split( '/\s+/', $raw_input, -1, PREG_SPLIT_NO_EMPTY );
+		$blist = array_map( 'sanitize_text_field', $blist );
+		$blist = array_filter( $blist );
+		$options['blist'] = $blist;
 	}
 	if ( array_key_exists( 'spamwords', $_POST ) ) {
-		$spamwords = sanitize_textarea_field( wp_unslash( $_POST['spamwords'] ) );
-		if ( empty( $spamwords ) ) {
-			$spamwords = array();
-		} else {
-			$spamwords = explode( "\n", $spamwords );
-		}
-		$tblist = array();
-		foreach ( $spamwords as $bl ) {
-			$bl = trim( $bl );
-			if ( !empty( $bl ) ) {
-				$tblist[] = $bl;
-			}
-		}
-		$options['spamwords'] = $tblist;
-		$spamwords			  = $tblist;
+		$raw_input = sanitize_textarea_field( wp_unslash( $_POST['spamwords'] ) );
+		$spamwords = preg_split( '/\s+/', $raw_input, -1, PREG_SPLIT_NO_EMPTY );
+		$spamwords = array_map( 'sanitize_text_field', $spamwords );
+		$spamwords = array_filter( $spamwords );
+		$options['spamwords'] = $spamwords;
 	}
 	if ( array_key_exists( 'blockurlshortners', $_POST ) ) {
-		$blockurlshortners = sanitize_textarea_field( wp_unslash( $_POST['blockurlshortners'] ) );
-		if ( empty( $blockurlshortners ) ) {
+		$raw_input = sanitize_textarea_field( wp_unslash( $_POST['blockurlshortners'] ) );
+		if ( empty( $raw_input ) ) {
 			$blockurlshortners = array();
 		} else {
-			$blockurlshortners = explode( "\n", $blockurlshortners );
+			$blockurlshortners = preg_split( '/\s+/', $raw_input, -1, PREG_SPLIT_NO_EMPTY );
+			$blockurlshortners = array_map( 'sanitize_text_field', $blockurlshortners );
+			$blockurlshortners = array_filter( $blockurlshortners );
 		}
-		$tblist = array();
-		foreach ( $blockurlshortners as $bl ) {
-			$bl = trim( $bl );
-			if ( !empty( $bl ) ) {
-				$tblist[] = $bl;
-			}
-		}
-		$options['blockurlshortners'] = $tblist;
-		$blockurlshortners			  = $tblist;
+		$options['blockurlshortners'] = $blockurlshortners;
 	}
 	if ( array_key_exists( 'badTLDs', $_POST ) ) {
-		$badTLDs = sanitize_textarea_field( wp_unslash( $_POST['badTLDs'] ) );
-		if ( empty( $badTLDs ) ) {
-			$badTLDs = array();
-		} else {
-			$badTLDs = explode( "\n", $badTLDs );
-		}
-		$tblist = array();
-		foreach ( $badTLDs as $bl ) {
-			$bl = trim( $bl );
-			if ( !empty( $bl ) ) {
-				$tblist[] = $bl;
-			}
-		}
-		$options['badTLDs'] = $tblist;
-		$badTLDs			= $tblist;
+		$raw_input = sanitize_textarea_field( wp_unslash( $_POST['badTLDs'] ) );
+		$badTLDs = preg_split( '/\s+/', $raw_input, -1, PREG_SPLIT_NO_EMPTY );
+		$badTLDs = array_map( 'sanitize_text_field', $badTLDs );
+		$badTLDs = array_filter( $badTLDs );
+		$options['badTLDs'] = $badTLDs;
 	}
 	if ( array_key_exists( 'badagents', $_POST ) ) {
-		$badagents = sanitize_textarea_field( wp_unslash( $_POST['badagents'] ) );
-		if ( empty( $badagents ) ) {
-			$badagents = array();
-		} else {
-			$badagents = explode( "\n", $badagents );
-		}
-		$tblist = array();
-		foreach ( $badagents as $bl ) {
-			$bl = trim( $bl );
-			if ( !empty( $bl ) ) {
-				$tblist[] = $bl;
-			}
-		}
-		$options['badagents'] = $tblist;
-		$badagents			  = $tblist;
+		$raw_input = sanitize_textarea_field( wp_unslash( $_POST['badagents'] ) );
+		$badagents = preg_split( '/\s+/', $raw_input, -1, PREG_SPLIT_NO_EMPTY );
+		$badagents = array_map( 'sanitize_text_field', $badagents );
+		$badagents = array_filter( $badagents );
+		$options['badagents'] = $badagents;
 	}
 	// check box setting
 	$optionlist = array(
@@ -154,9 +108,7 @@ $nonce = wp_create_nonce( 'ss_stopspam_update' );
 		</div>
 		<br>
 		<textarea name="blist" cols="40" rows="8"><?php
-			foreach ( $blist as $p ) {
-				echo esc_html( $p ) . "\r\n";
-			}
+			echo esc_textarea( implode( "\n", $blist ) );
 		?></textarea>
 		<br>
 		<br>
@@ -171,9 +123,7 @@ $nonce = wp_create_nonce( 'ss_stopspam_update' );
 		</div>
 		<br>
 		<textarea name="spamwords" cols="40" rows="8"><?php
-			foreach ( $spamwords as $p ) {
-				echo esc_html( $p ) . "\r\n";
-			}
+			echo esc_textarea( implode( "\n", $spamwords ) );
 		?></textarea>
 		<br>
 		<div class="mainsection">URL Shortening Services List
@@ -213,9 +163,7 @@ $nonce = wp_create_nonce( 'ss_stopspam_update' );
 		</div>
 		<br>
 		<textarea name="badagents" cols="40" rows="8"><?php
-			foreach ( $badagents as $p ) {
-				echo esc_html( $p ) . "\r\n";
-			}
+			echo esc_textarea( implode( "\n", $badagents ) );
 		?></textarea>
 		<br>
 		<br>
@@ -224,9 +172,7 @@ $nonce = wp_create_nonce( 'ss_stopspam_update' );
 		</div>					
 		<?php echo '<p>Enter the TLD name including the period (for example .xxx). A TLD is the last part of a domain like .com or .net.</p>'; ?>
 		<textarea name="badTLDs" cols="40" rows="8"><?php
-			foreach ( $badTLDs as $p ) {
-				echo esc_html( $p ) . "\r\n";
-			}
+			echo esc_textarea( implode( "\n", $badTLDs ) );
 		?></textarea>
 		<br>
 		<br>

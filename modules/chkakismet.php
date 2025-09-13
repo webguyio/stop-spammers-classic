@@ -2,8 +2,8 @@
 // this check never seems to work, so I'll leave it for now, but not use it
 
 if ( !defined( 'ABSPATH' ) ) {
-	http_response_code( 404 );
-	die();
+	status_header( 404 );
+	exit;
 }
 
 class chkakismet {
@@ -19,7 +19,7 @@ class chkakismet {
 		if ( empty( $api_key ) ) {
 			return false;
 		}
-		$agent   = sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) );
+		$agent = isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : '';
 		$blogurl = site_url();
 		$api_key = urlencode( $api_key );
 		$agent   = urlencode( $agent );
@@ -27,7 +27,7 @@ class chkakismet {
 		if ( empty( $api_key ) || empty( $agent ) || empty( $blogurl ) ) {
 			return false;
 		}
-		$refer	 = sanitize_text_field( wp_unslash( $_SERVER['HTTP_REFERER'] ) );
+		$refer = isset( $_SERVER['HTTP_REFERER'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_REFERER'] ) ) : '';
 		$data	 = array(
 			'blog'				   => $blogurl,
 			'user_ip'			   => $ip,

@@ -1,6 +1,6 @@
 === Stop Spammers Classic ===
 
-Contributors: bhadaway
+Contributors: webguyio
 Donate link: https://damspam.com/donate
 Tags: spam, security, anti-spam, spam protection, no spam
 Tested up to: 6.8
@@ -76,4 +76,4 @@ There are several optional services you may use that involve sending data to thi
 = 2024.7 =
 * Previous version, which I still consider safe to use
 
-Credits: Created and maintained by Keith P. Graham (@kpgraham) from 2010-2017. Adopted and maintained by Web Guy (@bhadaway) from 2017-2025.
+Credits: Created and maintained by Keith P. Graham (@kpgraham) from 2010-2017. Adopted and maintained by Web Guy (@webguyio) from 2017-2025.

@@ -3,8 +3,8 @@
 // more than 5 comments in three minutes then they must be a spammer
 
 if ( !defined( 'ABSPATH' ) ) {
-	http_response_code( 404 );
-	die();
+	status_header( 404 );
+	exit;
 }
 
 class chkmulti extends be_module {

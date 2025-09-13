@@ -1,8 +1,8 @@
 <?php
 
 if ( !defined( 'ABSPATH' ) ) {
-	http_response_code( 404 );
-	die();
+	status_header( 404 );
+	exit;
 }
 
 $options = ss_get_options();
@@ -49,19 +49,21 @@ function sfs_handle_ajax() {
 		'stop-spammers',
 		SS_PLUGIN_URL . 'js/sfs_handle_ajax.js',
 		array( 'jquery' ),
-		$version
+		$version,
+		true
+	);
+	$ajax_config = array(
+		'ajax_url' => admin_url( 'admin-ajax.php' ),
+		'actions' => array(
+			'sfs_process' => wp_create_nonce( 'sfs_process_nonce' ),
+			'sfs_sub' => wp_create_nonce( 'sfs_sub_nonce' ),
+			'ss_update_notice_preference' => wp_create_nonce( 'ss_update_notice_preference_nonce' ),
+			'ss_allow_block_ip' => wp_create_nonce( 'ss_allow_block_ip_nonce' ),
+		),
 	);
 	wp_add_inline_script(
 		'stop-spammers',
-		'const StopSpammersAjaxConfig = ' . json_encode( array(
-			'ajax_url' => admin_url( 'admin-ajax.php' ),
-			'actions' => array(
-				'sfs_process' => wp_create_nonce( 'sfs_process_nonce' ),
-				'sfs_sub' => wp_create_nonce( 'sfs_sub_nonce' ),
-				'ss_update_notice_preference' => wp_create_nonce( 'ss_update_notice_preference_nonce' ),
-				'ss_allow_block_ip' => wp_create_nonce( 'ss_allow_block_ip_nonce' ),
-			),
-		) ),
+		'const StopSpammersAjaxConfig = ' . wp_json_encode( $ajax_config ),
 		'before'
 	);
 }
@@ -209,7 +211,7 @@ function sfs_handle_ajax_sub( $data ) {
 	// print_r( $options );
 	extract( $options );
 	// get the comment_id parameter
-	$comment_id = sanitize_text_field( urlencode( wp_unslash( $_GET['comment_id'] ) ) );
+	$comment_id = isset( $_GET['comment_id'] ) ? absint( $_GET['comment_id'] ) : 0;
 	if ( empty( $comment_id ) ) {
 		echo ' No Comment ID Found';
 		exit();
@@ -225,9 +227,9 @@ function sfs_handle_ajax_sub( $data ) {
 	$comment = get_comment( $comment_id, ARRAY_A );
 	if ( $comment_id == 'registration' ) {
 		$comment = array(
-			'comment_author_email' => sanitize_email( wp_unslash( $_GET['email'] ) ),
-			'comment_author'	   => sanitize_user( wp_unslash( $_GET['user'] ) ),
-			'comment_author_IP'	   => sanitize_text_field( wp_unslash( $_GET['ip'] ) ),
+			'comment_author_email' => isset( $_GET['email'] ) ? sanitize_email( wp_unslash( $_GET['email'] ) ) : '',
+			'comment_author' 	   => isset( $_GET['user'] ) ? sanitize_user( wp_unslash( $_GET['user'] ) ) : '',
+			'comment_author_IP'    => isset( $_GET['ip'] ) ? sanitize_text_field( wp_unslash( $_GET['ip'] ) ) : '',
 			'comment_content'	   => 'registration',
 			'comment_author_url'   => ''
 		);
@@ -376,10 +378,10 @@ function sfs_handle_ajax_sfs_process_watch( $data ) {
 	$tdown	   = SS_PLUGIN_URL . 'images/tdown.png';
 	$tup	   = SS_PLUGIN_URL . 'images/tup.png'; // fix this
 	$whois	   = SS_PLUGIN_URL . 'images/whois.png'; // fix this
-	$ip		   = sanitize_text_field( wp_unslash( $_GET['ip'] ) );
-	$email	   = sanitize_email( wp_unslash( $_GET['email'] ) );
-	$container = sanitize_text_field( wp_unslash( $_GET['cont'] ) );
-	$func	   = sanitize_text_field( wp_unslash( $_GET['func'] ) );
+	$ip = isset( $_GET['ip'] ) ? sanitize_text_field( wp_unslash( $_GET['ip'] ) ) : '';
+	$email = isset( $_GET['email'] ) ? sanitize_email( wp_unslash( $_GET['email'] ) ) : '';
+	$container = isset( $_GET['cont'] ) ? sanitize_text_field( wp_unslash( $_GET['cont'] ) ) : '';
+	$func = isset( $_GET['func'] ) ? sanitize_text_field( wp_unslash( $_GET['func'] ) ) : '';
 	// echo "error $ip, $func, $container," . print_r( $_GET, true ) ;exit();
 	// container is blank, goodips, badips or log
 	// func is add_black, add_white, delete_gcache or delete_bcache

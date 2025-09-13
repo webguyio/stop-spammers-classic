@@ -3,8 +3,8 @@
 // thanks to Johan Schiff
 
 if ( !defined( 'ABSPATH' ) ) {
-	http_response_code( 404 );
-	die();
+	status_header( 404 );
+	exit;
 }
 
 class chktld { // change name

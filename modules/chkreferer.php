@@ -1,15 +1,15 @@
 <?php
 
 if ( !defined( 'ABSPATH' ) ) {
-	http_response_code( 404 );
-	die();
+	status_header( 404 );
+	exit;
 }
 
 class chkreferer extends be_module {
+	public $searchname = 'HTTP_REFERER check';
 	public function process( $ip, &$stats = array(), &$options = array(), &$post = array() ) {
-		$this->searchname = 'HTTP_REFERER check';
 		// only check this on posts, but we can double check
-		if ( !$_SERVER['REQUEST_METHOD'] === 'POST' ) {
+		if ( !isset( $_SERVER['REQUEST_METHOD'] ) || $_SERVER['REQUEST_METHOD'] !== 'POST' ) {
 			return false;
 		}
 		$ref = '';
@@ -27,7 +27,7 @@ class chkreferer extends be_module {
 		}
 		// require the referer
 		// check to see if our domain is found in the referer
-		$host = sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) );
+		$host = isset( $_SERVER['HTTP_HOST'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) : '';
 		if ( empty( $ref ) ) {
 			return 'Missing HTTP_REFERER';
 		}

@@ -1,8 +1,8 @@
 <?php
 
 if ( !defined( 'ABSPATH' ) ) {
-	http_response_code( 404 );
-	die();
+	status_header( 404 );
+	exit;
 }
 
 if ( !current_user_can( 'manage_options' ) ) {
@@ -36,18 +36,12 @@ if ( !empty( $nonce ) && wp_verify_nonce( $nonce, 'ss_stopspam_update' ) ) {
 		$stats['wlrequests'] = $wlrequests;
 		ss_set_stats( $stats );
 	}
-	if ( array_key_exists( 'wlist', $_POST ) and !array_key_exists( 'ss_stop_clear_wlreq', $_POST ) ) {
-		$wlist  = sanitize_textarea_field( wp_unslash( $_POST['wlist'] ) );
-		$wlist  = explode( "\n", $wlist );
-		$tblist = array();
-		foreach ( $wlist as $bl ) {
-			$bl = trim( $bl );
-			if ( !empty( $bl ) ) {
-				$tblist[] = $bl;
-			}
-		}
-		$options['wlist'] = $tblist;
-		$wlist			  = $tblist;
+	if ( array_key_exists( 'wlist', $_POST ) && !array_key_exists( 'ss_stop_clear_wlreq', $_POST ) ) {
+		$raw_input = sanitize_textarea_field( wp_unslash( $_POST['wlist'] ) );
+		$wlist = preg_split( '/\s+/', $raw_input, -1, PREG_SPLIT_NO_EMPTY );
+		$wlist = array_map( 'sanitize_text_field', $wlist );
+		$wlist = array_filter( $wlist );
+		$options['wlist'] = $wlist;
 	}
 	if ( !array_key_exists( 'ss_stop_clear_wlreq', $_POST ) ) {
 		$optionlist = array(
@@ -115,6 +109,39 @@ $nonce = wp_create_nonce( 'ss_stopspam_update' );
 		</thead>
 		<tbody id="wlreq">
 			<?php
+			$allowed_html = array(
+				'table' => array(
+					'id' => array(),
+					'name' => array(),
+					'cellspacing' => array(),
+				),
+				'thead' => array(),
+				'tr' => array(
+					'class' => array(),
+					'style' => array(),
+				),
+				'th' => array(
+					'style' => array(),
+				),
+				'tbody' => array(
+					'id' => array(),
+				),
+				'td' => array(
+					'class' => array(),
+					'style' => array(),
+				),
+				'a' => array(
+					'href' => array(),
+					'onclick' => array(),
+					'title' => array(),
+					'alt' => array(),
+				),
+				'img' => array(
+					'class' => array(),
+					'src' => array(),
+					'alt' => array(),
+				),
+			);
 			$show = '';
 			$cont = 'wlreqs';
 			// wlrequs has an array of arrays
@@ -124,7 +151,7 @@ $nonce = wp_create_nonce( 'ss_stopspam_update' );
 			$options = ss_get_options();
 			$stats   = ss_get_stats();
 			$show	 = be_load( 'ss_get_alreq', 'x', $stats, $options );
-			echo wp_kses_post( $show );
+			echo wp_kses( $show, $allowed_html );
 			?>
 		</tbody>
 	</table>
@@ -147,10 +174,8 @@ $nonce = wp_create_nonce( 'ss_stopspam_update' );
 			</label>
 		</div>
 		<br>
-		<textarea name="wlist" cols="40" rows="8" class="ipbox"><?php
-			for ( $k = 0; $k < count( $wlist ); $k ++ ) {
-				echo esc_html( $wlist[$k] ) . "\r\n";
-			}
+		<textarea name="wlist" cols="40" rows="8"><?php
+			echo esc_textarea( implode( "\n", $wlist ) );
 		?></textarea>
 		<br>
 		<div class="mainsection">Allow Options

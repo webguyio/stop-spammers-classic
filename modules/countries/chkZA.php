@@ -2,8 +2,8 @@
 // generated Saturday 11th of April 2015 04:13:33 PM
 
 if ( !defined( 'ABSPATH' ) ) {
-	http_response_code( 404 );
-	die();
+	status_header( 404 );
+	exit;
 }
 
 class chkZA extends be_module {

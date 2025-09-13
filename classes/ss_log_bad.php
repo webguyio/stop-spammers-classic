@@ -2,8 +2,8 @@
 // adds to the Bad Cache
 
 if ( !defined( 'ABSPATH' ) ) {
-	http_response_code( 404 );
-	die();
+	status_header( 404 );
+	exit;
 }
 
 class ss_log_bad extends be_module {

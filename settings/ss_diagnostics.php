@@ -1,8 +1,8 @@
 <?php
 
 if ( !defined( 'ABSPATH' ) ) {
-	http_response_code( 404 );
-	die();
+	status_header( 404 );
+	exit;
 }
 
 $stats   = ss_get_stats();
@@ -574,95 +574,69 @@ $nonce = wp_create_nonce( 'ss_stopspam_update' );
 		// lets try the posts - looking for script tags in data
 		echo '<br><br>Testing Posts<br>';
 		$ptab = $pre . 'posts';
-		$sql  = "
+		// suspicious patterns to search
+		$suspicious_patterns = [
+			'<script', 
+			'eval(', 
+			'eval (', 
+			'document.write(unescape(',
+			'try{window.onload',
+			'setAttribute(\'src\''
+		];
+		// prepare the SQL query with placeholders
+		$sql = "
 			SELECT ID, post_author, post_title, post_name, guid, post_content, post_mime_type
 			FROM $ptab 
-			WHERE 
-			INSTR(LCASE(post_author), '<script') +
-			INSTR(LCASE(post_title), '<script') +
-			INSTR(LCASE(post_name), '<script') +
-			INSTR(LCASE(guid), '<script') +
-			INSTR(LCASE(post_author), 'eval(') +
-			INSTR(LCASE(post_title), 'eval(') +
-			INSTR(LCASE(post_name), 'eval(') +
-			INSTR(LCASE(guid), 'eval(') +
-			INSTR(LCASE(post_content), 'eval(') +
-			INSTR(LCASE(post_author), 'eval (') +
-			INSTR(LCASE(post_title), 'eval (') +
-			INSTR(LCASE(post_name), 'eval (') +
-			INSTR(LCASE(guid), 'eval (') +
-			INSTR(LCASE(post_content), 'eval (') +
-			INSTR(LCASE(post_content), 'document.write(unescape(') +
-			INSTR(LCASE(post_content), 'try{window.onload') +
-			INSTR(LCASE(post_content), 'setAttribute(\'src\'') +
-			INSTR(LCASE(post_mime_type), 'script') > %d
+			WHERE (
+				LOWER(post_author) LIKE %s OR 
+				LOWER(post_title) LIKE %s OR 
+				LOWER(post_name) LIKE %s OR 
+				LOWER(guid) LIKE %s OR 
+				LOWER(post_content) LIKE %s OR
+				LOWER(post_mime_type) LIKE %s
+			)
 		";
-		$sql = str_replace( "\t", '', $sql );
-		flush();
-		$threshold = 0;
-		$myrows = $wpdb->get_results( $wpdb->prepare( $sql, $threshold ) );
+		// prepare bind parameters
+		$bind_params = [];
+		foreach ( $suspicious_patterns as $pattern ) {
+			$bind_params = array_merge(
+				$bind_params, 
+				array_fill( 0, 6, '%' . $wpdb->esc_like( strtolower( $pattern ) ) . '%' )
+			);
+		}
+		$query = $wpdb->prepare(
+			$sql,
+			$bind_params[0],
+			$bind_params[1],
+			$bind_params[2],
+			$bind_params[3],
+			$bind_params[4],
+			$bind_params[5]
+		);
+		$myrows = $wpdb->get_results( $query );
 		if ( $myrows ) {
 			foreach ( $myrows as $myrow ) {
-				$disp   = true;
+				$disp = true;
 				$reason = '';
-				if ( strpos( strtolower( $myrow->post_author ), '<script' ) !== false ) {
-					$reason .= "post_author:&lt;script ";
+				// check each suspicious pattern in different fields
+				foreach ( $suspicious_patterns as $pattern ) {
+					if (
+						stripos( $myrow->post_author, $pattern ) !== false ||
+						stripos( $myrow->post_title, $pattern ) !== false ||
+						stripos( $myrow->post_name, $pattern ) !== false ||
+						stripos( $myrow->guid, $pattern ) !== false ||
+						stripos( $myrow->post_content, $pattern ) !== false ||
+						stripos( $myrow->post_mime_type, $pattern ) !== false
+					) {
+						$reason .= "Found: " . esc_html( $pattern ) . " ";
+					}
 				}
-				if ( strpos( strtolower( $myrow->post_title ), '<script' ) !== false ) {
-					$reason .= "post_title:&lt;script ";
+				if ( !empty( $reason ) ) {
+					echo 'Found possible problems in post (<span style="color:red">' . esc_html( $reason ) . '</span>) ID: ' . esc_html( $myrow->ID ) . '<br>';
 				}
-				if ( strpos( strtolower( $myrow->post_name ), '<script' ) !== false ) {
-					$reason .= "post_name:&lt;script ";
-				}
-				if ( strpos( strtolower( $myrow->guid ), '<script' ) !== false ) {
-					$reason .= "guid:&lt;script ";
-				}
-				if ( strpos( strtolower( $myrow->post_author ), 'eval(' ) !== false ) {
-					$reason .= "post_author:eval() ";
-				}
-				if ( strpos( strtolower( $myrow->post_title ), 'eval(' ) !== false ) {
-					$reason .= "post_title:eval() ";
-				}
-				if ( strpos( strtolower( $myrow->post_name ), 'eval(' ) !== false ) {
-					$reason .= "post_name:eval() ";
-				}
-				if ( strpos( strtolower( $myrow->guid ), 'eval(' ) !== false ) {
-					$reason .= "guid:eval() ";
-				}
-				if ( strpos( strtolower( $myrow->post_content ), 'eval(' ) !== false ) {
-					$reason .= "post_content:eval() ";
-				}
-				if ( strpos( strtolower( $myrow->post_author ), 'eval (' ) !== false ) {
-					$reason .= "post_author:eval() ";
-				}
-				if ( strpos( strtolower( $myrow->post_title ), 'eval (' ) !== false ) {
-					$reason .= "post_title:eval() ";
-				}
-				if ( strpos( strtolower( $myrow->post_name ), 'eval (' ) !== false ) {
-					$reason .= "post_name:eval() ";
-				}
-				if ( strpos( strtolower( $myrow->guid ), 'eval (' ) !== false ) {
-					$reason .= "guid:eval() ";
-				}
-				if ( strpos( strtolower( $myrow->post_content ), 'eval (' ) !== false ) {
-					$reason .= "post_content:eval() ";
-				}
-				if ( strpos( strtolower( $myrow->post_content ), 'document.write(unescape(' ) !== false ) {
-					$reason .= "post_content:document.write(unescape( ";
-				}
-				if ( strpos( strtolower( $myrow->post_content ), 'try{window.onload' ) !== false ) {
-					$reason .= "post_content:try{window.onload ";
-				}
-				if ( strpos( strtolower( $myrow->post_content ), "setAttribute('src'" ) !== false ) {
-					$reason .= "post_content:setAttribute('src' ";
-				}
-				if ( strpos( strtolower( $myrow->post_mime_type ), 'script' ) !== false ) {
-					$reason .= "post_mime_type:script ";
-				}
-				echo 'found possible problems in post (' . esc_html( $reason ) . ') ID: ' . esc_html( $myrow->ID ) . '<br>';
 			}
 		} else {
-			echo '<br>Nothing found in posts.<br>';
+			echo '<br>No suspicious patterns found in posts.<br>';
 			$disp = false;
 		}
 		echo '<hr>';
@@ -670,275 +644,207 @@ $nonce = wp_create_nonce( 'ss_stopspam_update' );
 		$ptab = $pre . 'comments';
 		echo '<br><br>Testing Comments<br>';
 		flush();
+		// suspicious patterns to search
+		$suspicious_patterns = [
+			'<script', 
+			'eval(', 
+			'eval (', 
+			'document.write(unescape(',
+			'try{window.onload',
+			'setAttribute(\'src\'',
+			'javascript:'
+		];
+		// prepare the SQL query with placeholders
 		$sql = "
 			SELECT comment_ID, comment_author_url, comment_agent, comment_author, comment_author_email, comment_content
 			FROM $ptab 
-			WHERE 
-			INSTR(LCASE(comment_author_url), '<script') +
-			INSTR(LCASE(comment_agent), '<script') +
-			INSTR(LCASE(comment_author), '<script') +
-			INSTR(LCASE(comment_author_email), '<script') +
-			INSTR(LCASE(comment_author_url), 'eval(') +
-			INSTR(LCASE(comment_agent), 'eval(') +
-			INSTR(LCASE(comment_author), 'eval(') +
-			INSTR(LCASE(comment_author_email), 'eval(') +
-			INSTR(LCASE(comment_author_url), 'eval (') +
-			INSTR(LCASE(comment_agent), 'eval (') +
-			INSTR(LCASE(comment_author), 'eval (') +
-			INSTR(LCASE(comment_author_email), 'eval (') +
-			INSTR(LCASE(comment_content), '<script') +
-			INSTR(LCASE(comment_content), 'eval(') +
-			INSTR(LCASE(comment_content), 'eval (') +
-			INSTR(LCASE(comment_content), 'document.write(unescape(') +
-			INSTR(LCASE(comment_content), 'try{window.onload') +
-			INSTR(LCASE(comment_content), 'setAttribute(\'src\'') +
-			INSTR(LCASE(comment_author_url), 'javascript:') > %d
+			WHERE (
+				LOWER(comment_author_url) LIKE %s OR 
+				LOWER(comment_agent) LIKE %s OR 
+				LOWER(comment_author) LIKE %s OR 
+				LOWER(comment_author_email) LIKE %s OR 
+				LOWER(comment_content) LIKE %s
+			)
 		";
-		$sql = str_replace( "\t", '', $sql );
-		$threshold = 0;
-		$myrows = $wpdb->get_results( $wpdb->prepare( $sql, $threshold ) );
+		// prepare bind parameters
+		$bind_params = [];
+		foreach ( $suspicious_patterns as $pattern ) {
+			$bind_params = array_merge(
+				$bind_params, 
+				array_fill( 0, 5, '%' . $wpdb->esc_like( strtolower( $pattern ) ) . '%' )
+			);
+		}
+		$query = $wpdb->prepare(
+			$sql,
+			$bind_params[0],
+			$bind_params[1],
+			$bind_params[2],
+			$bind_params[3],
+			$bind_params[4]
+		);
+		$myrows = $wpdb->get_results( $query );
 		if ( $myrows ) {
 			foreach ( $myrows as $myrow ) {
-				$disp   = true;
+				$disp = true;
 				$reason = '';
-				if ( strpos( strtolower( $myrow->comment_author_url ), '<script' ) !== false ) {
-					$reason .= "comment_author_url:&lt;script ";
+				// check each suspicious pattern in different fields
+				foreach ( $suspicious_patterns as $pattern ) {
+					$fields_to_check = [
+						'comment_author_url' => $myrow->comment_author_url,
+						'comment_agent' => $myrow->comment_agent,
+						'comment_author' => $myrow->comment_author,
+						'comment_author_email' => $myrow->comment_author_email,
+						'comment_content' => $myrow->comment_content
+					];
+					foreach ( $fields_to_check as $field_name => $field_value ) {
+						if ( stripos( $field_value, $pattern ) !== false ) {
+							$reason .= $field_name . ":" . htmlspecialchars( $pattern ) . " ";
+						}
+					}
 				}
-				if ( strpos( strtolower( $myrow->comment_agent ), '<script' ) !== false ) {
-					$reason .= "comment_agent:&lt;script ";
+				if ( !empty( $reason ) ) {
+					echo 'Found possible problems in comment (<span style="color:red">' . esc_html( $reason ) . '</span>) ID: ' . esc_html( $myrow->comment_ID ) . '<br>';
 				}
-				if ( strpos( strtolower( $myrow->comment_author ), '<script' ) !== false ) {
-					$reason .= "comment_author:&lt;script ";
-				}
-				if ( strpos( strtolower( $myrow->comment_author_email ), '<script' ) !== false ) {
-					$reason .= "comment_author_email:&lt;script ";
-				}
-				if ( strpos( strtolower( $myrow->comment_content ), '<script' ) !== false ) {
-					$reason .= "comment_content:&lt;script ";
-				}
-				if ( strpos( strtolower( $myrow->comment_author_url ), 'eval(' ) !== false ) {
-					$reason .= "comment_author_url:eval() ";
-				}
-				if ( strpos( strtolower( $myrow->comment_agent ), 'eval(' ) !== false ) {
-					$reason .= "comment_agent:eval() ";
-				}
-				if ( strpos( strtolower( $myrow->comment_author ), 'eval(' ) !== false ) {
-					$reason .= "comment_author:eval() ";
-				}
-				if ( strpos( strtolower( $myrow->comment_author_email ), 'eval(' ) !== false ) {
-					$reason .= "comment_author_email:eval() ";
-				}
-				if ( strpos( strtolower( $myrow->comment_content ), 'eval(' ) !== false ) {
-					$reason .= "comment_content:eval() ";
-				}
-				if ( strpos( strtolower( $myrow->comment_author_url ), 'eval (' ) !== false ) {
-					$reason .= "comment_author_url:eval() ";
-				}
-				if ( strpos( strtolower( $myrow->comment_agent ), 'eval (' ) !== false ) {
-					$reason .= "comment_agent:eval() ";
-				}
-				if ( strpos( strtolower( $myrow->comment_author ), 'eval (' ) !== false ) {
-					$reason .= "comment_author:eval() ";
-				}
-				if ( strpos( strtolower( $myrow->comment_author_email ), 'eval (' ) !== false ) {
-					$reason .= "comment_author_email:eval() ";
-				}
-				if ( strpos( strtolower( $myrow->comment_content ), 'eval (' ) !== false ) {
-					$reason .= "comment_content:eval() ";
-				}
-				if ( strpos( strtolower( $myrow->comment_content ), 'document.write(unescape(' ) !== false ) {
-					$reason .= "comment_content:document.write(unescape( ";
-				}
-				if ( strpos( strtolower( $myrow->comment_content ), 'try{window.onload' ) !== false ) {
-					$reason .= "comment_content:try{window.onload ";
-				}
-				if ( strpos( strtolower( $myrow->comment_content ), "setAttribute('src'" ) !== false ) {
-					$reason .= "comment_content:setAttribute('src' ";
-				}
-				if ( strpos( strtolower( $myrow->comment_content ), 'javascript:' ) !== false ) {
-					$reason .= "comment_content:javascript: ";
-				}
-				echo 'found possible problems in comment (' . esc_html( $reason ) . ') ID' . esc_html( $myrow->comment_ID ) . '<br>';
 			}
 		} else {
-			echo '<br>Nothing found in comments.<br>';
+			echo '<br>No suspicious patterns found in comments.<br>';
+			$disp = false;
 		}
 		flush();
 		echo '<hr>';
-		// links: links_id: link_url, link_image, link_description, link_notes, link_rss,link_rss
-		$ptab   = $pre . 'links';
+		// links: links_id: link_url, link_image, link_description, link_notes, link_rss, link_rss
+		$ptab = $pre . 'links';
 		echo '<br><br>Testing Links<br>';
 		flush();
+		// suspicious patterns to search
+		$suspicious_patterns = [
+			'<script', 
+			'eval(', 
+			'eval (', 
+			'javascript:'
+		];
+		// prepare the SQL query with placeholders
 		$sql = "
-			SELECT link_ID, link_url, link_image, link_description, link_notes
-			FROM $ptab 
-			WHERE 
-			INSTR(LCASE(link_url), '<script') +
-			INSTR(LCASE(link_image), '<script') +
-			INSTR(LCASE(link_description), '<script') +
-			INSTR(LCASE(link_notes), '<script') +
-			INSTR(LCASE(link_rss), '<script') +
-			INSTR(LCASE(link_url), 'eval(') +
-			INSTR(LCASE(link_image), 'eval(') +
-			INSTR(LCASE(link_description), 'eval(') +
-			INSTR(LCASE(link_notes), 'eval(') +
-			INSTR(LCASE(link_rss), 'eval(') +
-			INSTR(LCASE(link_url), 'eval (') +
-			INSTR(LCASE(link_image), 'eval (') +
-			INSTR(LCASE(link_description), 'eval (') +
-			INSTR(LCASE(link_notes), 'eval (') +
-			INSTR(LCASE(link_rss), 'eval (') +
-			INSTR(LCASE(link_url), 'javascript:') > %d
+			SELECT link_ID, link_url, link_image, link_description, link_notes, link_rss
+			FROM $ptab
+			WHERE (
+				LOWER(link_url) LIKE %s OR
+				LOWER(link_image) LIKE %s OR
+				LOWER(link_description) LIKE %s OR
+				LOWER(link_notes) LIKE %s OR
+				LOWER(link_rss) LIKE %s
+			)
 		";
-		$sql = str_replace( "\t", '', $sql );
-		$threshold = 0;
-		$myrows = $wpdb->get_results( $wpdb->prepare( $sql, $threshold ) );
+		// prepare bind parameters
+		$bind_params = [];
+		foreach ( $suspicious_patterns as $pattern ) {
+			$bind_params = array_merge(
+				$bind_params,
+				array_fill( 0, 5, '%' . $wpdb->esc_like( strtolower( $pattern ) ) . '%' )
+			);
+		}
+		$query = $wpdb->prepare(
+			$sql,
+			$bind_params[0],
+			$bind_params[1],
+			$bind_params[2],
+			$bind_params[3],
+			$bind_params[4]
+		);
+		$myrows = $wpdb->get_results( $query );
 		if ( $myrows ) {
 			foreach ( $myrows as $myrow ) {
 				$reason = '';
-				if ( strpos( strtolower( $myrow->link_url ), '<script' ) !== false ) {
-					$reason .= "link_url:&lt;script ";
+				// check each suspicious pattern in different fields
+				foreach ( $suspicious_patterns as $pattern ) {
+					$fields_to_check = [
+						'link_url' => $myrow->link_url,
+						'link_image' => $myrow->link_image,
+						'link_description' => $myrow->link_description,
+						'link_notes' => $myrow->link_notes,
+						'link_rss' => $myrow->link_rss
+					];
+					foreach ( $fields_to_check as $field_name => $field_value ) {
+						if ( stripos( $field_value, $pattern ) !== false ) {
+							$reason .= $field_name . ":" . htmlspecialchars( $pattern ) . " ";
+						}
+					}
 				}
-				if ( strpos( strtolower( $myrow->link_image ), '<script' ) !== false ) {
-					$reason .= "link_image:&lt;script ";
+				if ( !empty( $reason ) ) {
+					echo 'Found possible problems in links (<span style="color:red">' . esc_html( $reason ) . '</span>) ID: ' . esc_html( $myrow->link_ID ) . '<br>';
 				}
-				if ( strpos( strtolower( $myrow->link_description ), '<script' ) !== false ) {
-					$reason .= "link_description:&lt;script ";
-				}
-				if ( strpos( strtolower( $myrow->link_notes ), '<script' ) !== false ) {
-					$reason .= "link_notes:&lt;script ";
-				}
-				if ( strpos( strtolower( $myrow->link_rss ), '<script' ) !== false ) {
-					$reason .= "link_rss:&lt;script ";
-				}
-				if ( strpos( strtolower( $myrow->link_url ), 'eval(' ) !== false ) {
-					$reason .= "link_url:eval() ";
-				}
-				if ( strpos( strtolower( $myrow->link_image ), 'eval(' ) !== false ) {
-					$reason .= "link_image:eval() ";
-				}
-				if ( strpos( strtolower( $myrow->link_description ), 'eval(' ) !== false ) {
-					$reason .= "link_description:eval() ";
-				}
-				if ( strpos( strtolower( $myrow->link_notes ), 'eval(' ) !== false ) {
-					$reason .= "link_notes:eval() ";
-				}
-				if ( strpos( strtolower( $myrow->link_rss ), 'eval(' ) !== false ) {
-					$reason .= "link_rss:eval() ";
-				}
-				if ( strpos( strtolower( $myrow->link_url ), 'eval (' ) !== false ) {
-					$reason .= "link_url:eval() ";
-				}
-				if ( strpos( strtolower( $myrow->link_image ), 'eval (' ) !== false ) {
-					$reason .= "link_image:eval() ";
-				}
-				if ( strpos( strtolower( $myrow->link_description ), 'eval (' ) !== false ) {
-					$reason .= "link_description:eval() ";
-				}
-				if ( strpos( strtolower( $myrow->link_notes ), 'eval (' ) !== false ) {
-					$reason .= "link_notes:eval() ";
-				}
-				if ( strpos( strtolower( $myrow->link_rss ), 'eval (' ) !== false ) {
-					$reason .= "link_rss:eval() ";
-				}
-				if ( strpos( strtolower( $myrow->link_url ), 'javascript:' ) !== false ) {
-					$reason .= "link_url:javascript: ";
-				}
-				echo 'found possible problems in links (' . esc_html( $reason ) . ') ID:' . esc_html( $myrow->link_ID ) . '<br>';
 			}
 		} else {
-			echo '<br>Nothing found in links.<br>';
+			echo '<br>No suspicious patterns found in links.<br>';
 		}
+		flush();
 		echo '<hr>';
 		// users: ID: user_login, user_nicename, user_email, user_url, display_name
 		$ptab = $pre . 'users';
 		echo '<br><br>Testing Users<br>';
 		flush();
+		// suspicious patterns to search
+		$suspicious_patterns = [
+			'<script', 
+			'eval(', 
+			'eval (', 
+			'javascript:'
+		];
+		// prepare the SQL query with placeholders
 		$sql = "
-			SELECT ID, user_login, user_nicename, user_email, user_url, display_name 
-			FROM $ptab 
-			WHERE 
-			INSTR(LCASE(user_login), '<script') +
-			INSTR(LCASE(user_nicename), '<script') +
-			INSTR(LCASE(user_email), '<script') +
-			INSTR(LCASE(user_url), '<script') +
-			INSTR(LCASE(display_name), '<script') +
-			INSTR(user_login, 'eval(') +
-			INSTR(user_nicename, 'eval(') +
-			INSTR(user_email, 'eval(') +
-			INSTR(user_url, 'eval(') +
-			INSTR(display_name, 'eval(') +
-			INSTR(user_login, 'eval (') +
-			INSTR(user_nicename, 'eval (') +
-			INSTR(user_email, 'eval (') +
-			INSTR(user_url, 'eval (') +
-			INSTR(display_name, 'eval (') +
-			INSTR(LCASE(user_url), 'javascript:') +
-			INSTR(LCASE(user_email), 'javascript:') > %d
+			SELECT ID, user_login, user_nicename, user_email, user_url, display_name
+			FROM $ptab
+			WHERE (
+				LOWER( user_login ) LIKE %s OR
+				LOWER( user_nicename ) LIKE %s OR
+				LOWER( user_email ) LIKE %s OR
+				LOWER( user_url ) LIKE %s OR
+				LOWER( display_name ) LIKE %s
+			)
 		";
-		$sql = str_replace( "\t", '', $sql );
-		$threshold = 0;
-		$myrows = $wpdb->get_results( $wpdb->prepare( $sql, $threshold ) );
+		// prepare bind parameters
+		$bind_params = [];
+		foreach ( $suspicious_patterns as $pattern ) {
+			$bind_params = array_merge(
+				$bind_params, 
+				array_fill( 0, 5, '%' . $wpdb->esc_like( strtolower( $pattern ) ) . '%' )
+			);
+		}
+		$query = $wpdb->prepare(
+			$sql,
+			$bind_params[0],
+			$bind_params[1],
+			$bind_params[2],
+			$bind_params[3],
+			$bind_params[4]
+		);
+		$myrows = $wpdb->get_results( $query );
 		if ( $myrows ) {
 			foreach ( $myrows as $myrow ) {
-				$disp   = true;
 				$reason = '';
-				if ( strpos( strtolower( $myrow->user_login ), '<script' ) !== false ) {
-					$reason .= "user_login:&lt;script ";
+				// check each suspicious pattern in different fields
+				foreach ( $suspicious_patterns as $pattern ) {
+					$fields_to_check = [
+						'user_login' => $myrow->user_login,
+						'user_nicename' => $myrow->user_nicename,
+						'user_email' => $myrow->user_email,
+						'user_url' => $myrow->user_url,
+						'display_name' => $myrow->display_name
+					];
+					foreach ( $fields_to_check as $field_name => $field_value ) {
+						if ( stripos( $field_value, $pattern ) !== false ) {
+							$reason .= $field_name . ":" . htmlspecialchars( $pattern ) . " ";
+						}
+					}
 				}
-				if ( strpos( strtolower( $myrow->user_nicename ), '<script' ) !== false ) {
-					$reason .= "user_nicename:&lt;script ";
+				if ( !empty( $reason ) ) {
+					echo 'Found possible problems in Users (<span style="color:red">' . esc_html( $reason ) . '</span>) ID: ' . esc_html( $myrow->ID ) . '<br>';
 				}
-				if ( strpos( strtolower( $myrow->user_email ), '<script' ) !== false ) {
-					$reason .= "user_email:&lt;script ";
-				}
-				if ( strpos( strtolower( $myrow->user_url ), '<script' ) !== false ) {
-					$reason .= "user_url:&lt;script ";
-				}
-				if ( strpos( strtolower( $myrow->display_name ), '<script' ) !== false ) {
-					$reason .= "display_name:&lt;script ";
-				}
-				if ( strpos( strtolower( $myrow->user_login ), 'eval(' ) !== false ) {
-					$reason .= "user_login:eval() ";
-				}
-				if ( strpos( strtolower( $myrow->user_nicename ), 'eval(' ) !== false ) {
-					$reason .= "user_nicename:eval() ";
-				}
-				if ( strpos( strtolower( $myrow->user_email ), 'eval(' ) !== false ) {
-					$reason .= "user_email:eval() ";
-				}
-				if ( strpos( strtolower( $myrow->user_url ), 'eval(' ) !== false ) {
-					$reason .= "user_url:eval() ";
-				}
-				if ( strpos( strtolower( $myrow->display_name ), 'eval(' ) !== false ) {
-					$reason .= "display_name:eval() ";
-				}
-				if ( strpos( strtolower( $myrow->user_login ), 'eval (' ) !== false ) {
-					$reason .= "user_login:eval() ";
-				}
-				if ( strpos( strtolower( $myrow->user_nicename ), 'eval (' ) !== false ) {
-					$reason .= "user_nicename:eval() ";
-				}
-				if ( strpos( strtolower( $myrow->user_email ), 'eval (' ) !== false ) {
-					$reason .= "user_email:eval() ";
-				}
-				if ( strpos( strtolower( $myrow->user_url ), 'eval (' ) !== false ) {
-					$reason .= "user_url:eval() ";
-				}
-				if ( strpos( strtolower( $myrow->display_name ), 'eval (' ) !== false ) {
-					$reason .= "display_name:eval() ";
-				}
-				if ( strpos( strtolower( $myrow->user_email ), 'javascript:' ) !== false ) {
-					$reason .= "user_email:javascript: ";
-				}
-				if ( strpos( strtolower( $myrow->user_url ), 'javascript:' ) !== false ) {
-					$reason .= "user_url:javascript: ";
-				}
-				echo 'found possible problems in Users (' . esc_html( $reason ) . ') ID:' . esc_html( $myrow->ID ) . '<br>';
 			}
 		} else {
-			echo '<br>Nothing found in users.<br>';
+			echo '<br>No suspicious patterns found in users.<br>';
 		}
+		flush();
 		echo '<hr>';
 		// options: option_id option_value, option_name
 		// I may have to update this as new websites show up
@@ -960,37 +866,40 @@ $nonce = wp_create_nonce( 'ss_stopspam_update' );
 			'w.wpquery.o'						 => 'Malicious jquery in bootleg plugin or theme',
 			'<scr\\\'+'						     => 'Obfuscated script tag, usually in bootleg plugin or theme'
 		);
+		// prepare the SQL query with placeholders
 		$sql = "SELECT option_id, option_value, option_name FROM $ptab WHERE ";
 		$conditions = [];
+		$bind_params = [];
 		foreach ( $badguys as $baddie => $reas ) {
-			$conditions[] = "INSTR(LCASE(option_value), %s)";
+			$conditions[] = "LOWER( option_value ) LIKE %s";
+			$bind_params[] = '%' . $wpdb->esc_like( strtolower( $baddie ) ) . '%';
 		}
-		$sql .= implode( ' + ', $conditions );
-		$myrows = $wpdb->get_results( $wpdb->prepare( $sql, array_keys( $badguys ) ) );
+		$sql .= implode( ' OR ', $conditions );
+		$query = $wpdb->prepare( $sql, $bind_params );
+		$myrows = $wpdb->get_results( $query );
 		if ( $myrows ) {
 			foreach ( $myrows as $myrow ) {
-				// get the option and then red the string
-				$id	    = $myrow->option_id;
+				// skip transient feeds
+				if ( strpos( $myrow->option_name, '_transient_feed_' ) !== false ) {
+					continue;
+				}
+				$id     = $myrow->option_id;
 				$name   = $myrow->option_name;
-				$line   = $myrow->option_value;
-				$line   = htmlentities( $line );
+				$line   = htmlentities( $myrow->option_value );
 				$line   = strtolower( $line );
 				$reason = '';
-				if ( strpos( $name, '_transient_feed_' ) === false ) {
-					$disp = true;
-					foreach ( $badguys as $baddie => $reas ) {
-						if ( !( strpos( $line, $baddie ) === false ) ) {
-							// bad boy
-							$line   = ss_make_red( $baddie, $line );
-							$reason .= $reas . ' ';
-						}
+				foreach ( $badguys as $baddie => $reas ) {
+					if ( strpos( $line, strtolower( $baddie ) ) !== false ) {
+						$line = ss_make_red( $baddie, $line );
+						$reason .= $reas . ' ';
 					}
 				}
-				echo '<strong>Found possible problems in Option $name (' . esc_html( $reason ) . ')</strong> option_id:'
-					 . esc_html( $myrow->option_id ) . ', value: $line<br><br>';
+				if ( !empty( $reason ) ) {
+					echo '<strong>Found possible problems in Option ' . esc_html( $name ) . ' (<span style="color:red">' . esc_html( $reason ) . '</span>)</strong> option_id: ' . esc_html( $myrow->option_id ) . ', value: ' . esc_html( $line ) . '<br><br>';
+				}
 			}
 		} else {
-			echo '<br>Nothing found in options.<br>';
+			echo '<br>No suspicious patterns found in options.<br>';
 		}
 		echo '<hr>';
 		echo '<h2>Scanning Themes and Plugins for eval</h2>';
@@ -1190,7 +1099,7 @@ $nonce = wp_create_nonce( 'ss_stopspam_update' );
 		// turns error red
 		$j = strpos( $haystack, $needle );
 		$s = substr_replace( $haystack, '</span>', $j + strlen( $needle ), 0 );
-		$s = substr_replace( $s, '<span style="color:red;">', $j, 0 );
+		$s = substr_replace( $s, '<span style="color:red">', $j, 0 );
 		return $s;
 	}
 	function ss_ok_list( $file, $line ) {

@@ -2,8 +2,8 @@
 // generated Saturday 11th of April 2015 04:12:10 PM
 
 if ( !defined( 'ABSPATH' ) ) {
-	http_response_code( 404 );
-	die();
+	status_header( 404 );
+	exit;
 }
 
 class chkEG extends be_module {

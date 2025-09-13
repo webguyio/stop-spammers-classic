@@ -2,8 +2,8 @@
 // this checks 404 entries for attacks
 
 if ( !defined( 'ABSPATH' ) ) {
-	http_response_code( 404 );
-	die();
+	status_header( 404 );
+	exit;
 }
 
 class ss_check_404s {

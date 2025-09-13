@@ -3,8 +3,8 @@
 // originally designed to block admin login attempts
 
 if ( !defined( 'ABSPATH' ) ) {
-	http_response_code( 404 );
-	die();
+	status_header( 404 );
+	exit;
 }
 
 class chkadmin extends be_module {

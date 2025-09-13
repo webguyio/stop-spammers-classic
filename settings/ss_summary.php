@@ -1,8 +1,8 @@
 <?php
 
 if ( !defined( 'ABSPATH' ) ) {
-	http_response_code( 404 );
-	die();
+	status_header( 404 );
+	exit;
 }
 
 if ( !current_user_can( 'manage_options' ) ) {
@@ -231,8 +231,8 @@ if ( wp_verify_nonce( $nonce, 'ss_stopspam_update' ) ) {
 		extract( $stats ); // extract again to get the new options
 	}
 	if ( array_key_exists( 'update_total', $_POST ) ) {
-		$stats['spmcount'] = sanitize_text_field( wp_unslash( $_POST['spmcount'] ) );
-		$stats['spmdate']  = sanitize_text_field( wp_unslash( $_POST['spmdate'] ) );
+		$stats['spmcount'] = isset( $_POST['spmcount'] ) ? sanitize_text_field( wp_unslash( $_POST['spmcount'] ) ) : 0;
+		$stats['spmdate']  = isset( $_POST['spmdate'] ) ? sanitize_text_field( wp_unslash( $_POST['spmdate'] ) ) : '';
 		ss_set_stats( $stats );
 		extract( $stats ); // extract again to get the new options
 	}
@@ -284,8 +284,8 @@ $nonce = wp_create_nonce( 'ss_stopspam_update' );
 		$sname = sanitize_text_field( wp_unslash( $_SERVER["REQUEST_URI"] ) );
 	}
 	if ( empty( $sname ) ) {
-		$_SERVER['REQUEST_URI'] = sanitize_text_field( wp_unslash( $_SERVER['SCRIPT_NAME'] ) );
-		$sname			  	    = sanitize_text_field( wp_unslash( $_SERVER["SCRIPT_NAME"] ) );
+		$_SERVER['REQUEST_URI'] = isset( $_SERVER['SCRIPT_NAME'] ) ? sanitize_text_field( wp_unslash( $_SERVER['SCRIPT_NAME'] ) ) : '';
+		$sname = isset( $_SERVER['SCRIPT_NAME'] ) ? sanitize_text_field( wp_unslash( $_SERVER['SCRIPT_NAME'] ) ) : '';
 	}
 	if ( strpos( $sname, '?' ) !== false ) {
 		$sname = substr( $sname, 0, strpos( $sname, '?' ) );
@@ -350,7 +350,7 @@ $nonce = wp_create_nonce( 'ss_stopspam_update' );
 		extract( $options );
 	}
 	function ss_force_reset_options() {
-		$ss_opt = sanitize_text_field( wp_unslash( $_POST['ss_opt'] ) );
+		$ss_opt = isset( $_POST['ss_opt'] ) ? sanitize_text_field( wp_unslash( $_POST['ss_opt'] ) ) : '';
 		if ( !wp_verify_nonce( $ss_opt, 'ss_options' ) ) {	
 			echo 'Session Timeout — Please Refresh the Page';
 			exit;

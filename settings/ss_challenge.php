@@ -1,8 +1,8 @@
 <?php
 
 if ( !defined( 'ABSPATH' ) ) {
-	http_response_code( 404 );
-	die();
+	status_header( 404 );
+	exit;
 }
 
 if ( !current_user_can( 'manage_options' ) ) {
@@ -36,35 +36,35 @@ if ( wp_verify_nonce( $nonce, 'ss_stopspam_update' ) ) {
 		}
 		// other options
 		if ( array_key_exists( 'redirurl', $_POST ) ) {
-			$redirurl			 = sanitize_url( trim( wp_unslash( $_POST['redirurl'] ) ) );
+			$redirurl = isset( $_POST['redirurl'] ) ? sanitize_url( wp_unslash( trim( $_POST['redirurl'] ) ) ) : '';
 			$options['redirurl'] = esc_url( $redirurl );
 		}
 		if ( array_key_exists( 'wlreqmail', $_POST ) ) {
-			$wlreqmail			  = sanitize_email( trim( wp_unslash( $_POST['wlreqmail'] ) ) );
+			$wlreqmail = isset( $_POST['wlreqmail'] ) ? sanitize_email( wp_unslash( trim( $_POST['wlreqmail'] ) ) ) : '';
 			$options['wlreqmail'] = esc_html( $wlreqmail );
 		}
 		if ( array_key_exists( 'rejectmessage', $_POST ) ) {
-			$rejectmessage			  = sanitize_textarea_field( trim( wp_unslash( $_POST['rejectmessage'] ) ) );
+			$rejectmessage = isset( $_POST['rejectmessage'] ) ? sanitize_textarea_field( wp_unslash( trim( $_POST['rejectmessage'] ) ) ) : '';
 			$options['rejectmessage'] = wp_kses_post( $rejectmessage );
 		}
 		if ( array_key_exists( 'chkcaptcha', $_POST ) ) {
-			$chkcaptcha			   = sanitize_text_field( trim( wp_unslash( $_POST['chkcaptcha'] ) ) );
+			$chkcaptcha = isset( $_POST['chkcaptcha'] ) ? sanitize_text_field( wp_unslash( trim( $_POST['chkcaptcha'] ) ) ) : '';
 			$options['chkcaptcha'] = esc_html( $chkcaptcha );
 		}
 		if ( array_key_exists( 'form_captcha_login', $_POST ) and ( $chkcaptcha == 'G' or $chkcaptcha == 'H' or $chkcaptcha == 'S' ) ) {
-			$form_captcha_login			   = sanitize_text_field( trim( wp_unslash( $_POST['form_captcha_login'] ) ) );
+			$form_captcha_login = isset( $_POST['form_captcha_login'] ) ? sanitize_text_field( wp_unslash( trim( $_POST['form_captcha_login'] ) ) ) : 'N';
 			$options['form_captcha_login'] = esc_html( $form_captcha_login );
 		} else {
 			$options['form_captcha_login'] = 'N';
 		}
 		if ( array_key_exists( 'form_captcha_registration', $_POST ) and ( $chkcaptcha == 'G' or $chkcaptcha == 'H' or $chkcaptcha == 'S' ) ) {
-			$form_captcha_registration					  = sanitize_text_field( trim( wp_unslash( $_POST['form_captcha_registration'] ) ) );
+			$form_captcha_registration = isset( $_POST['form_captcha_registration'] ) ? sanitize_text_field( wp_unslash( trim( $_POST['form_captcha_registration'] ) ) ) : 'N';
 			$options['form_captcha_registration'] = esc_html( $form_captcha_registration );
 		} else {
 			$options['form_captcha_registration'] = 'N';
 		}
 		if ( array_key_exists( 'form_captcha_comment', $_POST ) and ( $chkcaptcha == 'G' or $chkcaptcha == 'H' or $chkcaptcha == 'S' ) ) {
-			$form_captcha_comment				 = sanitize_text_field( trim( wp_unslash( $_POST['form_captcha_comment'] ) ) );
+			$form_captcha_comment = isset( $_POST['form_captcha_comment'] ) ? sanitize_text_field( wp_unslash( trim( $_POST['form_captcha_comment'] ) ) ) : 'N';
 			$options['form_captcha_comment'] = esc_html( $form_captcha_comment );
 		} else {
 			$options['form_captcha_comment'] = 'N';

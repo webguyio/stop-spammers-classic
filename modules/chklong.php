@@ -6,8 +6,8 @@ if ( !defined( 'ABSPATH' ) ) {
 }
 
 class chklong { // change name
+	public $searchname = 'Email/Username/Password Too Long';
 	public function process( $ip, &$stats = array(), &$options = array(), &$post = array() ) {
-		$this->searchname = 'Email/Username/Password Too Long';
 		if ( array_key_exists( 'email', $post ) ) {
 			$email = $post['email'];
 			if ( !empty( $email ) ) {

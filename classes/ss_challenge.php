@@ -1,8 +1,8 @@
 <?php
 
 if ( !defined( 'ABSPATH' ) ) {
-	http_response_code( 404 );
-	die();
+	status_header( 404 );
+	exit;
 }
 
 class ss_challenge extends be_module {
@@ -22,16 +22,15 @@ class ss_challenge extends be_module {
 		// display block message and CAPTCHA if set
 		// first, check to see if they should be redirected
 		if ( $options['redir'] == 'Y' && !empty( $options['redirurl'] ) ) {
-			// sfs_debug_msg( 'Redir?' );
+			if ( !wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['kn'] ?? '' ) ), 'ss_stopspam_block' ) ) {
+				wp_die( 'Invalid redirection request', 'Security Error', 403 );
+			}
 			if ( isset( $_POST["_wpcf7"] ) ) {
-				// echo json_encode( $_POST );
-				return json_encode( $_POST );
+				return wp_json_encode( array_map( 'sanitize_text_field', $_POST ) );
 			} else {
-				header( 'HTTP/1.1 307 Moved' );
-				header( 'Status: 307 Moved' );
-				header( "location: " . $options['redirurl'] );
+				wp_safe_redirect( esc_url_raw( $options['redirurl'] ), 307 );
 				exit();
-			}	
+			}
 		}
 		extract( $options );
 		$ke = '';
@@ -44,30 +43,21 @@ class ss_challenge extends be_module {
 		$nonce = '';
 		$msg   = ''; // this is the body message for failed CAPTCHAs, notifies and requests
 		if ( !empty( $_POST ) && array_key_exists( 'kn', $_POST ) ) {
-			// sfs_debug_msg( 'second time' );
-			// get the post items
-			if ( isset( $_POST['ke'] ) ) {
-				$ke = sanitize_email( wp_unslash( $_POST['ke'] ) );
+			if ( !wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['kn'] ) ), 'ss_stopspam_block' ) ) {
+				wp_die( 'Invalid form submission', 'Security Error', 403 );
 			}
-			if ( array_key_exists( 'ke', $_POST ) ) {
-				$ke = sanitize_email( wp_unslash( $_POST['ke'] ) );
-			}
-			if ( array_key_exists( 'km', $_POST ) ) {
-				$km = sanitize_text_field( wp_unslash( $_POST['km'] ) );
-			}
+			$ke = isset( $_POST['ke'] ) ? sanitize_email( wp_unslash( $_POST['ke'] ) ) : '';
+			$km = isset( $_POST['km'] ) ? sanitize_text_field( wp_unslash( $_POST['km'] ) ) : '';
 			if ( strlen( $km ) > 80 ) {
 				$km = substr( $km, 0, 77 ) . '...';
 			}
-			if ( array_key_exists( 'kr', $_POST ) ) {
-				$kr = sanitize_text_field( wp_unslash( $_POST['kr'] ) );
+			$kr = isset( $_POST['kr'] ) ? sanitize_text_field( wp_unslash( $_POST['kr'] ) ) : '';
+			$ka = isset( $_POST['ka'] ) ? sanitize_text_field( wp_unslash( $_POST['ka'] ) ) : '';
+			$kp = isset( $_POST['kp'] ) ? sanitize_textarea_field( wp_unslash( $_POST['kp'] ) ) : '';
+			if ( !empty( $ke ) && !is_email( $ke ) ) {
+				wp_die( 'Invalid email address', 'Validation Error', 400 );
 			}
-			if ( array_key_exists( 'ka', $_POST ) ) {
-				$ka = sanitize_text_field( wp_unslash( $_POST['ka'] ) );
-			}
-			if ( array_key_exists( 'kp', $_POST ) ) {
-				$kp = sanitize_textarea_field( wp_unslash( $_POST['kp'] ) );
-			} // serialized post
-			if ( !empty( $_POST['kn'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash ( wp_unslash( $_POST['kn'] ) ) ), 'ss_stopspam_block' ) ) {
+			if ( !empty( $_POST['kn'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash ( $_POST['kn'] ) ), 'ss_stopspam_block' ) ) {
 				// sfs_debug_msg( 'nonce is good' );
 				// have a form return
 				// 1) to see if the allow by request has been triggered
@@ -100,7 +90,7 @@ class ss_challenge extends be_module {
 							if ( empty( $recaptchaapisecret ) || empty( $recaptchaapisite ) ) {
 								$msg = 'reCAPTCHA keys are not set.';
 							} else {
-								$g = sanitize_textarea_field( wp_unslash( $_REQUEST['g-recaptcha-response'] ) );
+								$g = isset( $_REQUEST['g-recaptcha-response'] ) ? sanitize_textarea_field( wp_unslash( $_REQUEST['g-recaptcha-response'] ) ) : '';
 								// $url = "https://www.google.com/recaptcha/api/siteverify";
 								$url  = "https://www.google.com/recaptcha/api/siteverify?secret=$recaptchaapisecret&response=$g&remoteip=$ip";
 								$resp = ss_read_file( $url );
@@ -131,7 +121,7 @@ class ss_challenge extends be_module {
 							if ( empty( $hcaptchaapisecret ) || empty( $hcaptchaapisite ) ) {
 								$msg = 'hCaptcha keys are not set.';
 							} else {
-								$h = sanitize_textarea_field( wp_unslash( $_REQUEST['h-captcha-response'] ) );
+								$h = isset( $_REQUEST['h-captcha-response'] ) ? sanitize_textarea_field( wp_unslash( $_REQUEST['h-captcha-response'] ) ) : '';
 								// $url = "https://hcaptcha.com/siteverify";
 								$url  = "https://hcaptcha.com/siteverify?secret=$hcaptchaapisecret&response=$h&remoteip=$ip";
 								$resp = ss_read_file( $url );
@@ -156,8 +146,8 @@ class ss_challenge extends be_module {
 							// solve media
 							$solvmediaapivchallenge = $options['solvmediaapivchallenge'];
 							$solvmediaapiverify	    = $options['solvmediaapiverify'];
-							$adcopy_challenge	    = sanitize_textarea_field( wp_unslash( $_REQUEST['adcopy_challenge'] ) );
-							$adcopy_response		= sanitize_textarea_field( wp_unslash( $_REQUEST['adcopy_response'] ) );
+							$adcopy_challenge = isset( $_REQUEST['adcopy_challenge'] ) ? sanitize_textarea_field( wp_unslash( $_REQUEST['adcopy_challenge'] ) ) : '';
+							$adcopy_response = isset( $_REQUEST['adcopy_response'] ) ? sanitize_textarea_field( wp_unslash( $_REQUEST['adcopy_response'] ) ) : '';
 							// $ip = '127.0.0.1';
 							$postdata = http_build_query(
 								array(
@@ -224,7 +214,7 @@ class ss_challenge extends be_module {
 							}
 							$nums  = really_clean( sanitize_text_field( wp_unslash( $_POST['nums'] ) ) );
 							$nums += $seed;
-							$sum   = really_clean( sanitize_text_field( wp_unslash( $_POST['sum'] ) ) );
+							$sum   = isset( $_POST['sum'] ) ? really_clean( sanitize_text_field( wp_unslash( $_POST['sum'] ) ) ) : '';
 							if ( $sum == $nums ) {
 								$_POST = unserialize( base64_decode( $kp ), ['allowed_classes' => false] );
 								// sfs_debug_msg( "trying to return the post to the comments program" . print_r( $_POST, true ) );
@@ -245,13 +235,14 @@ class ss_challenge extends be_module {
 		// sfs_debug_msg( 'leaving second time' );
 		} else {
 			// first time through
-			$ke = $post['email'];
-			$km = '';
-			$kr = "";
-			if ( array_key_exists( 'reason', $post ) )
-				$kr = $post['reason'];
-			$ka = sanitize_user( $post['author'] );
-			$kp = base64_encode( serialize( $_POST ) );
+			$ke = '';
+			if ( isset( $post['email'] ) ) {
+				$sanitized_email = sanitize_email( $post['email'] );
+				$ke = is_email( $sanitized_email ) ? $sanitized_email : '';
+			}
+			$kr = isset( $post['reason'] ) ? sanitize_text_field( $post['reason'] ) : '';
+			$ka = isset( $post['author'] ) ? sanitize_user( $post['author'] ) : '';
+			$kp = base64_encode( serialize( array_map( 'sanitize_text_field', $_POST ) ) );
 			// sfs_debug_msg( 'first time getting post stuff' );
 		}
 		// sfs_debug_msg( 'creating form data' );
@@ -260,7 +251,7 @@ class ss_challenge extends be_module {
 		// this may be the second time through
 		$formtop = '';
 		if ( !empty( $msg ) ) {
-			$msg = "\r\n<br><span style='color:red'> $msg </span><hr>\r\n";
+			$msg = "\r\n<br><span style='color:red'>" . wp_kses_post( $msg ) . "</span><hr>\r\n";
 		}
 		$formtop .= '
 			<form action="" method="post">
@@ -271,7 +262,7 @@ class ss_challenge extends be_module {
 				<input type="hidden" name="ka" value="' . esc_attr( $ka ) . '">
 		';
 		$formbot = '
-				<p><input style="background:#007cba;padding:10px 15px;border:none;border-radius:3px;color:white;cursor:pointer" type="submit" value="Submit Request"></p>
+				<p><input type="submit" class="button button-large" value="Submit Request"></p>
 			</form>
 		';
 		$not	 = '';
@@ -362,7 +353,76 @@ class ss_challenge extends be_module {
 			$capbot
 			$formbot
 		";
-		wp_die( $ansa, "Stop Spammers", array( 'response' => 200 ) );
+		$allowed_html = array(
+			'form' => array(
+				'action' => true,
+				'method' => true,
+				'class' => true,
+				'id' => true,
+				'enctype' => true,
+				'novalidate' => true
+			),
+			'input' => array(
+				'type' => true,
+				'name' => true,
+				'id' => true,
+				'class' => true,
+				'value' => true,
+				'placeholder' => true,
+				'required' => true,
+				'pattern' => true,
+				'min' => true,
+				'max' => true,
+				'minlength' => true,
+				'maxlength' => true
+			),
+			'textarea' => array(
+				'name' => true,
+				'id' => true,
+				'class' => true,
+				'rows' => true,
+				'cols' => true,
+				'placeholder' => true,
+				'required' => true,
+				'style' => true
+			),
+			'select' => array(
+				'name' => true,
+				'id' => true,
+				'class' => true,
+				'required' => true
+			),
+			'option' => array(
+				'value' => true,
+				'selected' => true
+			),
+			'label' => array(
+				'for' => true,
+				'class' => true
+			),
+			'div' => array(
+				'class' => true,
+				'id' => true
+			),
+			'span' => array(
+				'class' => true,
+				'id' => true
+			),
+			'p' => array(
+				'class' => true,
+				'id' => true
+			),
+			'br' => array(),
+			'strong' => array(),
+			'em' => array(),
+			'h1' => array(),
+			'h2' => array(),
+			'h3' => array(),
+			'h4' => array(),
+			'h5' => array(),
+			'h6' => array()
+		);
+		wp_die( wp_kses( $ansa, $allowed_html ), "Stop Spammers", array( 'response' => 200 ) );
 		exit();
 	}
 
@@ -382,11 +442,11 @@ class ss_challenge extends be_module {
 			if ( !is_email( $ke ) || empty( $ke ) ) {
 				return false;
 			}
-			$km = sanitize_text_field( wp_unslash( $_POST['km'] ) );
+			$km = isset( $_POST['km'] ) ? sanitize_text_field( wp_unslash( $_POST['km'] ) ) : '';
 			if ( strlen( $km ) > 200 ) {
 				$km = substr( $km, 0, 197 ) . '...';
 			}
-			$kr = really_clean( sanitize_text_field( wp_unslash( $_POST['kr'] ) ) );
+			$kr = isset( $_POST['kr'] ) ? really_clean( sanitize_text_field( wp_unslash( $_POST['kr'] ) ) ) : '';
 			$to = get_option( 'admin_email' );
 			if ( !empty( $wlreqmail ) ) {
 				$to = $wlreqmail;
@@ -439,12 +499,12 @@ class ss_challenge extends be_module {
 		if ( !is_email( $ke ) ) {
 			return false;
 		}
-		$km  = really_clean( sanitize_text_field( wp_unslash( $_POST['km'] ) ) ); // user message
+		$km = isset( $_POST['km'] ) ? really_clean( sanitize_text_field( wp_unslash( $_POST['km'] ) ) ) : ''; // user message
 		if ( strlen( $km ) > 80 ) {
 			$km = substr( $km, 0, 77 ) . '...';
 		}
-		$kr  = really_clean( sanitize_text_field( wp_unslash( $_POST['kr'] ) ) ); // reason
-		$ka  = really_clean( sanitize_user( wp_unslash( $_POST['ka'] ) ) ); // author
+		$kr = isset( $_POST['kr'] ) ? really_clean( sanitize_text_field( wp_unslash( $_POST['kr'] ) ) ) : ''; // reason
+		$ka = isset( $_POST['ka'] ) ? really_clean( sanitize_user( wp_unslash( $_POST['ka'] ) ) ) : ''; // author
 		$req = array( $ip, $ke, $ka, $kr, $km, $sname );
 		// add to the request list
 		$wlrequests = $stats['wlrequests'];

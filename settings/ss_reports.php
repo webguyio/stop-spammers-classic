@@ -1,8 +1,8 @@
 <?php
 
 if ( !defined( 'ABSPATH' ) ) {
-	http_response_code( 404 );
-	die();
+	status_header( 404 );
+	exit;
 }
 
 if ( !current_user_can( 'manage_options' ) ) {
@@ -28,7 +28,7 @@ $now	  = gmdate( 'Y/m/d H:i:s', time() + ( get_option( 'gmt_offset' ) * 3600 ) )
 	extract( $stats );
 	$options = ss_get_options();
 	extract( $options );
-	$ip	   = sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) );
+	$ip = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '';
 	$nonce = '';
 	$msg   = '';
 	if ( array_key_exists( 'ss_stop_spammers_control', $_POST ) ) {

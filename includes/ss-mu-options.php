@@ -6,8 +6,8 @@ this hooks the options functions of WP in order to update one option from blog #
 */
 
 if ( !defined( 'ABSPATH' ) ) {
-	http_response_code( 404 );
-	die();
+	status_header( 404 );
+	exit;
 }
 
 // now we need to get a ask the user for a list of options that he wants to get

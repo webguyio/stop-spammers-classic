@@ -1,8 +1,8 @@
 <?php
 
 if ( !defined( 'ABSPATH' ) ) {
-	http_response_code( 404 );
-	die();
+	status_header( 404 );
+	exit;
 }
 
 function ss_admin_menu_l() {
@@ -172,11 +172,18 @@ function ss_fix_post_vars() {
 		foreach ( $keys as $key ) {
 			try {
 				$key = sanitize_key( $key ); 
-				if ( is_string( wp_unslash( $_POST[$key] ) ) ) {
-					if ( strpos( wp_unslash( $_POST[$key] ), "\n" ) !== false ) {
-						$val2 = sanitize_textarea_field( wp_unslash( $_POST[$key] ) );
+				if ( isset( $_POST[$key] ) && is_string( wp_unslash( $_POST[$key] ) ) ) {
+					$raw_value = sanitize_text_field( wp_unslash( $_POST[$key] ) );
+					if ( !is_scalar( $raw_value ) ) {
+						continue;
+					}
+					if ( strpos( $raw_value, "\n" ) !== false ) {
+						$val2 = sanitize_textarea_field( $raw_value );
 					} else {
-						$val2 = sanitize_text_field( wp_unslash( $_POST[$key] ) );
+						$val2 = sanitize_text_field( $raw_value );
+					}
+					if ( $val2 === '' && $raw_value !== '' ) {
+						continue;
 					}
 					$_POST[$key] = $val2;
 				}

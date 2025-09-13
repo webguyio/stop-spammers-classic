@@ -20,8 +20,8 @@ define( 'SS_PLUGIN_DATA', wp_upload_dir()['basedir'] . '/data/' );
 $ss_check_sempahore = false;
 
 if ( !defined( 'ABSPATH' ) ) {
-	http_response_code( 404 );
-	die();
+	status_header( 404 );
+	exit;
 }
 
 function ss_assets_version() {
@@ -54,10 +54,10 @@ add_action( 'admin_print_styles', 'ss_styles' );
 // admin notice for users
 function ss_admin_notice() {
 	$user_id = get_current_user_id();
-	$admin_url = ( isset( $_SERVER['HTTPS'] ) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http' ) . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
-	$param = ( count( $_GET ) ) ? '&' : '?';
-	if ( !get_user_meta( $user_id, 'ss_notice_dismissed_100' ) && current_user_can( 'manage_options' ) ) {
-		echo '<div class="notice notice-info"><p><a href="' . esc_url( $admin_url ), esc_url_raw( $param ) . 'dismiss" class="alignright" style="text-decoration:none"><big>Ⓧ</big></a><big><strong>Stop Spammers Development Has Slowed Down</strong></big><p><a href="https://github.com/webguyio/dam-spam/issues/8" class="button-primary" style="border-color:#4aa863;background:#4aa863" target="_blank">What happened?</a></p></div>';
+	if ( !get_user_meta( $user_id, 'ss_notice_dismissed_' . SS_VERSION ) && current_user_can( 'manage_options' ) ) {
+		$admin_url = esc_url_raw( ( isset( $_SERVER['HTTPS'] ) && sanitize_text_field( wp_unslash( $_SERVER['HTTPS'] ) ) === 'on' ? 'https' : 'http' ) . '://' . sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ?? '' ) ) . sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ?? '' ) ) );
+		$param = !empty( $_GET ) ? '&' : '?';
+		echo wp_kses_post( sprintf( '<div class="notice notice-info"><p><a href="%s%sdismiss" class="alignright" style="text-decoration:none"><big>Ⓧ</big></a><big><strong>%s</strong></big><p><a href="%s" class="button-primary" style="border-color:#4aa863;background:#4aa863" target="_blank">%s</a></p></div>', esc_url( $admin_url ), esc_html( $param ), 'Stop Spammers Development Has Slowed Down', 'https://github.com/webguyio/dam-spam/issues/8', 'What happened?' ) );
 	}
 }
 add_action( 'admin_notices', 'ss_admin_notice' );
@@ -66,7 +66,7 @@ add_action( 'admin_notices', 'ss_admin_notice' );
 function ss_notice_dismissed() {
 	$user_id = get_current_user_id();
 	if ( isset( $_GET['dismiss'] ) ) {
-		add_user_meta( $user_id, 'ss_notice_dismissed_100', 'true', true );
+		add_user_meta( $user_id, 'ss_notice_dismissed_' . SS_VERSION, 'true', true );
 	}
 }
 add_action( 'admin_init', 'ss_notice_dismissed' );
@@ -343,7 +343,8 @@ function ss_set_options( $options ) {
 }
 
 function ss_get_ip() {
-	return sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) );
+	$ip = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '';
+	return filter_var( $ip, FILTER_VALIDATE_IP ) ? $ip : '';
 }
 
 function ss_admin_menu() {
@@ -505,6 +506,16 @@ function be_load( $file, $ip, &$stats = array(), &$options = array(), &$post = a
 
 // this should be moved to a dynamic load, perhaps - it is one of the most common things
 function get_post_variables() {
+	if ( isset( $_POST['ss_post_variables_nonce'] ) && !wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['ss_post_variables_nonce'] ) ), 'ss_post_variables_action' ) ) {
+		return array(
+			'email'   => '',
+			'author'  => '',
+			'pwd'	  => '',
+			'comment' => '',
+			'subject' => '',
+			'url'	  => ''
+		);
+	}
 	// for WordPress and other login and comment programs
 	// need to find: login password comment author email
 	// copied from stop spammers plugin
@@ -520,7 +531,7 @@ function get_post_variables() {
 	if ( empty( $_POST ) || !is_array( $_POST ) ) {
 		return $ansa;
 	}
-	$p = $_POST;
+	$p = wp_unslash( $_POST );
 	$search  = array(
 		'email'   => array(
 			'email',
@@ -530,7 +541,7 @@ function get_post_variables() {
 			'your-email'
 		),
 		// 'input_' = WooCommerce forms
-		'author'  => array(
+		'author' => array(
 			'author',
 			'name',
 			'username',
@@ -541,7 +552,7 @@ function get_post_variables() {
 			'_id',
 			'your-name'
 		),
-		'pwd'	  => array(
+		'pwd' => array(
 			'pwd',
 			'password',
 			'psw',
@@ -562,7 +573,7 @@ function get_post_variables() {
 			'topic',
 			'your-subject'
 		),
-		'url'	  => array(
+		'url' => array(
 			'url',
 			'link',
 			'site',
@@ -581,7 +592,7 @@ function get_post_variables() {
 				if ( stripos( $pkey, $srch ) !== false ) {
 					// got a hit
 					if ( is_array( $pval ) ) {
-						$pval = print_r( $pval, true );
+						$pval = wp_json_encode( $pval );
 					}
 					$ansa[$var] = $pval;
 					break;
@@ -597,7 +608,7 @@ function get_post_variables() {
 				if ( stripos( $pkey, 'input_' ) ) {
 					// might have an email
 					if ( is_array( $pval ) ) {
-						$pval = print_r( $pval, true );
+						$pval = wp_json_encode( $pval );
 					}
 					if ( strpos( $pval, '@' ) !== false && strrpos( $pval, '.' ) > strpos( $pval, '@' ) ) {
 						// close enough
@@ -613,23 +624,22 @@ function get_post_variables() {
 		// clean the variables even more
 		$ansa[$key] = sanitize_text_field( $value ); // really clean gets rid of high value characters
 	}
-	if ( strlen( $ansa['email'] ) > 80 ) {
-		$ansa['email'] = substr( $ansa['email'], 0, 77 ) . '...';
+	if ( !empty( $ansa['email'] ) && !is_email( $ansa['email'] ) ) {
+		$ansa['email'] = '';
 	}
-	if ( strlen( $ansa['author'] ) > 80 ) {
-		$ansa['author'] = substr( $ansa['author'], 0, 77 ) . '...';
-	}
-	if ( strlen( $ansa['pwd'] ) > 32 ) {
-		$ansa['pwd'] = substr( $ansa['pwd'], 0, 29 ) . '...';
-	}
-	if ( strlen( $ansa['comment'] ) > 999 ) {
-		$ansa['comment'] = substr( $ansa['comment'], 0, 996 ) . '...';
-	}
-	if ( strlen( $ansa['subject'] ) > 80 ) {
-		$ansa['subject'] = substr( $ansa['subject'], 0, 77 ) . '...';
-	}
-	if ( strlen( $ansa['url'] ) > 80 ) {
-		$ansa['url'] = substr( $ansa['url'], 0, 77 ) . '...';
+	// truncate fields to prevent excessive storage
+	$max_lengths = array(
+		'email'   => 80,
+		'author'  => 80,
+		'pwd'	  => 32,
+		'comment' => 999,
+		'subject' => 80,
+		'url'	  => 80
+	);
+	foreach ( $max_lengths as $field => $max_length ) {
+		if ( strlen( $ansa[$field] ) > $max_length ) {
+			$ansa[$field] = substr( $ansa[$field], 0, $max_length - 3 ) . '...';
+		}
 	}
 	// print_r( $ansa );
 	// exit;
@@ -702,8 +712,8 @@ function ss_log_user_ip( $user_login = "", $user = "" ) {
 	}
 	$user_id = $user->ID;
 	// $ip = ss_get_ip();
-	$ip		 = sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) );
-	$oldip   = get_user_meta( $user_id, 'signup_ip', true );
+	$ip = isset( $_SERVER['REMOTE_ADDR'] ) ? filter_var( sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ), FILTER_VALIDATE_IP ) : '';
+	$oldip = get_user_meta( $user_id, 'signup_ip', true );
 	if ( empty( $oldip ) || $ip != $oldip ) {
 		update_user_meta( $user_id, 'signup_ip', $ip );
 	}
@@ -857,92 +867,56 @@ function ss_add_captcha() {
 }
 
 function ss_captcha_verify() {
-	global $wpdb;
+	if ( !isset( $_POST['ss_captcha_nonce'] ) || !wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['ss_captcha_nonce'] ) ), 'ss_captcha_action' ) ) {
+		return '<strong>Error:</strong> Security check failed.';
+	}
 	$options = ss_get_options();
-	$ip 	 = ss_get_ip();
+	$ip = ss_get_ip();
 	switch ( $options['chkcaptcha'] ) {
 		case 'G':
-			if ( array_key_exists( 'recaptcha', $_POST ) && !empty( $_POST['recaptcha'] ) && array_key_exists( 'g-recaptcha-response', $_POST ) ) {
-				// check reCAPTCHA
-				$recaptchaapisecret = $options['recaptchaapisecret'];
-				$recaptchaapisite   = $options['recaptchaapisite'];
-				if ( empty( $recaptchaapisecret ) || empty( $recaptchaapisite ) ) {
-					return '<strong>Error:</strong> reCAPTCHA keys are not set.';
-				} else {
-					$g    = sanitize_textarea_field( wp_unslash( $_REQUEST['g-recaptcha-response'] ) );
-					$url  = "https://www.google.com/recaptcha/api/siteverify?secret=$recaptchaapisecret&response=$g&remoteip=$ip";
-					$resp = ss_read_file( $url );
-					if ( strpos( $resp, '"success": true' ) === false ) {
-						$msg = '<strong>Error:</strong> Google reCAPTCHA entry does not match. Try again.';
-					}
+			if ( isset( $_POST['g-recaptcha-response'] ) ) {
+				$secret = sanitize_text_field( $options['recaptchaapisecret'] );
+				$response = wp_safe_remote_get( esc_url_raw( add_query_args( array(
+					'secret'   => $secret,
+					'response' => isset( $_REQUEST['g-recaptcha-response'] ) ? sanitize_textarea_field( wp_unslash( $_REQUEST['g-recaptcha-response'] ) ) : '',
+					'remoteip' => $ip
+				), 'https://www.google.com/recaptcha/api/siteverify' ) ) );
+				if ( is_wp_error( $response ) || false === strpos( wp_remote_get_body( $response ), '"success": true' ) ) {
+					return '<strong>Error:</strong> Google reCAPTCHA verification failed.';
 				}
 			}
-		break;
+			break;
 		case 'H':
-			if ( array_key_exists( 'h-captcha', $_POST ) && !empty( $_POST['h-captcha'] ) && array_key_exists( 'h-captcha-response', $_POST ) ) {
-				// check hCaptcha
-				$hcaptchaapisecret = $options['hcaptchaapisecret'];
-				$hcaptchaapisite   = $options['hcaptchaapisite'];
-				if ( empty( $hcaptchaapisecret ) || empty( $hcaptchaapisite ) ) {
-					return '<strong>Error:</strong> hCaptcha keys are not set.';
-				} else {
-					$h    = sanitize_textarea_field( wp_unslash( $_REQUEST['h-captcha-response'] ) );
-					$url  = "https://hcaptcha.com/siteverify?secret=$hcaptchaapisecret&response=$h&remoteip=$ip";
-					$resp = ss_read_file( $url );
-					$response = json_decode( $resp );
-					if ( !isset( $response->success ) or $response->success !== true ) {
-						return '<strong>Error:</strong> hCaptcha entry does not match. Try again.';
-					}
+			if ( isset( $_POST['h-captcha-response'] ) ) {
+				$secret = sanitize_text_field( $options['hcaptchaapisecret'] );
+				$response = wp_safe_remote_post( 'https://hcaptcha.com/siteverify', array(
+					'body' => array(
+						'secret'   => $secret,
+						'response' => isset( $_REQUEST['h-captcha-response'] ) ? sanitize_textarea_field( wp_unslash( $_REQUEST['h-captcha-response'] ) ) : '',
+						'remoteip' => $ip
+					)
+				) );
+				$parsed = json_decode( wp_remote_get_body( $response ) );
+				if ( is_wp_error( $response ) || ! isset( $parsed->success ) || true !== $parsed->success ) {
+					return '<strong>Error:</strong> hCaptcha verification failed.';
 				}
 			}
-		break;
+			break;
 		case 'S':
-			if ( array_key_exists( 'adcopy_challenge', $_POST ) && !empty( $_POST['adcopy_challenge'] ) ) {
-				$solvmediaapivchallenge = $options['solvmediaapivchallenge'];
-				$solvmediaapiverify	    = $options['solvmediaapiverify'];
-				$adcopy_challenge	    = sanitize_textarea_field( wp_unslash( $_REQUEST['adcopy_challenge'] ) );
-				$adcopy_response		= sanitize_textarea_field( wp_unslash( $_REQUEST['adcopy_response'] ) );
-				$postdata = http_build_query(
-					array(
-						'privatekey' => $solvmediaapiverify,
-						'challenge'  => $adcopy_challenge,
-						'response'   => $adcopy_response,
+			if ( isset( $_POST['adcopy_challenge'] ) ) {
+				$response = wp_safe_remote_post( 'https://verify.solvemedia.com/papi/verify/', array(
+					'body' => array(
+						'privatekey' => sanitize_text_field( $options['solvmediaapiverify'] ),
+						'challenge'  => isset( $_REQUEST['adcopy_challenge'] ) ? sanitize_textarea_field( wp_unslash( $_REQUEST['adcopy_challenge'] ) ) : '',
+						'response'   => isset( $_REQUEST['adcopy_response'] ) ? sanitize_textarea_field( wp_unslash( $_REQUEST['adcopy_response'] ) ) : '',
 						'remoteip'   => $ip
 					)
-				);
-				$opts = array(
-					'http' =>
-						array(
-							'method'  => 'POST',
-							'header'  => 'Content-type: application/x-www-form-urlencoded',
-							'content' => $postdata
-						)
-				);
-				$body = array(
-					'privatekey' => $solvmediaapiverify,
-					'challenge'  => $adcopy_challenge,
-					'response'   => $adcopy_response,
-					'remoteip'   => $ip
-				);
-				$args = array(
-					'user-agent'  => 'WordPress/' . '4.2' . '; ' . get_bloginfo( 'url' ),
-					'blocking'	  => true,
-					'headers'	  => array( 'Content-type: application/x-www-form-urlencoded' ),
-					'method'	  => 'POST',
-					'timeout'	  => 45,
-					'redirection' => 5,
-					'httpversion' => '1.0',
-					'body'		  => $body,
-					'cookies'	  => array()
-				);
-				$url = 'https://verify.solvemedia.com/papi/verify/';
-				$resultarray = wp_remote_post( $url, $args );
-				$result	     = $resultarray['body'];
-				if ( strpos( $result, 'true' ) === false ) {
-					return '<strong>Error:</strong> CAPTCHA entry does not match. Try again.';
+				) );
+				if ( is_wp_error( $response ) || false === strpos( wp_remote_get_body( $response ), 'true' ) ) {
+					return '<strong>Error:</strong> Solve Media CAPTCHA verification failed.';
 				}
 			}
-		break;
+			break;
 	}
 	return true;
 }

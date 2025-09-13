@@ -3,8 +3,8 @@
 // this list includes good hosting and ISPs
 
 if ( !defined( 'ABSPATH' ) ) {
-	http_response_code( 404 );
-	die();
+	status_header( 404 );
+	exit;
 }
 
 class chksession {

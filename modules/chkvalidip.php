@@ -2,8 +2,8 @@
 // returns false if the IP is valid - returns reason if IP is invalid
 
 if ( !defined( 'ABSPATH' ) ) {
-	http_response_code( 404 );
-	die();
+	status_header( 404 );
+	exit;
 }
 
 class chkvalidip {
@@ -119,7 +119,7 @@ class chkvalidip {
 			}
 		} else { // IIS 6 no server address use a gethost by name? hope we never get here
 			try {
-				$lip = @gethostbyname( sanitize_text_field( wp_unslash( $_SERVER['SERVER_NAME'] ) ) );
+				$lip = isset( $_SERVER['SERVER_NAME'] ) ? @gethostbyname( sanitize_text_field( wp_unslash( $_SERVER['SERVER_NAME'] ) ) ) : '';
 				if ( $ip == $lip ) {
 					return 'IP Same as Server: ' . $ip;
 				}
