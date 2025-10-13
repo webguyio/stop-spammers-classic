@@ -83,7 +83,7 @@ function ss_file_delete( $filename ) {
 // the plugin will drop a file debug.txt in the current directory (root, wp-admin, or network) 
 // directory must be writeable or plugin will crash
 function sfs_errorsonoff( $old = null ) {
-	$debug = true; // change to true to debug, false to stop all debugging
+	$debug = false; // change to true to debug, false to stop all debugging
 	if ( !$debug ) {
 		return;
 	}
@@ -95,7 +95,7 @@ function sfs_errorsonoff( $old = null ) {
 
 function sfs_debug_msg( $msg ) {
 	// used to aid debugging - adds to debug file
-	$debug = true;
+	$debug = false;
 	$ip	   = ss_get_ip();
 	if ( !$debug ) {
 		return;
