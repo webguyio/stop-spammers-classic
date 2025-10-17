@@ -30,7 +30,7 @@ ss_fix_post_vars();
 	if ( wp_verify_nonce( $nonce, 'ss_stopspam_update' ) ) {
 		if ( array_key_exists( 'action', $_POST ) ) {
 			if ( array_key_exists( 'muswitch', $_POST ) ) {
-				$muswitch = trim( stripslashes( sanitize_text_field( wp_unslash( $_POST['muswitch'] ) ) ) );
+				$muswitch = trim( sanitize_text_field( wp_unslash( $_POST['muswitch'] ) ) );
 			}
 			if ( empty( $muswitch ) ) {
 				$muswitch = 'N';

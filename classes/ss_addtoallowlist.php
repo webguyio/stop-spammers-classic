@@ -8,9 +8,6 @@ if ( !defined( 'ABSPATH' ) ) {
 class ss_addtoallowlist {
 	public function process( $ip, &$stats = array(), &$options = array(), &$post = array() ) {
 		// adds to Allow List - used to add admin to Allow List or to add a comment author to Allow List
-		if ( !isset( $_GET['ss_whitelist_nonce'] ) || !wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['ss_whitelist_nonce'] ) ), 'ss_whitelist_action' ) ) {
-			return false;
-		}
 		$now = gmdate( 'Y/m/d H:i:s', time() + ( get_option( 'gmt_offset' ) * 3600 ) );
 		$wlist = is_array( $options['wlist'] ) ? $options['wlist'] : array();
 		$wlist_email = isset( $options['wlist_email'] ) ? $options['wlist_email'] : array();

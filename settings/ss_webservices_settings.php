@@ -23,39 +23,39 @@ if ( !empty( $nonce ) && wp_verify_nonce( $nonce, 'ss_stopspam_update' ) ) {
 	if ( array_key_exists( 'action', $_POST ) ) {
 		// other API keys
 		if ( array_key_exists( 'apikey', $_POST ) ) {
-			$apikey			   = stripslashes( sanitize_text_field( wp_unslash( $_POST['apikey'] ) ) );
+			$apikey			   = sanitize_text_field( wp_unslash( $_POST['apikey'] ) );
 			$options['apikey'] = $apikey;
 		}
 		if ( array_key_exists( 'googleapi', $_POST ) ) {
-			$googleapi			  = stripslashes( sanitize_text_field( wp_unslash( $_POST['googleapi'] ) ) );
+			$googleapi			  = sanitize_text_field( wp_unslash( $_POST['googleapi'] ) );
 			$options['googleapi'] = $googleapi;
 		}
 		if ( array_key_exists( 'honeyapi', $_POST ) ) {
-			$honeyapi			 = stripslashes( sanitize_text_field( wp_unslash( $_POST['honeyapi'] ) ) );
+			$honeyapi			 = sanitize_text_field( wp_unslash( $_POST['honeyapi'] ) );
 			$options['honeyapi'] = $honeyapi;
 		}
 		if ( array_key_exists( 'botscoutapi', $_POST ) ) {
-			$botscoutapi			= stripslashes( sanitize_text_field( wp_unslash( $_POST['botscoutapi'] )) );
+			$botscoutapi			= sanitize_text_field( wp_unslash( $_POST['botscoutapi'] ) );
 			$options['botscoutapi'] = $botscoutapi;
 		}
 		if ( array_key_exists( 'sfsfreq', $_POST ) ) {
-			$sfsfreq			= stripslashes( sanitize_text_field( wp_unslash( $_POST['sfsfreq'] ) ) );
+			$sfsfreq			= sanitize_text_field( wp_unslash( $_POST['sfsfreq'] ) );
 			$options['sfsfreq'] = $sfsfreq;
 		}
 		if ( array_key_exists( 'sfsage', $_POST ) ) {
-			$sfsage			   = stripslashes( sanitize_text_field( wp_unslash( $_POST['sfsage'] ) ) );
+			$sfsage			   = sanitize_text_field( wp_unslash( $_POST['sfsage'] ) );
 			$options['sfsage'] = $sfsage;
 		}
 		if ( array_key_exists( 'hnyage', $_POST ) ) {
-			$hnyage			   = stripslashes( sanitize_text_field( wp_unslash( $_POST['hnyage'] ) ) );
+			$hnyage			   = sanitize_text_field( wp_unslash( $_POST['hnyage'] ) );
 			$options['hnyage'] = $hnyage;
 		}
 		if ( array_key_exists( 'hnylevel', $_POST ) ) {
-			$hnylevel			 = stripslashes( sanitize_text_field( wp_unslash( $_POST['hnylevel'] ) ) );
+			$hnylevel			 = sanitize_text_field( wp_unslash( $_POST['hnylevel'] ) );
 			$options['hnylevel'] = $hnylevel;
 		}
 		if ( array_key_exists( 'botfreq', $_POST ) ) {
-			$botfreq			= stripslashes( sanitize_text_field( wp_unslash( $_POST['botfreq'] ) ) );
+			$botfreq			= sanitize_text_field( wp_unslash( $_POST['botfreq'] ) );
 			$options['botfreq'] = $botfreq;
 		}
 		$optionlist = array( 'chksfs', 'chkdnsbl' );

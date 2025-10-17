@@ -366,6 +366,24 @@ function sfs_handle_ajax_sfs_process( $data ) {
 	sfs_errorsonoff( 'off' );
 }
 
+function ss_get_ajax_allowed_html() {
+	return array(
+		'a' => array(
+			'href' => array(),
+			'onclick' => array(),
+			'title' => array(),
+			'alt' => array(),
+			'target' => array(),
+		),
+		'img' => array(
+			'src' => array(),
+			'class' => array(),
+			'alt' => array(),
+		),
+		'br' => array(),
+	);
+}
+
 function sfs_handle_ajax_sfs_process_watch( $data ) {
 	// anything in data? never
 	// get the things out of the get
@@ -374,10 +392,10 @@ function sfs_handle_ajax_sfs_process_watch( $data ) {
 		echo ' Function Not Found';
 		exit();
 	}
-	$trash	   = SS_PLUGIN_URL . 'images/trash.png';
-	$tdown	   = SS_PLUGIN_URL . 'images/tdown.png';
-	$tup	   = SS_PLUGIN_URL . 'images/tup.png'; // fix this
-	$whois	   = SS_PLUGIN_URL . 'images/whois.png'; // fix this
+	$trash = SS_PLUGIN_URL . 'images/trash.png';
+	$tdown = SS_PLUGIN_URL . 'images/tdown.png';
+	$tup = SS_PLUGIN_URL . 'images/tup.png'; // fix this
+	$whois = SS_PLUGIN_URL . 'images/whois.png'; // fix this
 	$ip = isset( $_GET['ip'] ) ? sanitize_text_field( wp_unslash( $_GET['ip'] ) ) : '';
 	$email = isset( $_GET['email'] ) ? sanitize_email( wp_unslash( $_GET['email'] ) ) : '';
 	$container = isset( $_GET['cont'] ) ? sanitize_text_field( wp_unslash( $_GET['cont'] ) ) : '';
@@ -386,88 +404,97 @@ function sfs_handle_ajax_sfs_process_watch( $data ) {
 	// container is blank, goodips, badips or log
 	// func is add_black, add_white, delete_gcache or delete_bcache
 	$options = ss_get_options();
-	$stats   = ss_get_stats();
+	$stats = ss_get_stats();
 	// $stats, $options );
-	$ansa	 = array();
+	$ansa = array();
+	$allowed_html = array(
+		'a' => array(
+			'href' => array(),
+			'title' => array(),
+			'alt' => array(),
+			'target' => array(),
+			'onclick' => array(),
+		),
+		'img' => array(
+			'src' => array(),
+			'class' => array(),
+			'alt' => array(),
+		),
+		'br' => array(),
+	);
 	switch ( $func ) {
 		case 'delete_gcache':
 			// deletes a Good Cache item
 			$ansa = be_load( 'ss_remove_gcache', $ip, $stats, $options );
 			$show = be_load( 'ss_get_gcache', 'x', $stats, $options );
-			echo wp_kses_post( $show );
+			echo wp_kses( $show, $allowed_html );
 			exit();
-			break;
+		break;
 		case 'delete_bcache':
 			// deletes a Bad Cache item
 			$ansa = be_load( 'ss_remove_bcache', $ip, $stats, $options );
 			$show = be_load( 'ss_get_bcache', 'x', $stats, $options );
-			echo wp_kses_post( $show );
+			echo wp_kses( $show, $allowed_html );
 			exit();
-			break;
+		break;
 		case 'add_black':
 			if ( $container == 'badips' ) {
 				be_load( 'ss_remove_bcache', $ip, $stats, $options );
+				$show = be_load( 'ss_get_bcache', 'x', $stats, $options );
+				echo wp_kses( $show, $allowed_html );
 			} else if ( $container == 'goodips' ) {
 				be_load( 'ss_remove_gcache', $ip, $stats, $options );
+				$show = be_load( 'ss_get_gcache', 'x', $stats, $options );
+				echo wp_kses( $show, $allowed_html );
 			} else { // wlreq
 				be_load( 'ss_remove_bcache', $ip, $stats, $options );
 				be_load( 'ss_remove_gcache', $ip, $stats, $options );
 			}
 			be_load( 'ss_addtoblocklist', $ip, $stats, $options );
-			break;
+			exit();
+		break;
 		case 'add_white':
 			if ( $container == 'badips' ) {
 				be_load( 'ss_remove_bcache', $ip, $stats, $options );
+				$show = be_load( 'ss_get_bcache', 'x', $stats, $options );
+				echo wp_kses( $show, $allowed_html );
 			} else if ( $container == 'goodips' ) {
 				be_load( 'ss_remove_gcache', $ip, $stats, $options );
+				$show = be_load( 'ss_get_gcache', 'x', $stats, $options );
+				echo wp_kses( $show, $allowed_html );
 			} else {
 				be_load( 'ss_remove_bcache', $ip, $stats, $options );
 				be_load( 'ss_remove_gcache', $ip, $stats, $options );
 			}
 			be_load( 'ss_addtoallowlist', $ip, $stats, $options );
-// if it is not good or bad IP we don't need the container as it is the log
-			break;
+			// if it is not good or bad IP we don't need the container as it is the log
+			exit();
+		break;
 		case 'delete_wl_row': // this is from the Allow Requests list
 			$ansa = be_load( 'ss_get_alreq', $ip, $stats, $options );
-			echo wp_kses_post( $ansa );
+			echo wp_kses( $ansa, $allowed_html );
 			exit();
-			break;
+		break;
 		case 'delete_wlip': // this is from the Allow Requests list
 			$ansa = be_load( 'ss_get_alreq', $ip, $stats, $options );
-			echo wp_kses_post( $ansa );
+			echo wp_kses( $ansa, $allowed_html );
 			exit();
-			break;
+		break;
 		case 'delete_wlem': // this is from the Allow Requests list
 			$ansa = be_load( 'ss_get_alreq', $ip, $stats, $options );
-			echo wp_kses_post( $ansa );
+			echo wp_kses( $ansa, $allowed_html );
 			exit();
-			break;
+		break;
 		default:
-			echo '\r\n\r\nUnrecognized function "' . esc_html( $func ) . '"';
+			echo '\r\n\r\nUnrecognized function "' . esc_html( $func ) . '"\r\n\r\n';
 			exit();
 	}
-	$ajaxurl  = admin_url( 'admin-ajax.php' );
-	$cachedel = 'delete_gcache';
-	switch ( $container ) {
-		case 'badips':
-			$show = be_load( 'ss_get_bcache', 'x', $stats, $options );
-			echo wp_kses_post( $show );
-			exit();
-			break;
-		case 'goodips':
-			$show = be_load( 'ss_get_gcache', 'x', $stats, $options );
-			echo wp_kses_post( $show );
-			exit();
-			break;
-		case 'wlreq':
-			$ansa = be_load( 'ss_get_alreq', $ip, $stats, $options );
-			echo wp_kses_post( $ansa );
-			exit();
-		default:
-			// coming from logs report we need to display an appropriate message, I think
-			echo 'Something is missing ' . wp_kses_post( $container ) . ' ';
-			exit();
+	// some functions echo a result - those are the deletes
+	// some functions don't - add to allow list or add to block list
+	if ( $func == 'add_white' || $func == 'add_black' ) {
+		echo "OK";
 	}
+	exit();
 }
 
 function ss_sfs_ip_column( $value, $column_name, $user_id ) {

@@ -49,72 +49,66 @@ if ( wp_verify_nonce( $nonce, 'ss_stopspam_update' ) ) {
 		}
 		if ( array_key_exists( 'chkcaptcha', $_POST ) ) {
 			$chkcaptcha = isset( $_POST['chkcaptcha'] ) ? sanitize_text_field( wp_unslash( trim( $_POST['chkcaptcha'] ) ) ) : '';
-			$options['chkcaptcha'] = esc_html( $chkcaptcha );
+			$options['chkcaptcha'] = $chkcaptcha;
 		}
 		if ( array_key_exists( 'form_captcha_login', $_POST ) and ( $chkcaptcha == 'G' or $chkcaptcha == 'H' or $chkcaptcha == 'S' ) ) {
 			$form_captcha_login = isset( $_POST['form_captcha_login'] ) ? sanitize_text_field( wp_unslash( trim( $_POST['form_captcha_login'] ) ) ) : 'N';
-			$options['form_captcha_login'] = esc_html( $form_captcha_login );
+			$options['form_captcha_login'] = $form_captcha_login;
 		} else {
 			$options['form_captcha_login'] = 'N';
 		}
 		if ( array_key_exists( 'form_captcha_registration', $_POST ) and ( $chkcaptcha == 'G' or $chkcaptcha == 'H' or $chkcaptcha == 'S' ) ) {
 			$form_captcha_registration = isset( $_POST['form_captcha_registration'] ) ? sanitize_text_field( wp_unslash( trim( $_POST['form_captcha_registration'] ) ) ) : 'N';
-			$options['form_captcha_registration'] = esc_html( $form_captcha_registration );
+			$options['form_captcha_registration'] = $form_captcha_registration;
 		} else {
 			$options['form_captcha_registration'] = 'N';
 		}
 		if ( array_key_exists( 'form_captcha_comment', $_POST ) and ( $chkcaptcha == 'G' or $chkcaptcha == 'H' or $chkcaptcha == 'S' ) ) {
 			$form_captcha_comment = isset( $_POST['form_captcha_comment'] ) ? sanitize_text_field( wp_unslash( trim( $_POST['form_captcha_comment'] ) ) ) : 'N';
-			$options['form_captcha_comment'] = esc_html( $form_captcha_comment );
+			$options['form_captcha_comment'] = $form_captcha_comment;
 		} else {
 			$options['form_captcha_comment'] = 'N';
 		}
 		// added the API key stiff for Captchas
 		if ( array_key_exists( 'recaptchaapisecret', $_POST ) ) {
-			$recaptchaapisecret			   = sanitize_text_field( wp_unslash( $_POST['recaptchaapisecret'] ) );
-			$options['recaptchaapisecret'] = esc_html( $recaptchaapisecret );
+			$options['recaptchaapisecret'] = sanitize_text_field( wp_unslash( $_POST['recaptchaapisecret'] ) );
 		}
 		if ( array_key_exists( 'recaptchaapisite', $_POST ) ) {
-			$recaptchaapisite			 = sanitize_text_field( wp_unslash( $_POST['recaptchaapisite'] ) );
-			$options['recaptchaapisite'] = esc_html( $recaptchaapisite );
+			$options['recaptchaapisite'] = sanitize_text_field( wp_unslash( $_POST['recaptchaapisite'] ) );
 		}
 		if ( array_key_exists( 'hcaptchaapisecret', $_POST ) ) {
-			$hcaptchaapisecret			  = sanitize_text_field( wp_unslash( $_POST['hcaptchaapisecret'] ) );
-			$options['hcaptchaapisecret'] = esc_html( $hcaptchaapisecret );
+			$options['hcaptchaapisecret'] = sanitize_text_field( wp_unslash( $_POST['hcaptchaapisecret'] ) );
 		}
 		if ( array_key_exists( 'hcaptchaapisite', $_POST ) ) {
-			$hcaptchaapisite			= sanitize_text_field( wp_unslash( $_POST['hcaptchaapisite'] ) );
-			$options['hcaptchaapisite'] = esc_html( $hcaptchaapisite );
+			$options['hcaptchaapisite'] = sanitize_text_field( wp_unslash( $_POST['hcaptchaapisite'] ) );
 		}
 		if ( array_key_exists( 'solvmediaapivchallenge', $_POST ) ) {
-			$solvmediaapivchallenge			   = sanitize_text_field( wp_unslash( $_POST['solvmediaapivchallenge'] ) );
-			$options['solvmediaapivchallenge'] = esc_html( $solvmediaapivchallenge );
+			$options['solvmediaapivchallenge'] = sanitize_text_field( wp_unslash( $_POST['solvmediaapivchallenge'] ) );
 		}
 		if ( array_key_exists( 'solvmediaapiverify', $_POST ) ) {
-			$solvmediaapiverify			   = sanitize_text_field( wp_unslash( $_POST['solvmediaapiverify'] ) );
-			$options['solvmediaapiverify'] = esc_html( $solvmediaapiverify );
+			$options['solvmediaapiverify'] = sanitize_text_field( wp_unslash( $_POST['solvmediaapiverify'] ) );
 		}
 		// validate the chkcaptcha variable
-		if ( $chkcaptcha == 'G' && ( $recaptchaapisecret == '' || $recaptchaapisite == '' ) ) {
-			$chkcaptcha			   = 'Y';
-			$options['chkcaptcha'] = esc_html( $chkcaptcha );
-			$msg				   = esc_html( 'You cannot use Google reCAPTCHA unless you have entered an API key.' );
+		if ( $chkcaptcha == 'G' && ( empty( $options['recaptchaapisecret'] ) || empty( $options['recaptchaapisite'] ) ) ) {
+			$chkcaptcha = 'Y';
+			$options['chkcaptcha'] = $chkcaptcha;
+			$msg = esc_html( 'You cannot use Google reCAPTCHA unless you have entered an API key.' );
 		}
-		if ( $chkcaptcha == 'H' && ( $hcaptchaapisecret == '' || $hcaptchaapisite == '' ) ) {
-			$chkcaptcha			   = 'Y';
-			$options['chkcaptcha'] = esc_html( $chkcaptcha );
-			$msg				   = esc_html( 'You cannot use HCAPTCHA unless you have entered an API key.' );
+		if ( $chkcaptcha == 'H' && ( empty( $options['hcaptchaapisecret'] ) || empty( $options['hcaptchaapisite'] ) ) ) {
+			$chkcaptcha = 'Y';
+			$options['chkcaptcha'] = $chkcaptcha;
+			$msg = esc_html( 'You cannot use HCAPTCHA unless you have entered an API key.' );
 		}
-		if ( $chkcaptcha == 'S' && ( $solvmediaapivchallenge == '' || $solvmediaapiverify == '' ) ) {
-			$chkcaptcha			   = 'Y';
-			$options['chkcaptcha'] = esc_html( $chkcaptcha );
-			$msg				   = esc_html( 'You cannot use Solve Media CAPTCHA unless you have entered an API key.' );
+		if ( $chkcaptcha == 'S' && ( empty( $options['solvmediaapivchallenge'] ) || empty( $options['solvmediaapiverify'] ) ) ) {
+			$chkcaptcha = 'Y';
+			$options['chkcaptcha'] = $chkcaptcha;
+			$msg = esc_html( 'You cannot use Solve Media CAPTCHA unless you have entered an API key.' );
 		}
 		ss_set_options( $options );
 		extract( $options ); // extract again to get the new options
 	}
 	$update = '<div class="notice notice-success is-dismissible"><p>' . 'Options Updated' . '</p></div>';
- }
+}
 
 $nonce = wp_create_nonce( 'ss_stopspam_update' );
 

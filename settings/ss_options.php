@@ -218,15 +218,15 @@ if ( !empty( $nonce ) && wp_verify_nonce( $nonce, 'ss_stopspam_update' ) ) {
 	}
 	// text options
 	if ( array_key_exists( 'sesstime', $_POST ) ) {
-		$sesstime			 = stripslashes( sanitize_text_field( wp_unslash( $_POST['sesstime'] ) ) );
+		$sesstime			 = sanitize_text_field( wp_unslash( $_POST['sesstime'] ) );
 		$options['sesstime'] = $sesstime;
 	}
 	if ( array_key_exists( 'multitime', $_POST ) ) {
-		$multitime			  = stripslashes( sanitize_text_field( wp_unslash( $_POST['multitime'] ) ) );
+		$multitime			  = sanitize_text_field( wp_unslash( $_POST['multitime'] ) );
 		$options['multitime'] = $multitime;
 	}
 	if ( array_key_exists( 'multicnt', $_POST ) ) {
-		$multicnt			 = stripslashes( sanitize_text_field( wp_unslash( $_POST['multicnt'] ) ) );
+		$multicnt			 = sanitize_text_field( wp_unslash( $_POST['multicnt'] ) );
 		$options['multicnt'] = $multicnt;
 	}
 	ss_set_options( $options );

@@ -168,26 +168,16 @@ function include_setting( $file ) {
 
 function ss_fix_post_vars() {
 	if ( !empty( $_POST ) ) {
-		$keys = isset( $_POST ) ? ( array ) array_keys( $_POST ) : array();
-		foreach ( $keys as $key ) {
-			try {
-				$key = sanitize_key( $key ); 
-				if ( isset( $_POST[$key] ) && is_string( wp_unslash( $_POST[$key] ) ) ) {
-					$raw_value = sanitize_text_field( wp_unslash( $_POST[$key] ) );
-					if ( !is_scalar( $raw_value ) ) {
-						continue;
-					}
-					if ( strpos( $raw_value, "\n" ) !== false ) {
-						$val2 = sanitize_textarea_field( $raw_value );
-					} else {
-						$val2 = sanitize_text_field( $raw_value );
-					}
-					if ( $val2 === '' && $raw_value !== '' ) {
-						continue;
-					}
-					$_POST[$key] = $val2;
-				}
-			} catch ( Exception $e ) {}
+		foreach ( $_POST as $key => $value ) {
+			if ( !is_string( $value ) ) {
+				continue;
+			}
+			$unslashed = wp_unslash( $value );
+			if ( strpos( $unslashed, "\n" ) !== false || strpos( $unslashed, "\r" ) !== false ) {
+				$_POST[$key] = sanitize_textarea_field( $unslashed );
+			} else {
+				$_POST[$key] = sanitize_text_field( $unslashed );
+			}
 		}
 	}
 }

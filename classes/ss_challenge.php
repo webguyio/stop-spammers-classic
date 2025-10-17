@@ -77,7 +77,7 @@ class ss_challenge extends be_module {
 				}
 				if ( empty( $chkcaptcha ) || $chkcaptcha == 'N' ) {
 					// send out the thank you message
-					wp_die( esc_html( $msg ), "Stop Spammers", array( 'response' => 200 ) );
+					wp_die( wp_kses_post( $msg ), "Stop Spammers", array( 'response' => 200 ) );
 					exit();
 				}
 				// they submitted a CAPTCHA
@@ -272,8 +272,8 @@ class ss_challenge extends be_module {
 				<h1>Allow Request</h1>
 				<p>You have been blocked from entering information on this site. In order to prevent this from happening in the future, complete the request below to have the admin add your IP to a list that allows you full access.</p>
 				<p>Please enter your <strong>e</strong><strong>ma</strong><strong>il</strong> <strong>add</strong><strong>re</strong><strong>ss</strong> and a short note requesting access here.</p>
-				Email Address (required)<!-- not the message -->: <input type="text" value="" name="ke" style="padding:5px" class="regular-text"><br>
-				Message<!-- not email -->:<br><textarea name="km" placeholder="Explain what you were trying to do or if you were submitting a contact form, re-enter your message." rows="5" style="box-sizing:border-box;width:100%;padding:15px" class="large-text"></textarea>
+				Email Address (required)<!-- not the message -->: <input type="text" value="" name="ke" style="padding:5px"><br>
+				Message<!-- not email -->:<br><textarea name="km" rows="5" style="box-sizing:border-box;width:90%;padding:15px" placeholder="Explain what you were trying to do or if you were submitting a contact form, re-enter your message."></textarea>
 			';
 		}
 		$captop = '<h1>Are you human?</h1>';

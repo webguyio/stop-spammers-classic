@@ -3,17 +3,17 @@
 Plugin Name: Stop Spammers
 Plugin URI: https://damspam.com/
 Description: A simplified, restored, and preserved version of the original Stop Spammers plugin.
-Version: 2025
+Version: 2025.1
 Requires at least: 3.0
 Requires PHP: 5.0
 Author: Web Guy
 Author URI: https://webguy.io/
-License: GPLv3 or later
+License: GPL
 License URI: https://www.gnu.org/licenses/gpl.html
 */
 
 // networking requires a couple of globals
-define( 'SS_VERSION', '2025' );
+define( 'SS_VERSION', '2025.1' );
 define( 'SS_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'SS_PLUGIN_FILE', plugin_dir_path( __FILE__ ) );
 define( 'SS_PLUGIN_DATA', wp_upload_dir()['basedir'] . '/data/' );
@@ -798,7 +798,7 @@ function ss_user_reg_filter( $user_login ) {
 		$post['reason'] = 'Failed Registration: Bad Cache';
 		$host['chk']	= 'chkbcache';
 		$ansa		    = be_load( 'ss_log_bad', ss_get_ip(), $stats, $options, $post );
-		wp_die( '$rejectmessage', 'Login Access Blocked', array( 'response' => 403 ) );
+		wp_die( $rejectmessage, 'Login Access Blocked', array( 'response' => 403 ) );
 		exit();
 	}
 	// check periods
@@ -837,87 +837,147 @@ add_action( 'wp', 'ss_login_redirect' );
 
 function ss_add_captcha() {
 	$options = ss_get_options();
-	$html    = '';
+	$html = '';
+	$captcha_nonce = wp_create_nonce( 'ss_captcha_action' );
 	switch ( $options['chkcaptcha'] ) {
 		case 'G':
 			// reCAPTCHA
 			$recaptchaapisite = $options['recaptchaapisite'];
-			$html  = wp_enqueue_script( 'ss-recaptcha', 'https://www.google.com/recaptcha/api.js', array(), '1', true, array( 'async' => true, 'defer' => true ) );
+			$html = wp_enqueue_script( 'ss-recaptcha', 'https://www.google.com/recaptcha/api.js', array(), '1', true, array( 'async' => true, 'defer' => true ) );
+			$html .= '<input type="hidden" name="ss_captcha_nonce" value="' . esc_attr( $captcha_nonce ) . '">';
 			$html .= '<input type="hidden" name="recaptcha" value="recaptcha">';
-			$html .= '<div class="g-recaptcha" data-sitekey="' . $recaptchaapisite . '"></div>';
+			$html .= '<div class="g-recaptcha" data-sitekey="' . esc_attr( $recaptchaapisite ) . '"></div>';
 		break;
 		case 'H':
 			// hCaptcha
 			$hcaptchaapisite = $options['hcaptchaapisite'];
-			$html  = wp_enqueue_script( 'ss-hcaptcha', 'https://hcaptcha.com/1/api.js', array(), '1', true, array( 'async' => true, 'defer' => true ) );
+			$html = wp_enqueue_script( 'ss-hcaptcha', 'https://hcaptcha.com/1/api.js', array(), '1', true, array( 'async' => true, 'defer' => true ) );
+			$html .= '<input type="hidden" name="ss_captcha_nonce" value="' . esc_attr( $captcha_nonce ) . '">';
 			$html .= '<input type="hidden" name="h-captcha" value="h-captcha">';
-			$html .= '<div class="h-captcha" data-sitekey="' . $hcaptchaapisite . '"></div>';
+			$html .= '<div class="h-captcha" data-sitekey="' . esc_attr( $hcaptchaapisite ) . '"></div>';
 		break;
 		case 'S':
 			$solvmediaapivchallenge = $options['solvmediaapivchallenge'];
-			$html   = wp_enqueue_script( 'ss-solvemedia', 'https://api-secure.solvemedia.com/papi/challenge.script?k=' . $solvmediaapivchallenge, array(), '1', true, array( 'async' => true, 'defer' => true ) );
-			$html  .= '<noscript>';
-			$html  .= '<iframe src="https://api-secure.solvemedia.com/papi/challenge.noscript?k=' . $solvmediaapivchallenge . '" height="300" width="500" frameborder="0"></iframe><br>';
-			$html  .= '<textarea name="adcopy_challenge" rows="3" cols="40"></textarea>';
-			$html  .= '<input type="hidden" name="adcopy_response" value="manual_challenge">';
-			$html  .= '</noscript>';
+			$html = wp_enqueue_script( 'ss-solvemedia', 'https://api-secure.solvemedia.com/papi/challenge.script?k=' . $solvmediaapivchallenge, array(), '1', true, array( 'async' => true, 'defer' => true ) );
+			$html .= '<input type="hidden" name="ss_captcha_nonce" value="' . esc_attr( $captcha_nonce ) . '">';
+			$html .= '<noscript>';
+			$html .= '<iframe src="https://api-secure.solvemedia.com/papi/challenge.noscript?k=' . esc_attr( $solvmediaapivchallenge ) . '" height="300" width="500" frameborder="0"></iframe><br>';
+			$html .= '<textarea name="adcopy_challenge" rows="3" cols="40"></textarea>';
+			$html .= '<input type="hidden" name="adcopy_response" value="manual_challenge">';
+			$html .= '</noscript>';
 		break;
 	}
-	echo wp_kses_post( $html );
+	$allowed_html = array(
+		'script' => array(
+			'src' => array(),
+			'async' => array(),
+			'defer' => array(),
+		),
+		'input' => array(
+			'type' => array(),
+			'name' => array(),
+			'value' => array(),
+		),
+		'div' => array(
+			'class' => array(),
+			'data-sitekey' => array(),
+		),
+		'noscript' => array(),
+		'iframe' => array(
+			'src' => array(),
+			'height' => array(),
+			'width' => array(),
+			'frameborder' => array(),
+		),
+		'textarea' => array(
+			'name' => array(),
+			'rows' => array(),
+			'cols' => array(),
+		),
+		'br' => array(),
+	);
+	echo wp_kses( $html, $allowed_html );
 }
 
 function ss_captcha_verify() {
+	static $verified = null;
+	if ( $verified !== null ) {
+		return $verified;
+	}
+	if ( empty( $_POST ) ) {
+		$verified = true;
+		return true;
+	}
 	if ( !isset( $_POST['ss_captcha_nonce'] ) || !wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['ss_captcha_nonce'] ) ), 'ss_captcha_action' ) ) {
-		return '<strong>Error:</strong> Security check failed.';
+		$verified = '<strong>Error:</strong> Security verification failed.';
+		return $verified;
 	}
 	$options = ss_get_options();
 	$ip = ss_get_ip();
 	switch ( $options['chkcaptcha'] ) {
 		case 'G':
-			if ( isset( $_POST['g-recaptcha-response'] ) ) {
-				$secret = sanitize_text_field( $options['recaptchaapisecret'] );
-				$response = wp_safe_remote_get( esc_url_raw( add_query_args( array(
-					'secret'   => $secret,
-					'response' => isset( $_REQUEST['g-recaptcha-response'] ) ? sanitize_textarea_field( wp_unslash( $_REQUEST['g-recaptcha-response'] ) ) : '',
+			if ( !isset( $_POST['g-recaptcha-response'] ) || empty( $_POST['g-recaptcha-response'] ) ) {
+				$verified = '<strong>Error:</strong> Please complete the reCAPTCHA.';
+				return $verified;
+			}
+			$secret = $options['recaptchaapisecret'];
+			$recaptcha_response = sanitize_textarea_field( wp_unslash( $_POST['g-recaptcha-response'] ) );
+			$response = wp_safe_remote_post( 'https://www.google.com/recaptcha/api/siteverify', array(
+				'body' => array(
+					'secret' => $secret,
+					'response' => $recaptcha_response,
 					'remoteip' => $ip
-				), 'https://www.google.com/recaptcha/api/siteverify' ) ) );
-				if ( is_wp_error( $response ) || false === strpos( wp_remote_get_body( $response ), '"success": true' ) ) {
-					return '<strong>Error:</strong> Google reCAPTCHA verification failed.';
-				}
+				)
+			) );
+			if ( is_wp_error( $response ) ) {
+				$verified = '<strong>Error:</strong> Google reCAPTCHA connection failed.';
+				return $verified;
 			}
-			break;
+			$parsed = json_decode( wp_remote_retrieve_body( $response ) );
+			if ( !isset( $parsed->success ) || true !== $parsed->success ) {
+				$verified = '<strong>Error:</strong> Google reCAPTCHA verification failed.';
+				return $verified;
+			}
+		break;
 		case 'H':
-			if ( isset( $_POST['h-captcha-response'] ) ) {
-				$secret = sanitize_text_field( $options['hcaptchaapisecret'] );
-				$response = wp_safe_remote_post( 'https://hcaptcha.com/siteverify', array(
-					'body' => array(
-						'secret'   => $secret,
-						'response' => isset( $_REQUEST['h-captcha-response'] ) ? sanitize_textarea_field( wp_unslash( $_REQUEST['h-captcha-response'] ) ) : '',
-						'remoteip' => $ip
-					)
-				) );
-				$parsed = json_decode( wp_remote_get_body( $response ) );
-				if ( is_wp_error( $response ) || ! isset( $parsed->success ) || true !== $parsed->success ) {
-					return '<strong>Error:</strong> hCaptcha verification failed.';
-				}
+			if ( !isset( $_POST['h-captcha-response'] ) || empty( $_POST['h-captcha-response'] ) ) {
+				$verified = '<strong>Error:</strong> Please complete the hCaptcha.';
+				return $verified;
 			}
-			break;
+			$secret = $options['hcaptchaapisecret'];
+			$response = wp_safe_remote_post( 'https://hcaptcha.com/siteverify', array(
+				'body' => array(
+					'secret' => $secret,
+					'response' => sanitize_textarea_field( wp_unslash( $_POST['h-captcha-response'] ) ),
+					'remoteip' => $ip
+				)
+			) );
+			$parsed = json_decode( wp_remote_retrieve_body( $response ) );
+			if ( is_wp_error( $response ) || !isset( $parsed->success ) || true !== $parsed->success ) {
+				$verified = '<strong>Error:</strong> hCaptcha verification failed.';
+				return $verified;
+			}
+		break;
 		case 'S':
-			if ( isset( $_POST['adcopy_challenge'] ) ) {
-				$response = wp_safe_remote_post( 'https://verify.solvemedia.com/papi/verify/', array(
-					'body' => array(
-						'privatekey' => sanitize_text_field( $options['solvmediaapiverify'] ),
-						'challenge'  => isset( $_REQUEST['adcopy_challenge'] ) ? sanitize_textarea_field( wp_unslash( $_REQUEST['adcopy_challenge'] ) ) : '',
-						'response'   => isset( $_REQUEST['adcopy_response'] ) ? sanitize_textarea_field( wp_unslash( $_REQUEST['adcopy_response'] ) ) : '',
-						'remoteip'   => $ip
-					)
-				) );
-				if ( is_wp_error( $response ) || false === strpos( wp_remote_get_body( $response ), 'true' ) ) {
-					return '<strong>Error:</strong> Solve Media CAPTCHA verification failed.';
-				}
+			if ( !isset( $_POST['adcopy_challenge'] ) || empty( $_POST['adcopy_challenge'] ) ) {
+				$verified = '<strong>Error:</strong> Please complete the CAPTCHA.';
+				return $verified;
 			}
-			break;
+			$response = wp_safe_remote_post( 'https://verify.solvemedia.com/papi/verify/', array(
+				'body' => array(
+					'privatekey' => $options['solvmediaapiverify'],
+					'challenge' => sanitize_textarea_field( wp_unslash( $_POST['adcopy_challenge'] ) ),
+					'response' => isset( $_POST['adcopy_response'] ) ? sanitize_textarea_field( wp_unslash( $_POST['adcopy_response'] ) ) : '',
+					'remoteip' => $ip
+				)
+			) );
+			if ( is_wp_error( $response ) || false === strpos( wp_remote_retrieve_body( $response ), 'true' ) ) {
+				$verified = '<strong>Error:</strong> Solve Media CAPTCHA verification failed.';
+				return $verified;
+			}
+		break;
 	}
+	$verified = true;
 	return true;
 }
 

@@ -50,7 +50,7 @@ $now	  = gmdate( 'Y/m/d H:i:s', time() + ( get_option( 'gmt_offset' ) * 3600 ) )
 		if ( array_key_exists( 'ss_stop_update_log_size', $_POST ) ) {
 			// update log size
 			if ( array_key_exists( 'ss_sp_hist', $_POST ) ) {
-				$ss_sp_hist			   = stripslashes( sanitize_text_field( wp_unslash( $_POST['ss_sp_hist'] ) ) );
+				$ss_sp_hist			   = sanitize_text_field( wp_unslash( $_POST['ss_sp_hist'] ) );
 				$options['ss_sp_hist'] = $ss_sp_hist;
 				$msg				   = '<div class="notice notice-success"><p>' . 'Options Updated' . '</p></div>';
 				// update the options
@@ -164,7 +164,7 @@ $now	  = gmdate( 'Y/m/d H:i:s', time() + ( get_option( 'gmt_offset' ) * 3600 ) )
 						$href = 'href="#"';
 						$onclick = 'onclick="sfs_ajax_report_spam(this,\'registration\',\'' . $blog . '\',\'' . $ajaxurl . '\',\'' . $em . '\',\'' . $ip . '\',\'' . $au . '\');return false;"';
 						echo '| ';
-						echo '<a title="Report to Stop Forum Spam (SFS)" ' . wp_kses_post( $href ), wp_kses_post( $onclick ) . ' class="delete:the-comment-list:comment-$id::delete=1 delete vim-d vim-destructive">Report to SFS</a>';
+						echo '<a title="Report to Stop Forum Spam (SFS)" ' . $href . ' ' . $onclick . ' class="delete:the-comment-list:comment-$id::delete=1 delete vim-d vim-destructive">Report to SFS</a>';
 					}
 				}
 				echo '
