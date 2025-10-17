@@ -36,13 +36,13 @@ OR
 
 == Frequently Asked Questions ==
 
-= What do I do if I lock myself out of my admin? =
+= I'm locked out of my admin! =
 
 You'll need to access your site files (most likely via FTP), navigate to */wp-content/plugins*, and rename the */stop-spammer-registrations-plugin* folder by adding a "1" to the beginning. Once you're back in your admin, remove the "1" from the folder name and make sure to add yourself to the Allow List.
 
 = Can I use Stop Spammers with Cloudflare? =
 
-Yes. But, you may need to {restore visitor IPs](https://developers.cloudflare.com/support/troubleshooting/restoring-visitor-ips/restoring-original-visitor-ips/).
+Yes. But, you may need to [restore visitor IPs](https://developers.cloudflare.com/support/troubleshooting/restoring-visitor-ips/restoring-original-visitor-ips/).
 
 = Can I use Stop Spammers with Wordfence (and other spam and security plugins)? =
 
