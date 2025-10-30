@@ -6,7 +6,7 @@ Tags: spam, security, anti-spam, spam protection, no spam
 Tested up to: 6.8
 Requires at least: 3.0
 Requires PHP: 5.0
-Stable tag: 2025.1
+Stable tag: 2025.2
 License: GPL
 License URI: https://www.gnu.org/licenses/gpl.html
 
@@ -73,6 +73,9 @@ Yes. [Under most circumstances](https://law.stackexchange.com/questions/28603/ho
 There are several optional services you may use that involve sending data to third parties including: [Google reCAPTCHA](https://policies.google.com/privacy), [hCaptcha](https://www.hcaptcha.com/privacy), [2Captcha](https://2captcha.com/privacy-policy), [Spamhaus](https://www.spamhaus.org/privacy-notice/), [Stop Forum Spam](https://www.stopforumspam.com/privacy), [Project Honeypot](https://www.projecthoneypot.org/privacy_policy.php), and [BotScout](https://botscout.com/w3c/privacy.htm). You may wish to read each services' privacy policy to see if you're comfortable using them, but generally speaking, whenever someone for example tries to use a contact form on your website, their IP address, name, and email may be sent to these services to check against spam blocklists.
 
 == Changelog ==
+
+= 2025.2 =
+* Bug fixes
 
 = 2025.1 =
 * Fixes (aggressive escaping breaking stuff)

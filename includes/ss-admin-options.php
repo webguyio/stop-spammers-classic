@@ -421,6 +421,12 @@ function sfs_handle_ajax_sfs_process_watch( $data ) {
 			'alt' => array(),
 		),
 		'br' => array(),
+		'tr' => array(
+			'style' => array(),
+		),
+		'td' => array(
+			'style' => array(),
+		),
 	);
 	switch ( $func ) {
 		case 'delete_gcache':
@@ -440,36 +446,26 @@ function sfs_handle_ajax_sfs_process_watch( $data ) {
 		case 'add_black':
 			if ( $container == 'badips' ) {
 				be_load( 'ss_remove_bcache', $ip, $stats, $options );
-				$show = be_load( 'ss_get_bcache', 'x', $stats, $options );
-				echo wp_kses( $show, $allowed_html );
 			} else if ( $container == 'goodips' ) {
 				be_load( 'ss_remove_gcache', $ip, $stats, $options );
-				$show = be_load( 'ss_get_gcache', 'x', $stats, $options );
-				echo wp_kses( $show, $allowed_html );
 			} else { // wlreq
 				be_load( 'ss_remove_bcache', $ip, $stats, $options );
 				be_load( 'ss_remove_gcache', $ip, $stats, $options );
 			}
 			be_load( 'ss_addtoblocklist', $ip, $stats, $options );
-			exit();
-		break;
+			break;
 		case 'add_white':
 			if ( $container == 'badips' ) {
 				be_load( 'ss_remove_bcache', $ip, $stats, $options );
-				$show = be_load( 'ss_get_bcache', 'x', $stats, $options );
-				echo wp_kses( $show, $allowed_html );
 			} else if ( $container == 'goodips' ) {
 				be_load( 'ss_remove_gcache', $ip, $stats, $options );
-				$show = be_load( 'ss_get_gcache', 'x', $stats, $options );
-				echo wp_kses( $show, $allowed_html );
 			} else {
 				be_load( 'ss_remove_bcache', $ip, $stats, $options );
 				be_load( 'ss_remove_gcache', $ip, $stats, $options );
 			}
 			be_load( 'ss_addtoallowlist', $ip, $stats, $options );
 			// if it is not good or bad IP we don't need the container as it is the log
-			exit();
-		break;
+			break;
 		case 'delete_wl_row': // this is from the Allow Requests list
 			$ansa = be_load( 'ss_get_alreq', $ip, $stats, $options );
 			echo wp_kses( $ansa, $allowed_html );
@@ -489,12 +485,28 @@ function sfs_handle_ajax_sfs_process_watch( $data ) {
 			echo '\r\n\r\nUnrecognized function "' . esc_html( $func ) . '"\r\n\r\n';
 			exit();
 	}
-	// some functions echo a result - those are the deletes
-	// some functions don't - add to allow list or add to block list
-	if ( $func == 'add_white' || $func == 'add_black' ) {
-		echo "OK";
+	$ajaxurl = admin_url( 'admin-ajax.php' );
+	$cachedel = 'delete_gcache';
+	switch ( $container ) {
+		case 'badips':
+			$show = be_load( 'ss_get_bcache', 'x', $stats, $options );
+			echo wp_kses( $show, $allowed_html );
+			exit();
+		break;
+		case 'goodips':
+			$show = be_load( 'ss_get_gcache', 'x', $stats, $options );
+			echo wp_kses( $show, $allowed_html );
+			exit();
+		break;
+		case 'wlreq':
+			$stats = ss_get_stats();
+			$ansa = be_load( 'ss_get_alreq', $ip, $stats, $options );
+			echo wp_kses( $ansa, $allowed_html );
+			exit();
+		default:
+			echo 'Something is missing: ' . esc_html( $container );
+			exit();
 	}
-	exit();
 }
 
 function ss_sfs_ip_column( $value, $column_name, $user_id ) {

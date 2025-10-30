@@ -285,7 +285,7 @@ class ss_challenge extends be_module {
 				// reCAPTCHA
 				$recaptchaapisite = $options['recaptchaapisite'];
 				$cap			  = "
-					" . wp_enqueue_script( 'ss-recaptcha', 'https://www.google.com/recaptcha/api.js', array(), '1', true, array( 'async' => true, 'defer' => true ) ) . "
+					<script src='https://www.google.com/recaptcha/api.js' async defer></script>
 					<input type='hidden' name='recaptcha' value='recaptcha'>
 					<div class='g-recaptcha' data-sitekey='$recaptchaapisite'></div>
 				";
@@ -294,7 +294,7 @@ class ss_challenge extends be_module {
 				// HCAPTCHA
 				$hcaptchaapisite = $options['hcaptchaapisite'];
 				$cap			  = "
-					" . wp_enqueue_script( 'ss-hcaptcha', 'https://hcaptcha.com/1/api.js', array(), '1', true, array( 'async' => true, 'defer' => true ) ) . "
+					<script src='https://hcaptcha.com/1/api.js' async defer></script>
 					<input type='hidden' name='h-captcha' value='h-captcha'>
 					<div class='h-captcha' data-sitekey='$hcaptchaapisite'></div>
 				";
@@ -302,9 +302,9 @@ class ss_challenge extends be_module {
 			case 'S':
 				$solvmediaapivchallenge = $options['solvmediaapivchallenge'];
 				$cap					= "
-					" . wp_enqueue_script( 'ss-solvemedia', 'https://api-secure.solvemedia.com/papi/challenge.script?k=' . $solvmediaapivchallenge, array(), '1', true, array( 'async' => true, 'defer' => true ) ) . "
+					<script src='https://api-secure.solvemedia.com/papi/challenge.script?k=" . esc_attr( $solvmediaapivchallenge ) . "'></script>
 					<noscript>
-					<iframe src='https://api-secure.solvemedia.com/papi/challenge.noscript?k=$solvmediaapivchallenge' height='300' width='500' frameborder='0'></iframe><br>
+					<iframe src='https://api-secure.solvemedia.com/papi/challenge.noscript?k=" . esc_attr( $solvmediaapivchallenge ) . "' height='300' width='500' frameborder='0'></iframe><br>
 					<textarea name='adcopy_challenge' rows='3' cols='40'></textarea>
 					<input type='hidden' name='adcopy_response' value='manual_challenge'>
 					</noscript><br>
@@ -420,7 +420,20 @@ class ss_challenge extends be_module {
 			'h3' => array(),
 			'h4' => array(),
 			'h5' => array(),
-			'h6' => array()
+			'h6' => array(),
+			'script' => array(
+				'src' => true,
+				'async' => true,
+				'defer' => true
+			),
+			'noscript' => array(),
+			'iframe' => array(
+				'src' => true,
+				'height' => true,
+				'width' => true,
+				'frameborder' => true
+			)
+		);
 		);
 		wp_die( wp_kses( $ansa, $allowed_html ), "Stop Spammers", array( 'response' => 200 ) );
 		exit();

@@ -154,7 +154,7 @@ $now	  = gmdate( 'Y/m/d H:i:s', time() + ( get_option( 'gmt_offset' ) * 3600 ) )
 					<tr style="background-color:white">
 					<td>' . wp_kses_post( $dt ) . '</td>
 					<td>' . wp_kses_post( $em ) . '</td>
-					<td>' . wp_kses_post( $ip ), wp_kses_post( $who ), wp_kses_post( $stopper ), wp_kses_post( $honeysearch ), wp_kses_post( $botsearch );
+					<td>' . esc_html( $ip ) . wp_kses_post( $who . $stopper . $honeysearch . $botsearch );
 				if ( stripos( $reason, 'passed' ) !== false && ( $id == '/' || strpos( $id, 'login' ) ) !== false || strpos( $id, 'register' ) !== false && !in_array( $ip, $blist ) && !in_array( $ip, $wlist ) ) {
 					$ajaxurl = admin_url( 'admin-ajax.php' );
 					echo '<a href="" onclick="sfs_ajax_process(\'' . esc_attr( $ip ) . '\',\'log\',\'add_black\',\'' . esc_url( $ajaxurl ) . '\');return false;" title="Add to Block List" alt="Add to Block List"><img src="' . esc_url( $tdown ) . '" class="icon-action"></a>';
