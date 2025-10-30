@@ -434,7 +434,6 @@ class ss_challenge extends be_module {
 				'frameborder' => true
 			)
 		);
-		);
 		wp_die( wp_kses( $ansa, $allowed_html ), "Stop Spammers", array( 'response' => 200 ) );
 		exit();
 	}
