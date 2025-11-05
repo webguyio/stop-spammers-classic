@@ -3,7 +3,7 @@
 Plugin Name: Stop Spammers
 Plugin URI: https://damspam.com/
 Description: A simplified, restored, and preserved version of the original Stop Spammers plugin.
-Version: 2025.2
+Version: 2025.3
 Requires at least: 3.0
 Requires PHP: 5.0
 Author: Web Guy
@@ -13,7 +13,7 @@ License URI: https://www.gnu.org/licenses/gpl.html
 */
 
 // networking requires a couple of globals
-define( 'SS_VERSION', '2025.2' );
+define( 'SS_VERSION', '2025.3' );
 define( 'SS_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'SS_PLUGIN_FILE', plugin_dir_path( __FILE__ ) );
 define( 'SS_PLUGIN_DATA', wp_upload_dir()['basedir'] . '/data/' );
@@ -58,7 +58,7 @@ function ss_admin_notice() {
 	if ( !get_user_meta( $user_id, 'ss_notice_dismissed_' . $version_key ) && current_user_can( 'manage_options' ) ) {
 		$admin_url = esc_url_raw( ( isset( $_SERVER['HTTPS'] ) && sanitize_text_field( wp_unslash( $_SERVER['HTTPS'] ) ) === 'on' ? 'https' : 'http' ) . '://' . sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ?? '' ) ) . sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ?? '' ) ) );
 		$param = !empty( $_GET ) ? '&' : '?';
-		echo wp_kses_post( sprintf( '<div class="notice notice-info"><p><a href="%s%sdismiss" class="alignright" style="text-decoration:none"><big>Ⓧ</big></a><big><strong>%s</strong></big><p><a href="%s" class="button-primary" style="border-color:#4aa863;background:#4aa863" target="_blank">%s</a></p></div>', esc_url( $admin_url ), esc_html( $param ), 'Stop Spammers Development Has Slowed Down', 'https://github.com/webguyio/dam-spam/issues/8', 'What happened?' ) );
+		echo wp_kses_post( sprintf( '<div class="notice notice-info"><p><a href="%s%sdismiss" class="alignright" style="text-decoration:none"><big>×</big></a><big><strong>%s</strong></big><p><a href="%s" class="button-primary" style="border-color:#4aa863;background:#4aa863" target="_blank">%s</a></p></div>', esc_url( $admin_url ), esc_html( $param ), 'If Stop Spammers ever saved your 🥓, consider...', 'https://damspam.com/donate', '🥪 Buying Me a Sandwich' ) );
 	}
 }
 add_action( 'admin_notices', 'ss_admin_notice' );
