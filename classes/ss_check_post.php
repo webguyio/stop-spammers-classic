@@ -264,7 +264,6 @@ class ss_check_post extends be_module {
 			return false;
 		}
 		// here because we have a spammer that's been caught
-		$ss_check_sempahore = true;
 		ss_log_bad( ss_get_ip(), $reason, $chk );
 		exit;
 	}

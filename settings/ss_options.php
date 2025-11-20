@@ -238,7 +238,6 @@ $nonce = wp_create_nonce( 'ss_stopspam_update' );
 
 ?>
 
-<!-- <sup class="ss_sup"><?php echo 'NEW!'; ?></sup> -->
 <div id="ss-plugin" class="wrap">
 	<h1 class="ss_head"><img src="<?php echo esc_url( plugin_dir_url( dirname( __FILE__ ) ) . 'images/stop-spammers-icon.png' ); ?>" class="ss_icon">Protection Options</h1>
 	<br>

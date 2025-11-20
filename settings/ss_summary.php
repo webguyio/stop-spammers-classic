@@ -249,7 +249,7 @@ $nonce = wp_create_nonce( 'ss_stopspam_update' );
 	<?php }
 	$ip = ss_get_ip();
 	?>
-	| Your current IP address is: <strong><?php echo esc_html( $ip ); ?></strong>
+	| IP: <strong><?php echo esc_html( $ip ); ?></strong>
 	<?php
 	// check the IP to see if we are local
 	$ansa = be_load( 'chkvalidip', ss_get_ip() );
