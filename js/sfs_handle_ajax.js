@@ -11,8 +11,8 @@ function sfs_ajax_process(sip, contx, sfunc, url, email = '') {
 		ajax_url: url,
 		_ajax_nonce: StopSpammersAjaxConfig.actions.sfs_process,
 	};
-	jQuery.get(StopSpammersAjaxConfig.ajax_url, data, sfs_ajax_return_process)
-    .fail(sfs_ajax_error_handler);
+	jQuery.post(StopSpammersAjaxConfig.ajax_url, data, sfs_ajax_return_process)
+	.fail(sfs_ajax_error_handler);
 }
 
 function sfs_ajax_error_handler(xhr, status, error) {
@@ -64,8 +64,8 @@ function sfs_ajax_report_spam(t, id, blog, url, email, ip, user) {
 		user: user,
 		_ajax_nonce: StopSpammersAjaxConfig.actions.sfs_sub,
 	};
-	jQuery.get(StopSpammersAjaxConfig.ajax_url, data, sfs_ajax_return_spam)
-    .fail(sfs_ajax_error_handler);
+	jQuery.post(StopSpammersAjaxConfig.ajax_url, data, sfs_ajax_return_spam)
+	.fail(sfs_ajax_error_handler);
 }
 
 function sfs_ajax_return_spam(response) {

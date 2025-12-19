@@ -7,10 +7,6 @@ if ( !defined( 'ABSPATH' ) ) {
 
 class chkbotscout extends be_module {
 	public function process( $ip, &$stats = array(), &$options = array(), &$post = array() ) {
-		$disabled = true;
-		if ( $disabled ) {
-			return false;
-		}
 		if ( strpos( $ip, '.' ) === false ) {
 			return false;
 		}

@@ -18,8 +18,8 @@ class ss_addtoallowlist {
 		}
 		$options['wlist'] = $wlist;
 		// add this email to your Allow List
-		if ( isset( $_GET['email'] ) && is_email( sanitize_email( wp_unslash( $_GET['email'] ) ) ) && ! in_array( sanitize_email( wp_unslash( $_GET['email'] ) ), $wlist_email, true ) ) {
-			$wlist_email[] = sanitize_email( wp_unslash( $_GET['email'] ) );
+		if ( isset( $_POST['email'] ) && is_email( sanitize_email( wp_unslash( $_POST['email'] ) ) ) && ! in_array( sanitize_email( wp_unslash( $_POST['email'] ) ), $wlist_email, true ) ) {
+			$wlist_email[] = sanitize_email( wp_unslash( $_POST['email'] ) );
 		}
 		$options['wlist_email'] = $wlist_email;
 		ss_set_options( $options );
@@ -35,7 +35,7 @@ class ss_addtoallowlist {
 			$stats['goodips'] = $goodips;
 		}
 		ss_set_stats( $stats );
-		if ( isset( $_GET['func'] ) && sanitize_text_field( wp_unslash( $_GET['func'] ) ) === 'add_white' ) {
+		if ( isset( $_POST['func'] ) && sanitize_text_field( wp_unslash( $_POST['func'] ) ) === 'add_white' ) {
 			$this->ss_send_approval_email( $ip, $stats, $options, $post );
 		}
 		return false;
@@ -47,13 +47,13 @@ class ss_addtoallowlist {
 		if ( $options['emailrequest'] === 'N' ) {
 			return false;
 		}
-		if ( !isset( $_GET['ip'] ) ) {
+		if ( !isset( $_POST['ip'] ) ) {
 			return false;
 		}
 		$wlrequests = $stats['wlrequests'];
 		$request    = array();
 		foreach ( $wlrequests as $r ) {
-			if ( $r[0] === $_GET['ip'] ) {
+			if ( $r[0] === $_POST['ip'] ) {
 				$request = $r;
 				break;
 			}

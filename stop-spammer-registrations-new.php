@@ -3,7 +3,7 @@
 Plugin Name: Stop Spammers
 Plugin URI: https://damspam.com/
 Description: A simplified, restored, and preserved version of the original Stop Spammers plugin.
-Version: 2025.4
+Version: 2025.5
 Requires at least: 3.0
 Requires PHP: 5.0
 Author: Web Guy
@@ -13,7 +13,7 @@ License URI: https://www.gnu.org/licenses/gpl.html
 */
 
 // networking requires a couple of globals
-define( 'SS_VERSION', '2025.4' );
+define( 'SS_VERSION', '2025.5' );
 define( 'SS_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'SS_PLUGIN_FILE', plugin_dir_path( __FILE__ ) );
 define( 'SS_PLUGIN_DATA', wp_upload_dir()['basedir'] . '/data/' );
@@ -57,7 +57,7 @@ function ss_admin_notice() {
 	if ( !get_user_meta( $user_id, 'ss_notice_dismissed_' . $version_key ) && current_user_can( 'manage_options' ) ) {
 		$admin_url = esc_url_raw( ( isset( $_SERVER['HTTPS'] ) && sanitize_text_field( wp_unslash( $_SERVER['HTTPS'] ) ) === 'on' ? 'https' : 'http' ) . '://' . sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ?? '' ) ) . sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ?? '' ) ) );
 		$param = !empty( $_GET ) ? '&' : '?';
-		echo wp_kses_post( sprintf( '<div class="notice notice-info"><p><a href="%s%sdismiss" class="alignright" style="text-decoration:none"><big>✕</big></a><big><strong>%s</strong></big><p><a href="%s" class="button-primary" style="border-color:#4aa863;background:#4aa863" target="_blank">%s</a></p></div>', esc_url( $admin_url ), esc_html( $param ), 'Thank you for helping us Stop Spammers!', 'https://damspam.com/donations', 'I Need Your Help' ) );
+		echo wp_kses_post( sprintf( '<div class="notice notice-info"><p><a href="%s%sdismiss&_wpnonce=%s" class="alignright" style="text-decoration:none"><big>✕</big></a><big><strong>%s</strong></big><p><a href="%s" class="button-primary" style="border-color:#4aa863;background:#4aa863" target="_blank">%s</a></p></div>', esc_url( $admin_url ), esc_html( $param ), esc_attr( wp_create_nonce( 'ss_dismiss_notice' ) ), 'Thank you for helping us Stop Spammers!', 'https://damspam.com/donations', 'I Need Your Help' ) );
 	}
 }
 add_action( 'admin_notices', 'ss_admin_notice' );
@@ -65,7 +65,7 @@ add_action( 'admin_notices', 'ss_admin_notice' );
 // dismiss admin notice for users
 function ss_notice_dismissed() {
 	$user_id = get_current_user_id();
-	if ( isset( $_GET['dismiss'] ) ) {
+	if ( isset( $_GET['dismiss'] ) && isset( $_GET['_wpnonce'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ), 'ss_dismiss_notice' ) ) {
 		$version_key = str_replace( '.', '_', SS_VERSION );
 		add_user_meta( $user_id, 'ss_notice_dismissed_' . $version_key, 'true', true );
 	}
@@ -77,7 +77,7 @@ function ss_wc_admin_notice() {
 	if ( is_plugin_active( 'woocommerce/woocommerce.php' ) ) {
 		$user_id = get_current_user_id();
 		if ( !get_user_meta( $user_id, 'ss_wc_notice_dismissed' ) && current_user_can( 'manage_options' ) ) {
-			echo '<div class="notice notice-info"><p style="color:purple"><big><strong>WooCommerce Detected</strong></big> | We recommend <a href="admin.php?page=ss_options">adjusting these options</a> if you experience any issues using WooCommerce and Stop Spammers together.<a href="?sswc-dismiss" class="alignright">Dismiss</a></p></div>';
+			echo '<div class="notice notice-info"><p style="color:purple"><big><strong>WooCommerce Detected</strong></big> | We recommend <a href="admin.php?page=ss_options">adjusting these options</a> if you experience any issues using WooCommerce and Stop Spammers together.<a href="?sswc-dismiss&_wpnonce=' . esc_attr( wp_create_nonce( 'ss_dismiss_wc_notice' ) ) . '" class="alignright">Dismiss</a></p></div>';
 		}
 	}
 }
@@ -87,7 +87,7 @@ add_action( 'admin_notices', 'ss_wc_admin_notice' );
 function ss_wc_notice_dismissed() {
 	if ( is_plugin_active( 'woocommerce/woocommerce.php' ) ) {
 		$user_id = get_current_user_id();
-		if ( isset( $_GET['sswc-dismiss'] ) ) {
+		if ( isset( $_GET['sswc-dismiss'] ) && isset( $_GET['_wpnonce'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ), 'ss_dismiss_wc_notice' ) ) {
 			add_user_meta( $user_id, 'ss_wc_notice_dismissed', 'true', true );
 		}
 	}

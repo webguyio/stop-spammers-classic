@@ -211,25 +211,25 @@ function sfs_handle_ajax_sub( $data ) {
 	// print_r( $options );
 	extract( $options );
 	// get the comment_id parameter
-	$comment_id = isset( $_GET['comment_id'] ) ? absint( $_GET['comment_id'] ) : 0;
+	$comment_id = isset( $_POST['comment_id'] ) ? absint( $_POST['comment_id'] ) : 0;
 	if ( empty( $comment_id ) ) {
 		echo ' No Comment ID Found';
 		exit();
 	}
 	// need to pass the blog ID also
 	$blog = '';
-	if ( isset( $_GET['blog_id'] ) and !empty( $_GET['blog_id'] ) and is_numeric( $_GET['blog_id'] ) ) {
+	if ( isset( $_POST['blog_id'] ) and !empty( $_POST['blog_id'] ) and is_numeric( $_POST['blog_id'] ) ) {
 		if ( function_exists( 'switch_to_blog' ) ) {
-			switch_to_blog( ( int ) $_GET['blog_id'] );
+			switch_to_blog( ( int ) $_POST['blog_id'] );
 		}
 	}
 	// get the comment
 	$comment = get_comment( $comment_id, ARRAY_A );
 	if ( $comment_id == 'registration' ) {
 		$comment = array(
-			'comment_author_email' => isset( $_GET['email'] ) ? sanitize_email( wp_unslash( $_GET['email'] ) ) : '',
-			'comment_author' 	   => isset( $_GET['user'] ) ? sanitize_user( wp_unslash( $_GET['user'] ) ) : '',
-			'comment_author_IP'    => isset( $_GET['ip'] ) ? sanitize_text_field( wp_unslash( $_GET['ip'] ) ) : '',
+			'comment_author_email' => isset( $_POST['email'] ) ? sanitize_email( wp_unslash( $_POST['email'] ) ) : '',
+			'comment_author' 	   => isset( $_POST['user'] ) ? sanitize_user( wp_unslash( $_POST['user'] ) ) : '',
+			'comment_author_IP'    => isset( $_POST['ip'] ) ? sanitize_text_field( wp_unslash( $_POST['ip'] ) ) : '',
 			'comment_content'	   => 'registration',
 			'comment_author_url'   => ''
 		);
@@ -388,7 +388,7 @@ function sfs_handle_ajax_sfs_process_watch( $data ) {
 	// anything in data? never
 	// get the things out of the get
 	// check for valid get
-	if ( !array_key_exists( 'func', $_GET ) ) {
+	if ( !array_key_exists( 'func', $_POST ) ) {
 		echo ' Function Not Found';
 		exit();
 	}
@@ -396,10 +396,10 @@ function sfs_handle_ajax_sfs_process_watch( $data ) {
 	$tdown = SS_PLUGIN_URL . 'images/tdown.png';
 	$tup = SS_PLUGIN_URL . 'images/tup.png'; // fix this
 	$whois = SS_PLUGIN_URL . 'images/whois.png'; // fix this
-	$ip = isset( $_GET['ip'] ) ? sanitize_text_field( wp_unslash( $_GET['ip'] ) ) : '';
-	$email = isset( $_GET['email'] ) ? sanitize_email( wp_unslash( $_GET['email'] ) ) : '';
-	$container = isset( $_GET['cont'] ) ? sanitize_text_field( wp_unslash( $_GET['cont'] ) ) : '';
-	$func = isset( $_GET['func'] ) ? sanitize_text_field( wp_unslash( $_GET['func'] ) ) : '';
+	$ip = isset( $_POST['ip'] ) ? sanitize_text_field( wp_unslash( $_POST['ip'] ) ) : '';
+	$email = isset( $_POST['email'] ) ? sanitize_email( wp_unslash( $_POST['email'] ) ) : '';
+	$container = isset( $_POST['cont'] ) ? sanitize_text_field( wp_unslash( $_POST['cont'] ) ) : '';
+	$func = isset( $_POST['func'] ) ? sanitize_text_field( wp_unslash( $_POST['func'] ) ) : '';
 	// echo "error $ip, $func, $container," . print_r( $_GET, true ) ;exit();
 	// container is blank, goodips, badips or log
 	// func is add_black, add_white, delete_gcache or delete_bcache
