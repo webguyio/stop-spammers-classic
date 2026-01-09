@@ -60,6 +60,15 @@ function sfs_handle_ajax() {
 			'ss_update_notice_preference' => wp_create_nonce( 'ss_update_notice_preference_nonce' ),
 			'ss_allow_block_ip' => wp_create_nonce( 'ss_allow_block_ip_nonce' ),
 		),
+		'func_nonces' => array(
+			'add_white' => wp_create_nonce( 'sfs_process_add_white' ),
+			'add_black' => wp_create_nonce( 'sfs_process_add_black' ),
+			'delete_gcache' => wp_create_nonce( 'sfs_process_delete_gcache' ),
+			'delete_bcache' => wp_create_nonce( 'sfs_process_delete_bcache' ),
+			'delete_wl_row' => wp_create_nonce( 'sfs_process_delete_wl_row' ),
+			'delete_wlip' => wp_create_nonce( 'sfs_process_delete_wlip' ),
+			'delete_wlem' => wp_create_nonce( 'sfs_process_delete_wlem' ),
+		),
 	);
 	wp_add_inline_script(
 		'stop-spammers',
@@ -353,14 +362,20 @@ function sfs_handle_ajax_check( $data ) {
 }
 
 function sfs_handle_ajax_sfs_process( $data ) {
-	if ( ! ss_ajax_action_allowed_for_user() ) {
+	if ( !ss_ajax_action_allowed_for_user() ) {
 		wp_send_json_error( 'Forbidden', 403 );
 	}
-
-	if ( ! check_ajax_referer( 'sfs_process_nonce', false, false ) ) {
+	if ( !check_ajax_referer( 'sfs_process_nonce', false, false ) ) {
 		wp_send_json_error( 'Unauthorized', 401 );
 	}
-
+	$func = isset( $_POST['func'] ) ? sanitize_text_field( wp_unslash( $_POST['func'] ) ) : '';
+	if ( empty( $func ) ) {
+		wp_send_json_error( 'Function not specified', 400 );
+	}
+	$func_nonce = isset( $_POST['func_nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['func_nonce'] ) ) : '';
+	if ( !wp_verify_nonce( $func_nonce, 'sfs_process_' . $func ) ) {
+		wp_send_json_error( 'Invalid function nonce', 403 );
+	}
 	sfs_errorsonoff();
 	sfs_handle_ajax_sfs_process_watch( $data );
 	sfs_errorsonoff( 'off' );

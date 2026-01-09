@@ -6,7 +6,7 @@ Tags: spam, security, anti-spam, spam protection, no spam
 Tested up to: 6.9
 Requires at least: 3.0
 Requires PHP: 5.0
-Stable tag: 2025.5
+Stable tag: 2026
 License: GPL
 License URI: https://www.gnu.org/licenses/gpl.html
 
@@ -76,6 +76,9 @@ There are several optional services you may use that involve sending data to thi
 
 == Changelog ==
 
+= 2026 =
+* CSRF fixes
+
 = 2025.5 =
 * CSRF fixes
 * Fixed crash bug caused by incorrectly added IP ranges
@@ -98,4 +101,4 @@ There are several optional services you may use that involve sending data to thi
 = 2024.7 =
 * Previous version, which I still consider safe to use
 
-Credits: Created and maintained by Keith P. Graham (@kpgraham) from 2010-2017. Adopted and maintained by Web Guy (@webguyio) from 2017-2025.
+Credits: Created and maintained by Keith P. Graham (@kpgraham) from 2010-2017. Adopted and maintained by Web Guy (@webguyio) from 2017-2026.

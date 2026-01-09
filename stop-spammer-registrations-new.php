@@ -3,7 +3,7 @@
 Plugin Name: Stop Spammers
 Plugin URI: https://damspam.com/
 Description: A simplified, restored, and preserved version of the original Stop Spammers plugin.
-Version: 2025.5
+Version: 2026
 Requires at least: 3.0
 Requires PHP: 5.0
 Author: Web Guy
@@ -13,7 +13,7 @@ License URI: https://www.gnu.org/licenses/gpl.html
 */
 
 // networking requires a couple of globals
-define( 'SS_VERSION', '2025.5' );
+define( 'SS_VERSION', '2026' );
 define( 'SS_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'SS_PLUGIN_FILE', plugin_dir_path( __FILE__ ) );
 define( 'SS_PLUGIN_DATA', wp_upload_dir()['basedir'] . '/data/' );
@@ -77,7 +77,7 @@ function ss_wc_admin_notice() {
 	if ( is_plugin_active( 'woocommerce/woocommerce.php' ) ) {
 		$user_id = get_current_user_id();
 		if ( !get_user_meta( $user_id, 'ss_wc_notice_dismissed' ) && current_user_can( 'manage_options' ) ) {
-			echo '<div class="notice notice-info"><p style="color:purple"><big><strong>WooCommerce Detected</strong></big> | We recommend <a href="admin.php?page=ss_options">adjusting these options</a> if you experience any issues using WooCommerce and Stop Spammers together.<a href="?sswc-dismiss&_wpnonce=' . esc_attr( wp_create_nonce( 'ss_dismiss_wc_notice' ) ) . '" class="alignright">Dismiss</a></p></div>';
+			echo '<div class="notice notice-info"><p style="color:purple"><big><strong>' . esc_html__( 'WooCommerce Detected', 'stop-spammers' ) . '</strong></big> | ' . sprintf( esc_html__( 'We recommend %sadjusting these options%s if you experience any issues using WooCommerce and Stop Spammers together.', 'stop-spammers' ), '<a href="admin.php?page=ss_options">', '</a>' ) . '<a href="?sswc-dismiss&_wpnonce=' . esc_attr( wp_create_nonce( 'ss_dismiss_wc_notice' ) ) . '" class="alignright">' . esc_html__( 'Dismiss', 'stop-spammers' ) . '</a></p></div>';
 		}
 	}
 }

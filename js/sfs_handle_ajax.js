@@ -2,6 +2,7 @@ var sfs_ajax_who = "";
 
 function sfs_ajax_process(sip, contx, sfunc, url, email = '') {
 	sfs_ajax_who = contx;
+	var func_nonce = StopSpammersAjaxConfig.func_nonces[sfunc] || '';
 	var data = {
 		action: 'sfs_process',
 		ip: sip,
@@ -10,6 +11,7 @@ function sfs_ajax_process(sip, contx, sfunc, url, email = '') {
 		func: sfunc,
 		ajax_url: url,
 		_ajax_nonce: StopSpammersAjaxConfig.actions.sfs_process,
+		func_nonce: func_nonce,
 	};
 	jQuery.post(StopSpammersAjaxConfig.ajax_url, data, sfs_ajax_return_process)
 	.fail(sfs_ajax_error_handler);
