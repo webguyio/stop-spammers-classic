@@ -13,12 +13,12 @@ class ss_addtoallowlist {
 		$wlist_email = isset( $options['wlist_email'] ) ? $options['wlist_email'] : array();
 		// add this IP to your Allow List
 		$sanitized_ip = filter_var( $ip, FILTER_VALIDATE_IP );
-		if ( $sanitized_ip && ! in_array( $sanitized_ip, $wlist, true ) ) {
+		if ( $sanitized_ip && !in_array( $sanitized_ip, $wlist, true ) ) {
 			$wlist[] = $sanitized_ip;
 		}
 		$options['wlist'] = $wlist;
 		// add this email to your Allow List
-		if ( isset( $_POST['email'] ) && is_email( sanitize_email( wp_unslash( $_POST['email'] ) ) ) && ! in_array( sanitize_email( wp_unslash( $_POST['email'] ) ), $wlist_email, true ) ) {
+		if ( isset( $_POST['email'] ) && is_email( sanitize_email( wp_unslash( $_POST['email'] ) ) ) && !in_array( sanitize_email( wp_unslash( $_POST['email'] ) ), $wlist_email, true ) ) {
 			$wlist_email[] = sanitize_email( wp_unslash( $_POST['email'] ) );
 		}
 		$options['wlist_email'] = $wlist_email;
@@ -62,7 +62,7 @@ class ss_addtoallowlist {
 			return false;
 		}
 		$to = $request[1];
-		if ( ! is_email( $to ) ) {
+		if ( !is_email( $to ) ) {
 			return false;
 		}
 		$ke 	 = sanitize_text_field( $to );

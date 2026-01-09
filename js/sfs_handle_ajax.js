@@ -31,7 +31,7 @@ function sfs_ajax_error_handler(xhr, status, error) {
 function sfs_ajax_return_process(response) {
 	var el = "";
 	if (response.data) {
-		if (! response.success) {
+		if (!response.success) {
 			alert(response.data);
 		}
 		return false;

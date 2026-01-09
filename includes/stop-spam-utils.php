@@ -22,7 +22,7 @@ function ss_append_file( $filename, &$content ) {
 	if ( $wp_filesystem->exists( $file ) ) {
 		$current_content = $wp_filesystem->get_contents( $file );
 		$content = $current_content . $content; // Append new content
-	} 
+	}
 	// write the content to the file
 	if ( $wp_filesystem->put_contents( $file, $content, FS_CHMOD_FILE ) === false ) {
 		return false; // failed to write to the file
@@ -80,7 +80,7 @@ function ss_file_delete( $filename ) {
 
 // debug functions
 // change the debug = false to debug = true to start debugging
-// the plugin will drop a file debug.txt in the current directory (root, wp-admin, or network) 
+// the plugin will drop a file debug.txt in the current directory (root, wp-admin, or network)
 // directory must be writeable or plugin will crash
 function sfs_errorsonoff( $old = null ) {
 	$debug = false; // change to true to debug, false to stop all debugging
@@ -102,7 +102,7 @@ function sfs_debug_msg( $msg ) {
 	}
 	$now = gmdate( 'Y/m/d H:i:s', time() + ( get_option( 'gmt_offset' ) * 3600 ) );
 	// get the program that is running
-	$sname = isset( $_SERVER['REQUEST_URI'] ) && ! empty( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : ( isset( $_SERVER['SCRIPT_NAME'] ) ? sanitize_text_field( wp_unslash( $_SERVER['SCRIPT_NAME'] ) ) : '' );
+	$sname = isset( $_SERVER['REQUEST_URI'] ) && !empty( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : ( isset( $_SERVER['SCRIPT_NAME'] ) ? sanitize_text_field( wp_unslash( $_SERVER['SCRIPT_NAME'] ) ) : '' );
 	@file_put_contents( SS_PLUGIN_DATA . "debug.txt", "$now: $sname, $msg, $ip \r\n", FILE_APPEND );
 }
 

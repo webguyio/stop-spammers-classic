@@ -200,11 +200,11 @@ function ipChkk() {
 }
 
 function sfs_handle_ajax_sub( $data ) {
-	if ( ! ss_ajax_action_allowed_for_user() ) {
+	if ( !ss_ajax_action_allowed_for_user() ) {
 		wp_send_json_error( 'Forbidden', 403 );
 	}
 
-	if ( ! check_ajax_referer( 'sfs_sub_nonce', false, false ) ) {
+	if ( !check_ajax_referer( 'sfs_sub_nonce', false, false ) ) {
 		wp_send_json_error( 'Unauthorized', 401 );
 	}
 
