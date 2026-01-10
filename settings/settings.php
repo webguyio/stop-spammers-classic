@@ -166,6 +166,7 @@ function include_setting( $file ) {
 	sfs_errorsonoff( 'off' );
 }
 
+// phpcs:disable WordPress.Security.NonceVerification.Missing -- Utility function that sanitizes POST data before nonce verification
 function ss_fix_post_vars() {
 	if ( !empty( $_POST ) ) {
 		foreach ( $_POST as $key => $value ) {

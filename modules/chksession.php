@@ -11,6 +11,7 @@ class chksession {
 	public function process( $ip, &$stats = array(), &$options = array(), &$post = array() ) {
 		// this uses cookies - it may break programs that need to get to cookies first
 		// move this to main line
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Only checking if POST exists for timing validation, not processing data
 		if ( !isset( $_POST ) || empty( $_POST ) ) { // no post defined
 			if ( !isset( $_COOKIE['ss_protection_time'] ) ) { // if previous set do not reset
 				setcookie( 'ss_protection_time', strtotime( "now" ), strtotime( '+1 min' ) );

@@ -88,6 +88,7 @@ function sfs_errorsonoff( $old = null ) {
 		return;
 	}
 	if ( empty( $old ) ) {
+		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_set_error_handler -- Debug function disabled by default, only used when explicitly enabled for diagnostics
 		return set_error_handler( "sfs_ErrorHandler" );
 	}
 	restore_error_handler();

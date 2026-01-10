@@ -34,11 +34,13 @@ $author  = '';
 $subject = '';
 $body	 = '';
 
+// phpcs:disable WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.MissingUnslash -- Test form input for diagnostics, nonce verified when actions are performed
 if ( array_key_exists( 'ip', $_POST ) ) {
 	if ( filter_var( $_POST['ip'], FILTER_VALIDATE_IP ) ) {
 		$ip = sanitize_text_field( wp_unslash( $_POST['ip'] ) );
 	}
 }
+// phpcs:enable WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
 
 if ( array_key_exists( 'email', $_POST ) ) {
 	$email = sanitize_email( wp_unslash( $_POST['email'] ) );
@@ -384,6 +386,7 @@ $nonce = wp_create_nonce( 'ss_stopspam_update' );
 					$options = ss_get_options();
 					foreach ( $options as $key => $val ) {
 						if ( is_array( $val ) ) {
+							// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r -- Intentional diagnostic output for admin
 							$val = print_r( $val, true );
 						}
 						echo wp_kses_post( "<strong>&bull; $key</strong> = $val\r\n" );
@@ -406,6 +409,7 @@ $nonce = wp_create_nonce( 'ss_stopspam_update' );
 					echo "\r\n";
 					foreach ( $stats as $key => $val ) {
 						if ( is_array( $val ) ) {
+							// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r -- Intentional diagnostic output for admin
 							$val = print_r( $val, true );
 						}
 						echo wp_kses_post( "<strong>&bull; $key</strong> = $val\r\n" );
@@ -478,6 +482,7 @@ $nonce = wp_create_nonce( 'ss_stopspam_update' );
 		<div id="phpinfo" class="phpinfodisplay" style="display:none">
 		<?php
 		ob_start();
+		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.prevent_path_disclosure_phpinfo -- Intentional diagnostic tool for admin use only, protected by manage_options capability
 		phpinfo();
 		$phpinfo = ob_get_clean();
 		preg_match( '%<style type="text/css">(.*?)</style>.*?(<body>.*</body>)%s', $phpinfo, $matches );
@@ -528,7 +533,7 @@ $nonce = wp_create_nonce( 'ss_stopspam_update' );
 		?>
 		</div>
 		<?php
-		wp_register_script( 'ss-phpinfo', '' );
+		wp_register_script( 'ss-phpinfo', '', array(), SS_VERSION, true );
 		wp_enqueue_script( 'ss-phpinfo' );
 		wp_add_inline_script( 'ss-phpinfo', '
 			function togglePhpInfo() {
@@ -576,22 +581,23 @@ $nonce = wp_create_nonce( 'ss_stopspam_update' );
 		$ptab = $pre . 'posts';
 		// suspicious patterns to search
 		$suspicious_patterns = [
-			'<script', 
-			'eval(', 
-			'eval (', 
+			'<script',
+			'eval(',
+			'eval (',
 			'document.write(unescape(',
 			'try{window.onload',
 			'setAttribute(\'src\''
 		];
 		// prepare the SQL query with placeholders
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $ptab is $wpdb->prefix which is safe
 		$sql = "
 			SELECT ID, post_author, post_title, post_name, guid, post_content, post_mime_type
-			FROM $ptab 
+			FROM $ptab
 			WHERE (
-				LOWER(post_author) LIKE %s OR 
-				LOWER(post_title) LIKE %s OR 
-				LOWER(post_name) LIKE %s OR 
-				LOWER(guid) LIKE %s OR 
+				LOWER(post_author) LIKE %s OR
+				LOWER(post_title) LIKE %s OR
+				LOWER(post_name) LIKE %s OR
+				LOWER(guid) LIKE %s OR
 				LOWER(post_content) LIKE %s OR
 				LOWER(post_mime_type) LIKE %s
 			)
@@ -600,10 +606,11 @@ $nonce = wp_create_nonce( 'ss_stopspam_update' );
 		$bind_params = [];
 		foreach ( $suspicious_patterns as $pattern ) {
 			$bind_params = array_merge(
-				$bind_params, 
+				$bind_params,
 				array_fill( 0, 6, '%' . $wpdb->esc_like( strtolower( $pattern ) ) . '%' )
 			);
 		}
+		// phpcs:disable WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Query is prepared with wpdb->prepare(), $ptab is $wpdb->prefix which is safe
 		$query = $wpdb->prepare(
 			$sql,
 			$bind_params[0],
@@ -614,6 +621,7 @@ $nonce = wp_create_nonce( 'ss_stopspam_update' );
 			$bind_params[5]
 		);
 		$myrows = $wpdb->get_results( $query );
+		// phpcs:enable WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
 		if ( $myrows ) {
 			foreach ( $myrows as $myrow ) {
 				$disp = true;
@@ -646,23 +654,24 @@ $nonce = wp_create_nonce( 'ss_stopspam_update' );
 		flush();
 		// suspicious patterns to search
 		$suspicious_patterns = [
-			'<script', 
-			'eval(', 
-			'eval (', 
+			'<script',
+			'eval(',
+			'eval (',
 			'document.write(unescape(',
 			'try{window.onload',
 			'setAttribute(\'src\'',
 			'javascript:'
 		];
 		// prepare the SQL query with placeholders
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $ptab is $wpdb->prefix which is safe
 		$sql = "
 			SELECT comment_ID, comment_author_url, comment_agent, comment_author, comment_author_email, comment_content
-			FROM $ptab 
+			FROM $ptab
 			WHERE (
-				LOWER(comment_author_url) LIKE %s OR 
-				LOWER(comment_agent) LIKE %s OR 
-				LOWER(comment_author) LIKE %s OR 
-				LOWER(comment_author_email) LIKE %s OR 
+				LOWER(comment_author_url) LIKE %s OR
+				LOWER(comment_agent) LIKE %s OR
+				LOWER(comment_author) LIKE %s OR
+				LOWER(comment_author_email) LIKE %s OR
 				LOWER(comment_content) LIKE %s
 			)
 		";
@@ -670,10 +679,11 @@ $nonce = wp_create_nonce( 'ss_stopspam_update' );
 		$bind_params = [];
 		foreach ( $suspicious_patterns as $pattern ) {
 			$bind_params = array_merge(
-				$bind_params, 
+				$bind_params,
 				array_fill( 0, 5, '%' . $wpdb->esc_like( strtolower( $pattern ) ) . '%' )
 			);
 		}
+		// phpcs:disable WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Query is prepared with wpdb->prepare(), $ptab is $wpdb->prefix which is safe
 		$query = $wpdb->prepare(
 			$sql,
 			$bind_params[0],
@@ -683,6 +693,7 @@ $nonce = wp_create_nonce( 'ss_stopspam_update' );
 			$bind_params[4]
 		);
 		$myrows = $wpdb->get_results( $query );
+		// phpcs:enable WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
 		if ( $myrows ) {
 			foreach ( $myrows as $myrow ) {
 				$disp = true;
@@ -718,12 +729,13 @@ $nonce = wp_create_nonce( 'ss_stopspam_update' );
 		flush();
 		// suspicious patterns to search
 		$suspicious_patterns = [
-			'<script', 
-			'eval(', 
-			'eval (', 
+			'<script',
+			'eval(',
+			'eval (',
 			'javascript:'
 		];
 		// prepare the SQL query with placeholders
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $ptab is $wpdb->prefix which is safe
 		$sql = "
 			SELECT link_ID, link_url, link_image, link_description, link_notes, link_rss
 			FROM $ptab
@@ -743,6 +755,7 @@ $nonce = wp_create_nonce( 'ss_stopspam_update' );
 				array_fill( 0, 5, '%' . $wpdb->esc_like( strtolower( $pattern ) ) . '%' )
 			);
 		}
+		// phpcs:disable WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Query is prepared with wpdb->prepare(), $ptab is $wpdb->prefix which is safe
 		$query = $wpdb->prepare(
 			$sql,
 			$bind_params[0],
@@ -752,6 +765,7 @@ $nonce = wp_create_nonce( 'ss_stopspam_update' );
 			$bind_params[4]
 		);
 		$myrows = $wpdb->get_results( $query );
+		// phpcs:enable WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
 		if ( $myrows ) {
 			foreach ( $myrows as $myrow ) {
 				$reason = '';
@@ -785,12 +799,13 @@ $nonce = wp_create_nonce( 'ss_stopspam_update' );
 		flush();
 		// suspicious patterns to search
 		$suspicious_patterns = [
-			'<script', 
-			'eval(', 
-			'eval (', 
+			'<script',
+			'eval(',
+			'eval (',
 			'javascript:'
 		];
 		// prepare the SQL query with placeholders
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $ptab is $wpdb->prefix which is safe
 		$sql = "
 			SELECT ID, user_login, user_nicename, user_email, user_url, display_name
 			FROM $ptab
@@ -806,10 +821,11 @@ $nonce = wp_create_nonce( 'ss_stopspam_update' );
 		$bind_params = [];
 		foreach ( $suspicious_patterns as $pattern ) {
 			$bind_params = array_merge(
-				$bind_params, 
+				$bind_params,
 				array_fill( 0, 5, '%' . $wpdb->esc_like( strtolower( $pattern ) ) . '%' )
 			);
 		}
+		// phpcs:disable WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Query is prepared with wpdb->prepare(), $ptab is $wpdb->prefix which is safe
 		$query = $wpdb->prepare(
 			$sql,
 			$bind_params[0],
@@ -819,6 +835,7 @@ $nonce = wp_create_nonce( 'ss_stopspam_update' );
 			$bind_params[4]
 		);
 		$myrows = $wpdb->get_results( $query );
+		// phpcs:enable WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
 		if ( $myrows ) {
 			foreach ( $myrows as $myrow ) {
 				$reason = '';
@@ -867,6 +884,7 @@ $nonce = wp_create_nonce( 'ss_stopspam_update' );
 			'<scr\\\'+'						     => 'Obfuscated script tag, usually in bootleg plugin or theme'
 		);
 		// prepare the SQL query with placeholders
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $ptab is $wpdb->prefix which is safe
 		$sql = "SELECT option_id, option_value, option_name FROM $ptab WHERE ";
 		$conditions = [];
 		$bind_params = [];
@@ -875,8 +893,10 @@ $nonce = wp_create_nonce( 'ss_stopspam_update' );
 			$bind_params[] = '%' . $wpdb->esc_like( strtolower( $baddie ) ) . '%';
 		}
 		$sql .= implode( ' OR ', $conditions );
+		// phpcs:disable WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Query is prepared with wpdb->prepare(), $ptab is $wpdb->prefix which is safe
 		$query = $wpdb->prepare( $sql, $bind_params );
 		$myrows = $wpdb->get_results( $query );
+		// phpcs:enable WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
 		if ( $myrows ) {
 			foreach ( $myrows as $myrow ) {
 				// skip transient feeds

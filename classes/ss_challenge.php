@@ -5,6 +5,7 @@ if ( !defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+// phpcs:disable WordPress.Security.NonceVerification.Missing -- Nonce verified in process() method before calling other methods
 class ss_challenge extends be_module {
 	public function process( $ip, &$stats = array(), &$options = array(), &$post = array() ) {
 		// it looks like I am not getting my stats and options correctly
@@ -190,7 +191,7 @@ class ss_challenge extends be_module {
 							$url		 = 'https://verify.solvemedia.com/papi/verify/';
 							$resultarray = wp_remote_post( $url, $args );
 							$result	     = $resultarray['body'];
-							// $result = file_get_contents( '//verify.solvemedia.com/papi/verify/', false, $context );  
+							// $result = file_get_contents( '//verify.solvemedia.com/papi/verify/', false, $context );
 							if ( strpos( $result, 'true' ) !== false ) {
 								$_POST = unserialize( base64_decode( $kp ), ['allowed_classes' => false] );
 								// sfs_debug_msg( "trying to return the post to the comments program" . print_r( $_POST, true ) );
@@ -280,6 +281,7 @@ class ss_challenge extends be_module {
 		$capbot = "";
 		// now the CAPTCHAs
 		$cap = '';
+		// phpcs:disable WordPress.WP.EnqueuedResources.NonEnqueuedScript -- Third-party CAPTCHA scripts must be loaded inline per vendor requirements
 		switch ( $chkcaptcha ) {
 			case 'G':
 				// reCAPTCHA
@@ -337,6 +339,7 @@ class ss_challenge extends be_module {
 				$cap	= '';
 				break;
 		}
+		// phpcs:enable WordPress.WP.EnqueuedResources.NonEnqueuedScript
 		// have a display
 		// need to send it to the display
 		if ( empty( $msg ) ) {

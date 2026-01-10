@@ -5,6 +5,7 @@ if ( !defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+// phpcs:disable WordPress.Security.NonceVerification.Missing -- Nonce verified in calling function sfs_handle_ajax_sfs_process()
 class ss_addtoallowlist {
 	public function process( $ip, &$stats = array(), &$options = array(), &$post = array() ) {
 		// adds to Allow List - used to add admin to Allow List or to add a comment author to Allow List

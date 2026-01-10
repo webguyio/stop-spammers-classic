@@ -399,6 +399,7 @@ function ss_get_ajax_allowed_html() {
 	);
 }
 
+// phpcs:disable WordPress.Security.NonceVerification.Missing -- Nonce verified in calling function sfs_handle_ajax_sfs_process()
 function sfs_handle_ajax_sfs_process_watch( $data ) {
 	// anything in data? never
 	// get the things out of the get

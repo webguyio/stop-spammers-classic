@@ -35,40 +35,56 @@ if ( wp_verify_nonce( $nonce, 'ss_stopspam_update' ) ) {
 			$options[$check] = $v;
 		}
 		// other options
+		// phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- All POST data is immediately sanitized with wp_unslash() then appropriate sanitize_* functions
 		if ( array_key_exists( 'redirurl', $_POST ) ) {
-			$redirurl = isset( $_POST['redirurl'] ) ? sanitize_url( wp_unslash( trim( $_POST['redirurl'] ) ) ) : '';
+			$redirurl = isset( $_POST['redirurl'] ) ? wp_unslash( $_POST['redirurl'] ) : '';
+			$redirurl = trim( $redirurl );
+			$redirurl = sanitize_url( $redirurl );
 			$options['redirurl'] = esc_url( $redirurl );
 		}
 		if ( array_key_exists( 'wlreqmail', $_POST ) ) {
-			$wlreqmail = isset( $_POST['wlreqmail'] ) ? sanitize_email( wp_unslash( trim( $_POST['wlreqmail'] ) ) ) : '';
+			$wlreqmail = isset( $_POST['wlreqmail'] ) ? wp_unslash( $_POST['wlreqmail'] ) : '';
+			$wlreqmail = trim( $wlreqmail );
+			$wlreqmail = sanitize_email( $wlreqmail );
 			$options['wlreqmail'] = esc_html( $wlreqmail );
 		}
 		if ( array_key_exists( 'rejectmessage', $_POST ) ) {
-			$rejectmessage = isset( $_POST['rejectmessage'] ) ? sanitize_textarea_field( wp_unslash( trim( $_POST['rejectmessage'] ) ) ) : '';
+			$rejectmessage = isset( $_POST['rejectmessage'] ) ? wp_unslash( $_POST['rejectmessage'] ) : '';
+			$rejectmessage = trim( $rejectmessage );
+			$rejectmessage = sanitize_textarea_field( $rejectmessage );
 			$options['rejectmessage'] = wp_kses_post( $rejectmessage );
 		}
 		if ( array_key_exists( 'chkcaptcha', $_POST ) ) {
-			$chkcaptcha = isset( $_POST['chkcaptcha'] ) ? sanitize_text_field( wp_unslash( trim( $_POST['chkcaptcha'] ) ) ) : '';
+			$chkcaptcha = isset( $_POST['chkcaptcha'] ) ? wp_unslash( $_POST['chkcaptcha'] ) : '';
+			$chkcaptcha = trim( $chkcaptcha );
+			$chkcaptcha = sanitize_text_field( $chkcaptcha );
 			$options['chkcaptcha'] = $chkcaptcha;
 		}
 		if ( array_key_exists( 'form_captcha_login', $_POST ) and ( $chkcaptcha == 'G' or $chkcaptcha == 'H' or $chkcaptcha == 'S' ) ) {
-			$form_captcha_login = isset( $_POST['form_captcha_login'] ) ? sanitize_text_field( wp_unslash( trim( $_POST['form_captcha_login'] ) ) ) : 'N';
+			$form_captcha_login = isset( $_POST['form_captcha_login'] ) ? wp_unslash( $_POST['form_captcha_login'] ) : 'N';
+			$form_captcha_login = trim( $form_captcha_login );
+			$form_captcha_login = sanitize_text_field( $form_captcha_login );
 			$options['form_captcha_login'] = $form_captcha_login;
 		} else {
 			$options['form_captcha_login'] = 'N';
 		}
 		if ( array_key_exists( 'form_captcha_registration', $_POST ) and ( $chkcaptcha == 'G' or $chkcaptcha == 'H' or $chkcaptcha == 'S' ) ) {
-			$form_captcha_registration = isset( $_POST['form_captcha_registration'] ) ? sanitize_text_field( wp_unslash( trim( $_POST['form_captcha_registration'] ) ) ) : 'N';
+			$form_captcha_registration = isset( $_POST['form_captcha_registration'] ) ? wp_unslash( $_POST['form_captcha_registration'] ) : 'N';
+			$form_captcha_registration = trim( $form_captcha_registration );
+			$form_captcha_registration = sanitize_text_field( $form_captcha_registration );
 			$options['form_captcha_registration'] = $form_captcha_registration;
 		} else {
 			$options['form_captcha_registration'] = 'N';
 		}
 		if ( array_key_exists( 'form_captcha_comment', $_POST ) and ( $chkcaptcha == 'G' or $chkcaptcha == 'H' or $chkcaptcha == 'S' ) ) {
-			$form_captcha_comment = isset( $_POST['form_captcha_comment'] ) ? sanitize_text_field( wp_unslash( trim( $_POST['form_captcha_comment'] ) ) ) : 'N';
+			$form_captcha_comment = isset( $_POST['form_captcha_comment'] ) ? wp_unslash( $_POST['form_captcha_comment'] ) : 'N';
+			$form_captcha_comment = trim( $form_captcha_comment );
+			$form_captcha_comment = sanitize_text_field( $form_captcha_comment );
 			$options['form_captcha_comment'] = $form_captcha_comment;
 		} else {
 			$options['form_captcha_comment'] = 'N';
 		}
+		// phpcs:enable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		// added the API key stiff for Captchas
 		if ( array_key_exists( 'recaptchaapisecret', $_POST ) ) {
 			$options['recaptchaapisecret'] = sanitize_text_field( wp_unslash( $_POST['recaptchaapisecret'] ) );

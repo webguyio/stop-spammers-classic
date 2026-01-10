@@ -1,6 +1,6 @@
 <?php
 /*
-Plugin Name: Stop Spammers
+Plugin Name: Stop Spammers Classic
 Plugin URI: https://damspam.com/
 Description: A simplified, restored, and preserved version of the original Stop Spammers plugin.
 Version: 2026
@@ -56,6 +56,7 @@ function ss_admin_notice() {
 	$version_key = str_replace( '.', '_', SS_VERSION );
 	if ( !get_user_meta( $user_id, 'ss_notice_dismissed_' . $version_key ) && current_user_can( 'manage_options' ) ) {
 		$admin_url = esc_url_raw( ( isset( $_SERVER['HTTPS'] ) && sanitize_text_field( wp_unslash( $_SERVER['HTTPS'] ) ) === 'on' ? 'https' : 'http' ) . '://' . sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ?? '' ) ) . sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ?? '' ) ) );
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Only checking if GET params exist for URL formatting, not processing data
 		$param = !empty( $_GET ) ? '&' : '?';
 		echo wp_kses_post( sprintf( '<div class="notice notice-info"><p><a href="%s%sdismiss&_wpnonce=%s" class="alignright" style="text-decoration:none"><big>✕</big></a><big><strong>%s</strong></big><p><a href="%s" class="button-primary" style="border-color:#4aa863;background:#4aa863" target="_blank">%s</a></p></div>', esc_url( $admin_url ), esc_html( $param ), esc_attr( wp_create_nonce( 'ss_dismiss_notice' ) ), 'Thank you for helping us Stop Spammers!', 'https://damspam.com/donations', 'I Need Your Help' ) );
 	}
@@ -77,7 +78,7 @@ function ss_wc_admin_notice() {
 	if ( is_plugin_active( 'woocommerce/woocommerce.php' ) ) {
 		$user_id = get_current_user_id();
 		if ( !get_user_meta( $user_id, 'ss_wc_notice_dismissed' ) && current_user_can( 'manage_options' ) ) {
-			echo '<div class="notice notice-info"><p style="color:purple"><big><strong>' . esc_html__( 'WooCommerce Detected', 'stop-spammers' ) . '</strong></big> | ' . sprintf( esc_html__( 'We recommend %sadjusting these options%s if you experience any issues using WooCommerce and Stop Spammers together.', 'stop-spammers' ), '<a href="admin.php?page=ss_options">', '</a>' ) . '<a href="?sswc-dismiss&_wpnonce=' . esc_attr( wp_create_nonce( 'ss_dismiss_wc_notice' ) ) . '" class="alignright">' . esc_html__( 'Dismiss', 'stop-spammers' ) . '</a></p></div>';
+			echo '<div class="notice notice-info"><p style="color:purple"><a href="?sswc-dismiss&_wpnonce=' . esc_attr( wp_create_nonce( 'ss_dismiss_wc_notice' ) ) . '" class="alignright" style="text-decoration:none"><big>✕</big></a><big><strong>WooCommerce Detected</strong></big> | We recommend <a href="admin.php?page=ss_options">adjusting these options</a> if you experience any issues using WooCommerce and Stop Spammers together.</p></div>';
 		}
 	}
 }
@@ -465,6 +466,7 @@ function be_load( $file, $ip, &$stats = array(), &$options = array(), &$post = a
 	if ( is_array( $file ) ) { // add-ons pass their array
 		// this is an absolute location so load it directly
 		if ( !file_exists( $file[0] ) ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r -- Debug logging for missing addon files
 			sfs_debug_msg( 'not found ' . print_r( $add, true ) );
 			return false;
 		}
@@ -737,6 +739,7 @@ class SSRegDate {
 	}
 	public static function users_custom_column( $value, $column_name, $user_id ) {
 		global $mode;
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Reading WP core display mode parameter for formatting only
 		$mode = empty( $_REQUEST['mode'] ) ? 'list' : sanitize_text_field( wp_unslash( $_REQUEST['mode'] ) );
 		if ( 'registerdate' != $column_name ) {
 			return $value;
@@ -761,6 +764,7 @@ class SSRegDate {
 	public static function users_orderby_column( $vars ) {
 		if ( isset( $vars['orderby'] ) && 'registerdate' == $vars['orderby'] ) {
 			$vars = array_merge( $vars, array(
+				// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- Necessary for user registration date sorting functionality
 				'meta_key' => 'registerdate',
 				'orderby' => 'meta_value'
 			) );
@@ -799,7 +803,7 @@ function ss_user_reg_filter( $user_login ) {
 		$post['reason'] = 'Failed Registration: Bad Cache';
 		$host['chk']	= 'chkbcache';
 		$ansa		    = be_load( 'ss_log_bad', ss_get_ip(), $stats, $options, $post );
-		wp_die( $rejectmessage, 'Login Access Blocked', array( 'response' => 403 ) );
+		wp_die( wp_kses_post( $rejectmessage ), 'Login Access Blocked', array( 'response' => 403 ) );
 		exit();
 	}
 	// check periods
@@ -829,7 +833,8 @@ function ss_login_redirect() {
 	global $pagenow, $post;
 	$options = ss_get_options();
 	if ( get_option( 'ssp_enable_custom_login', '' ) and $options['ss_private_mode'] == "Y" and ( !is_user_logged_in() && $post->post_name != 'login' ) ) {
-		wp_redirect( site_url( 'login' ) ); exit;
+		wp_safe_redirect( site_url( 'login' ) );
+		exit;
 	} else if ( $options['ss_private_mode'] == "Y" and ( !is_user_logged_in() && ( $pagenow != 'wp-login.php' and $post->post_name != 'login' ) ) ) {
 		auth_redirect();
 	}

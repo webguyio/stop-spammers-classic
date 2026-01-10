@@ -161,10 +161,8 @@ $now	  = gmdate( 'Y/m/d H:i:s', time() + ( get_option( 'gmt_offset' ) * 3600 ) )
 					$options = get_option( 'ss_stop_sp_reg_options' );
 					$apikey  = $options['apikey'];
 					if ( !empty( $apikey ) && !empty( $em ) ) {
-						$href = 'href="#"';
-						$onclick = 'onclick="sfs_ajax_report_spam(this,\'registration\',\'' . $blog . '\',\'' . $ajaxurl . '\',\'' . $em . '\',\'' . $ip . '\',\'' . $au . '\');return false;"';
 						echo '| ';
-						echo '<a title="Report to Stop Forum Spam (SFS)" ' . $href . ' ' . $onclick . ' class="delete:the-comment-list:comment-$id::delete=1 delete vim-d vim-destructive">Report to SFS</a>';
+						echo '<a title="Report to Stop Forum Spam (SFS)" href="#" onclick="sfs_ajax_report_spam(this,\'registration\',\'' . esc_js( $blog ) . '\',\'' . esc_js( $ajaxurl ) . '\',\'' . esc_js( $em ) . '\',\'' . esc_js( $ip ) . '\',\'' . esc_js( $au ) . '\');return false;" class="delete:the-comment-list:comment-$id::delete=1 delete vim-d vim-destructive">Report to SFS</a>';
 					}
 				}
 				echo '

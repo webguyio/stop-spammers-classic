@@ -68,6 +68,7 @@ class chkakismet {
 		);
 		$response = wp_remote_post( $url, $args );
 		if ( is_wp_error( $response ) ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Legitimate error logging for production API failures
 			error_log( 'Akismet request failed: ' . $response->get_error_message() );
 			return false;
 		}

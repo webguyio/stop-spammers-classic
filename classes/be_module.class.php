@@ -48,9 +48,11 @@ class be_module {
 		if ( empty( $sname ) ) {
 			$_SERVER['REQUEST_URI'] = isset( $_SERVER['SCRIPT_NAME'] ) ? sanitize_url( wp_unslash( $_SERVER['SCRIPT_NAME'] ) ) : '';
 			$sname = isset( $_SERVER['SCRIPT_NAME'] ) ? sanitize_url( wp_unslash( $_SERVER['SCRIPT_NAME'] ) ) : '';
-			if ( isset( $_SERVER['QUERY_STRING'] ) && !empty( wp_unslash( $_SERVER['QUERY_STRING'] ) ) ) {
+			// phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- QUERY_STRING is sanitized with sanitize_query_var()
+			if ( isset( $_SERVER['QUERY_STRING'] ) && !empty( $_SERVER['QUERY_STRING'] ) ) {
 				$_SERVER['REQUEST_URI'] .= '?' . sanitize_query_var( wp_unslash( $_SERVER['QUERY_STRING'] ) );
 			}
+			// phpcs:enable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		}
 		return empty( $sname ) ? '' : $sname;
 	}
@@ -262,6 +264,7 @@ class be_module {
 					$ipe = be_module::ip2numstr( $ipe );
 					if ( $ipt >= $ips && $ipt <= $ipe ) {
 						if ( is_array( $ip ) ) {
+							// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r -- Debug output for unexpected data condition
 							echo 'Array in IP: ' . esc_html( print_r( $ip, true ) ) . "<br>";
 							$ip = $ip[0];
 						}

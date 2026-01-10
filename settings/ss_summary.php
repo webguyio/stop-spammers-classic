@@ -341,6 +341,7 @@ $nonce = wp_create_nonce( 'ss_stopspam_update' );
 	<?php
 	function ss_control()  {
 		// this is the display of information about the page.
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified inside ss_force_reset_options() before any data is processed
 		if ( array_key_exists( 'resetOptions', $_POST ) ) {
 			ss_force_reset_options();
 		}
@@ -351,7 +352,7 @@ $nonce = wp_create_nonce( 'ss_stopspam_update' );
 	}
 	function ss_force_reset_options() {
 		$ss_opt = isset( $_POST['ss_opt'] ) ? sanitize_text_field( wp_unslash( $_POST['ss_opt'] ) ) : '';
-		if ( !wp_verify_nonce( $ss_opt, 'ss_options' ) ) {	
+		if ( !wp_verify_nonce( $ss_opt, 'ss_options' ) ) {
 			echo 'Session Timeout — Please Refresh the Page';
 			exit;
 		}
