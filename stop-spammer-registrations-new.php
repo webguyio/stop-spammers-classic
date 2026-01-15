@@ -3,7 +3,7 @@
 Plugin Name: Stop Spammers Classic
 Plugin URI: https://damspam.com/
 Description: A simplified, restored, and preserved version of the original Stop Spammers plugin.
-Version: 2026
+Version: 2026.1
 Requires at least: 3.0
 Requires PHP: 5.0
 Author: Web Guy
@@ -12,16 +12,16 @@ License: GPL
 License URI: https://www.gnu.org/licenses/gpl.html
 */
 
-// networking requires a couple of globals
-define( 'SS_VERSION', '2026' );
-define( 'SS_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
-define( 'SS_PLUGIN_FILE', plugin_dir_path( __FILE__ ) );
-define( 'SS_PLUGIN_DATA', wp_upload_dir()['basedir'] . '/data/' );
-
 if ( !defined( 'ABSPATH' ) ) {
 	status_header( 404 );
 	exit;
 }
+
+// networking requires a couple of globals
+define( 'SS_VERSION', '2026.1' );
+define( 'SS_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
+define( 'SS_PLUGIN_FILE', plugin_dir_path( __FILE__ ) );
+define( 'SS_PLUGIN_DATA', wp_upload_dir()['basedir'] . '/data/' );
 
 function ss_assets_version() {
 	return defined( 'WP_DEBUG' ) && WP_DEBUG ? ( string ) time() : SS_VERSION;
@@ -58,7 +58,7 @@ function ss_admin_notice() {
 		$admin_url = esc_url_raw( ( isset( $_SERVER['HTTPS'] ) && sanitize_text_field( wp_unslash( $_SERVER['HTTPS'] ) ) === 'on' ? 'https' : 'http' ) . '://' . sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ?? '' ) ) . sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ?? '' ) ) );
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Only checking if GET params exist for URL formatting, not processing data
 		$param = !empty( $_GET ) ? '&' : '?';
-		echo wp_kses_post( sprintf( '<div class="notice notice-info"><p><a href="%s%sdismiss&_wpnonce=%s" class="alignright" style="text-decoration:none"><big>✕</big></a><big><strong>%s</strong></big><p><a href="%s" class="button-primary" style="border-color:#4aa863;background:#4aa863" target="_blank">%s</a></p></div>', esc_url( $admin_url ), esc_html( $param ), esc_attr( wp_create_nonce( 'ss_dismiss_notice' ) ), 'Thank you for helping us Stop Spammers!', 'https://damspam.com/donations', 'I Need Your Help' ) );
+		echo wp_kses_post( sprintf( '<div class="notice notice-warning"><p><a href="%s%sdismiss&_wpnonce=%s" class="alignright" style="text-decoration:none"><big>✕</big></a><big><strong>Stop Spammers is now Dam Spam</strong></big><p><a href="https://wordpress.org/plugins/dam-spam/" class="button-primary" style="border-color:#4aa863;background:#4aa863" target="_blank">Make the Switch</a> &nbsp; <a href="https://github.com/webguyio/dam-spam/issues" class="button-primary" target="_blank">Get Help</a></p><p>Dam Spam is the modernized successor to Stop Spammers where all future development will take place. For best results, deactivate Stop Spammers before activating Dam Spam to ensure your settings migrate properly. While migrating is optional, it\'s strongly recommended.</p></div>', esc_url( $admin_url ), esc_html( $param ), esc_attr( wp_create_nonce( 'ss_dismiss_notice' ) ) ) );
 	}
 }
 add_action( 'admin_notices', 'ss_admin_notice' );
@@ -1034,5 +1034,12 @@ function ss_summary_link( $links ) {
 add_filter( 'plugin_action_links_' . plugin_basename(__FILE__), 'ss_summary_link' );
 
 require_once( 'includes/stop-spam-utils.php' );
+
+register_activation_hook( __FILE__, 'ss_activation_check' );
+function ss_activation_check() {
+	if ( is_plugin_active( 'dam-spam/dam-spam.php' ) ) {
+		deactivate_plugins( 'dam-spam/dam-spam.php' );
+	}
+}
 
 ?>
