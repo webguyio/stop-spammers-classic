@@ -255,7 +255,6 @@ class ss_get_options {
 			'blist'	      => array(),
 			'payoptions'  => array(),
 			'wlist'	      => array(),
-			'wlist_email' => array(),
 			'spamwords'   => array(
 				'-online',
 				'#1',

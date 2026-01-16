@@ -5,24 +5,28 @@ if ( !defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-// phpcs:disable WordPress.Security.NonceVerification.Missing -- Nonce verified in calling function sfs_handle_ajax_sfs_process()
+// phpcs:disable WordPress.Security.NonceVerification.Missing -- Nonce verified when called via AJAX; email parameter only processed with valid nonce
 class ss_addtoallowlist {
 	public function process( $ip, &$stats = array(), &$options = array(), &$post = array() ) {
 		// adds to Allow List - used to add admin to Allow List or to add a comment author to Allow List
 		$now = gmdate( 'Y/m/d H:i:s', time() + ( get_option( 'gmt_offset' ) * 3600 ) );
 		$wlist = is_array( $options['wlist'] ) ? $options['wlist'] : array();
-		$wlist_email = isset( $options['wlist_email'] ) ? $options['wlist_email'] : array();
 		// add this IP to your Allow List
 		$sanitized_ip = filter_var( $ip, FILTER_VALIDATE_IP );
 		if ( $sanitized_ip && !in_array( $sanitized_ip, $wlist, true ) ) {
 			$wlist[] = $sanitized_ip;
 		}
-		$options['wlist'] = $wlist;
 		// add this email to your Allow List
-		if ( isset( $_POST['email'] ) && is_email( sanitize_email( wp_unslash( $_POST['email'] ) ) ) && !in_array( sanitize_email( wp_unslash( $_POST['email'] ) ), $wlist_email, true ) ) {
-			$wlist_email[] = sanitize_email( wp_unslash( $_POST['email'] ) );
+		if ( isset( $_POST['email'] ) && is_email( sanitize_email( wp_unslash( $_POST['email'] ) ) ) ) {
+			if ( !isset( $_POST['func_nonce'] ) || !wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['func_nonce'] ) ), 'sfs_process_add_white' ) ) {
+				return false;
+			}
+			$sanitized_email = sanitize_email( wp_unslash( $_POST['email'] ) );
+			if ( !in_array( $sanitized_email, $wlist, true ) ) {
+				$wlist[] = $sanitized_email;
+			}
 		}
-		$options['wlist_email'] = $wlist_email;
+		$options['wlist'] = $wlist;
 		ss_set_options( $options );
 		// need to remove from caches
 		$badips = $stats['badips'];

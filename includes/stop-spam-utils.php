@@ -153,4 +153,25 @@ function sfs_ErrorHandler( $errno, $errmsg, $filename, $linenum ) {
 	return false;
 }
 
+// migrate wlist_email to wlist on plugin activation or update
+function ss_migrate_wlist_email() {
+	$options = get_option( 'ss_stop_sp_reg_options' );
+	if ( !$options || !is_array( $options ) ) {
+		return;
+	}
+	if ( !isset( $options['wlist_email'] ) || !is_array( $options['wlist_email'] ) || empty( $options['wlist_email'] ) ) {
+		return;
+	}
+	$wlist = isset( $options['wlist'] ) && is_array( $options['wlist'] ) ? $options['wlist'] : array();
+	foreach ( $options['wlist_email'] as $email ) {
+		if ( !in_array( $email, $wlist, true ) ) {
+			$wlist[] = $email;
+		}
+	}
+	$options['wlist'] = $wlist;
+	$options['wlist_email'] = array();
+	update_option( 'ss_stop_sp_reg_options', $options );
+}
+add_action( 'admin_init', 'ss_migrate_wlist_email' );
+
 ?>
