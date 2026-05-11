@@ -38,17 +38,17 @@ class ss_get_alreq {
 			if ( $sw ) {
 				$nwlrequests[$key] = $value;
 				$show			  .= "<tr style=\"background-color:white\">";
-				$trsh			   = "<a href=\"\" onclick=\"sfs_ajax_process('$key','wlreq','delete_wl_row','$ajaxurl');return false;\" title=\"Delete row\" alt=\"Delete row\" ><img src=\"$trash\" class=\"icon-action\"></a>";
-				$addtoblock		   = "<a href=\"\" onclick=\"sfs_ajax_process('$value[0]','$container','add_black','$ajaxurl');return false;\" title=\"Add $value[0] to Block List\" alt=\"Add $value[0] to Block List\" ><img src=\"$tdown\" class=\"icon-action\"></a>";
-				$addtoallow		   = "<a href=\"\" onclick=\"sfs_ajax_process('$value[0]','$container','add_white','$ajaxurl', '$value[1]');return false;\" title=\"Add $value[0] to Allow List\" alt=\"Add $value[0] to Allow List\" ><img src=\"$tup\" class=\"icon-action\"></a>";
-				$show			  .= "<td>$key $trsh $addtoblock $addtoallow</td>";
-				$who			   = "<br><a title=\"Look up WHOIS\" target=\"_stopspam\" href=\"https://whois.domaintools.com/$value[0]\"><img src=\"$whois\" class=\"icon-action\"></a> ";
-				$trsh			   = "<a href=\"\" onclick=\"sfs_ajax_process('$value[0]','wlreq','delete_wlip','$ajaxurl');return false;\" title=\"Delete all $value[0]\" alt=\"Delete all $value[0]\" ><img src=\"$trash\" class=\"icon-action\"></a>";
-				$show			  .= "<td>$value[0] $who $trsh</td>";
-				$trsh			   = "<a href=\"\" onclick=\"sfs_ajax_process('$value[1]','wlreq','delete_wlem','$ajaxurl');return false;\" title=\"Delete all $value[1]\" alt=\"Delete all $value[1]\" ><img src=\"$trash\" class=\"icon-action\"></a>";
-				$show			  .= "<td><a target=\"_stopspam\" href=\"mailto:$value[1]?subject=Website Access\">$value[1] $trsh</td>";
-				$show			  .= "<td>$value[3]</td>";
-				$show			  .= "<td>$value[4]</td>";
+				$trsh			   = "<a href=\"\" onclick=\"sfs_ajax_process('" . esc_js( $key ) . "','wlreq','delete_wl_row','$ajaxurl');return false;\" title=\"Delete row\" alt=\"Delete row\" ><img src=\"$trash\" class=\"icon-action\"></a>";
+				$addtoblock		   = "<a href=\"\" onclick=\"sfs_ajax_process('" . esc_js( $value[0] ) . "','$container','add_black','$ajaxurl');return false;\" title=\"Add " . esc_attr( $value[0] ) . " to Block List\" alt=\"Add " . esc_attr( $value[0] ) . " to Block List\" ><img src=\"$tdown\" class=\"icon-action\"></a>";
+				$addtoallow		   = "<a href=\"\" onclick=\"sfs_ajax_process('" . esc_js( $value[0] ) . "','$container','add_white','$ajaxurl', '" . esc_js( $value[1] ) . "');return false;\" title=\"Add " . esc_attr( $value[0] ) . " to Allow List\" alt=\"Add " . esc_attr( $value[0] ) . " to Allow List\" ><img src=\"$tup\" class=\"icon-action\"></a>";
+				$show			  .= "<td>" . esc_html( $key ) . " $trsh $addtoblock $addtoallow</td>";
+				$who			   = "<br><a title=\"Look up WHOIS\" target=\"_stopspam\" href=\"https://whois.domaintools.com/" . esc_attr( $value[0] ) . "\"><img src=\"$whois\" class=\"icon-action\"></a> ";
+				$trsh			   = "<a href=\"\" onclick=\"sfs_ajax_process('" . esc_js( $value[0] ) . "','wlreq','delete_wlip','$ajaxurl');return false;\" title=\"Delete all " . esc_attr( $value[0] ) . "\" alt=\"Delete all " . esc_attr( $value[0] ) . "\" ><img src=\"$trash\" class=\"icon-action\"></a>";
+				$show			  .= "<td>" . esc_html( $value[0] ) . " $who $trsh</td>";
+				$trsh			   = "<a href=\"\" onclick=\"sfs_ajax_process('" . esc_js( $value[1] ) . "','wlreq','delete_wlem','$ajaxurl');return false;\" title=\"Delete all " . esc_attr( $value[1] ) . "\" alt=\"Delete all " . esc_attr( $value[1] ) . "\" ><img src=\"$trash\" class=\"icon-action\"></a>";
+				$show			  .= "<td><a target=\"_stopspam\" href=\"mailto:" . esc_attr( $value[1] ) . "?subject=Website Access\">" . esc_html( $value[1] ) . " $trsh</td>";
+				$show			  .= "<td>" . esc_html( $value[3] ) . "</td>";
+				$show			  .= "<td>" . esc_html( $value[4] ) . "</td>";
 				$show			  .= "<tr>";
 			}
 		}

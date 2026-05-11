@@ -20,15 +20,15 @@ class ss_get_bcache {
 		$ajaxurl   = admin_url( 'admin-ajax.php' );
 		$show	   = '';
 		foreach ( $badips as $key => $value ) {
-			$who	 = "<a title=\"Look Up WHOIS\" target=\"_stopspam\" href=\"https://whois.domaintools.com/$key\"><img src=\"$whois\" class=\"icon-action\"></a>";
-			$show   .= "<a href=\"https://www.stopforumspam.com/search?q=$key\" target=\"_stopspam\">$key: $value</a>";
+			$who	 = "<a title=\"Look Up WHOIS\" target=\"_stopspam\" href=\"https://whois.domaintools.com/" . esc_attr( $key ) . "\"><img src=\"$whois\" class=\"icon-action\"></a>";
+			$show   .= "<a href=\"https://www.stopforumspam.com/search?q=" . esc_attr( $key ) . "\" target=\"_stopspam\">" . esc_html( $key ) . ": " . esc_html( $value ) . "</a>";
 			// try AJAX on the delete from bad cache
 			$onclick = "onclick=\"sfs_ajax_process('" . esc_js( $key ) . "','" . esc_js( $container ) . "','" . esc_js( $cachedel ) . "','" . esc_js( $ajaxurl ) . "');return false;\"";
-			$show   .= " <a href=\"\" $onclick title=\"Delete $key from Cache\" alt=\"Delete $key from Cache\" ><img src=\"$trash\" class=\"icon-action\"></a>";
+			$show   .= " <a href=\"\" $onclick title=\"Delete " . esc_attr( $key ) . " from Cache\" alt=\"Delete " . esc_attr( $key ) . " from Cache\" ><img src=\"$trash\" class=\"icon-action\"></a>";
 			$onclick = "onclick=\"sfs_ajax_process('" . esc_js( $key ) . "','" . esc_js( $container ) . "','add_black','" . esc_js( $ajaxurl ) . "');return false;\"";
-			$show   .= " <a href=\"\" $onclick title=\"Add to $key Block List\" alt=\"Add to Block List\" ><img src=\"$tdown\" class=\"icon-action\"></a>";
+			$show   .= " <a href=\"\" $onclick title=\"Add " . esc_attr( $key ) . " to Block List\" alt=\"Add to Block List\" ><img src=\"$tdown\" class=\"icon-action\"></a>";
 			$onclick = "onclick=\"sfs_ajax_process('" . esc_js( $key ) . "','" . esc_js( $container ) . "','add_white','" . esc_js( $ajaxurl ) . "');return false;\"";
-			$show   .= " <a href=\"\" $onclick title=\"Add to $key Allow List\" alt=\"Add to Allow List\" ><img src=\"$tup\" class=\"icon-action\"></a>";
+			$show   .= " <a href=\"\" $onclick title=\"Add " . esc_attr( $key ) . " to Allow List\" alt=\"Add to Allow List\" ><img src=\"$tup\" class=\"icon-action\"></a>";
 			$show   .= $who;
 			$show   .= "<br>";
 		}

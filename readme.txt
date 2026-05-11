@@ -6,7 +6,7 @@ Tags: spam, security, anti-spam, spam protection, no spam
 Tested up to: 6.9
 Requires at least: 3.0
 Requires PHP: 5.0
-Stable tag: 2026.3
+Stable tag: 2026.4
 License: GPL
 License URI: https://www.gnu.org/licenses/gpl.html
 
@@ -78,6 +78,9 @@ There are several optional services you may use that involve sending data to thi
 
 == Changelog ==
 
+= 2026.4 =
+* Security patches
+
 = 2026.3 =
 * Fixed issue with the Spam Words list not maintaining phrases
 
@@ -108,9 +111,9 @@ There are several optional services you may use that involve sending data to thi
 * Fixes (aggressive escaping breaking stuff)
 
 = 2025 =
-* Recovered version, which has been cleaned up
+* Recovered version
 
 = 2024.7 =
-* Previous version, which I still consider safe to use
+* Previous version
 
 Credits: Created and maintained by Keith P. Graham (@kpgraham) from 2010-2017. Adopted and maintained by Web Guy (@webguyio) from 2017-2026.

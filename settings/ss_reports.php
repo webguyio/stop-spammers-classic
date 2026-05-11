@@ -146,10 +146,10 @@ $now	  = gmdate( 'Y/m/d H:i:s', time() + ( get_option( 'gmt_offset' ) * 3600 ) )
 				if ( empty( $reason ) ) {
 					$reason = "passed";
 				}
-				$stopper	 = '<a title="Check Stop Forum Spam (SFS)" target="_stopspam" href="https://www.stopforumspam.com/search.php?q=' . $ip . '"><img src="' . $stophand . '" class="icon-action"></a>';
-				$honeysearch = '<a title="Check Project HoneyPot" target="_stopspam" href="https://www.projecthoneypot.org/ip_' . $ip . '"><img src="' . $search . '" class="icon-action"></a>';
-				$botsearch   = '<a title="Check BotScout" target="_stopspam" href="https://botscout.com/search.htm?stype=q&sterm=' . $ip . '"><img src="' . $search . '" class="icon-action"></a>';
-				$who		 = '<br><a title="Look Up WHOIS" target="_stopspam" href="https://whois.domaintools.com/' . $ip . '"><img src="' . $whois . '" class="icon-action"></a>';
+				$stopper	 = '<a title="Check Stop Forum Spam (SFS)" target="_stopspam" href="https://www.stopforumspam.com/search.php?q=' . esc_attr( $ip ) . '"><img src="' . $stophand . '" class="icon-action"></a>';
+				$honeysearch = '<a title="Check Project HoneyPot" target="_stopspam" href="https://www.projecthoneypot.org/ip_' . esc_attr( $ip ) . '"><img src="' . $search . '" class="icon-action"></a>';
+				$botsearch   = '<a title="Check BotScout" target="_stopspam" href="https://botscout.com/search.htm?stype=q&sterm=' . esc_attr( $ip ) . '"><img src="' . $search . '" class="icon-action"></a>';
+				$who		 = '<br><a title="Look Up WHOIS" target="_stopspam" href="https://whois.domaintools.com/' . esc_attr( $ip ) . '"><img src="' . $whois . '" class="icon-action"></a>';
 				echo '
 					<tr style="background-color:white">
 					<td>' . wp_kses_post( $dt ) . '</td>
@@ -157,7 +157,7 @@ $now	  = gmdate( 'Y/m/d H:i:s', time() + ( get_option( 'gmt_offset' ) * 3600 ) )
 					<td>' . esc_html( $ip ) . wp_kses_post( $who . $stopper . $honeysearch . $botsearch );
 				if ( stripos( $reason, 'passed' ) !== false && ( $id == '/' || strpos( $id, 'login' ) ) !== false || strpos( $id, 'register' ) !== false && !in_array( $ip, $blist ) && !in_array( $ip, $wlist ) ) {
 					$ajaxurl = admin_url( 'admin-ajax.php' );
-					echo '<a href="" onclick="sfs_ajax_process(\'' . esc_attr( $ip ) . '\',\'log\',\'add_black\',\'' . esc_url( $ajaxurl ) . '\');return false;" title="Add to Block List" alt="Add to Block List"><img src="' . esc_url( $tdown ) . '" class="icon-action"></a>';
+					echo '<a href="" onclick="sfs_ajax_process(\'' . esc_js( $ip ) . '\',\'log\',\'add_black\',\'' . esc_js( $ajaxurl ) . '\');return false;" title="Add to Block List" alt="Add to Block List"><img src="' . esc_url( $tdown ) . '" class="icon-action"></a>';
 					$options = get_option( 'ss_stop_sp_reg_options' );
 					$apikey  = $options['apikey'];
 					if ( !empty( $apikey ) && !empty( $em ) ) {

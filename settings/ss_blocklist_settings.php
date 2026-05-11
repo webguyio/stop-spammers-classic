@@ -54,7 +54,7 @@ if ( !empty( $nonce ) && wp_verify_nonce( $nonce, 'ss_stopspam_update' ) ) {
 	}
 	if ( array_key_exists( 'badagents', $_POST ) ) {
 		$raw_input = sanitize_textarea_field( wp_unslash( $_POST['badagents'] ) );
-		$badagents = preg_split( '/\s+/', $raw_input, -1, PREG_SPLIT_NO_EMPTY );
+		$badagents = preg_split( '/\r\n|\r|\n/', $raw_input, -1, PREG_SPLIT_NO_EMPTY );
 		$badagents = array_map( 'sanitize_text_field', $badagents );
 		$badagents = array_filter( $badagents );
 		$options['badagents'] = $badagents;

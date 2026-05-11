@@ -125,9 +125,9 @@ function ss_row( $actions, $comment ) {
 	// $action .= "<a title=\"" . Check Project HoneyPot' . "\" target=\"_stopspam\" href=\"https://www.projecthoneypot.org/search_ip.php?ip=$ip\">Check HoneyPot</a>";
 	// add the network check
 	$whois	  = SS_PLUGIN_URL . 'images/whois.png';
-	$who	  = "<a title=\"Look Up WHOIS\" target=\"_stopspam\" href=\"https://whois.domaintools.com/$ip\"><img src=\"$whois\" class=\"icon-action\"></a>";
+	$who	  = "<a title=\"Look Up WHOIS\" target=\"_stopspam\" href=\"https://whois.domaintools.com/" . esc_attr( $ip ) . "\"><img src=\"$whois\" class=\"icon-action\"></a>";
 	$stophand = SS_PLUGIN_URL . 'images/stop.png';
-	$stop	  = "<a title=\"Check Stop Forum Spam (SFS)\" target=\"_stopspam\" href=\"https://www.stopforumspam.com/search.php?q=$ip\"><img src=\"$stophand\" class=\"icon-action\"></a> ";
+	$stop	  = "<a title=\"Check Stop Forum Spam (SFS)\" target=\"_stopspam\" href=\"https://www.stopforumspam.com/search.php?q=" . esc_attr( $ip ) . "\"><img src=\"$stophand\" class=\"icon-action\"></a> ";
 	$action  .= " $who $stop";
 	// now add the report function
 	$email = urlencode( $comment->comment_author_email );
@@ -177,10 +177,10 @@ function ss_row( $actions, $comment ) {
 		// $target = "target=\"ss_sfs_reg_if1\"";
 		// make this the xlsrpc call
 		$href	 = "href=\"#\"";
-		$onclick = "onclick=\"sfs_ajax_report_spam(this,'$ID','$blog','$ajaxurl');return false;\"";
+		$onclick = "onclick=\"sfs_ajax_report_spam(this,'" . esc_js( $ID ) . "','" . esc_js( $blog ) . "','" . esc_js( $ajaxurl ) . "');return false;\"";
 	}
-	$action .= "<span class=\"ss_action\" title=\"Add to block list\" onclick=\"sfs_ajax_process('$comment->comment_author_IP','log','add_black','$ajaxurl');return false;\"><img src=\"" . SS_PLUGIN_URL . "images/tdown.png\" class=\"icon-action\"></span> ";
-	$action .= "<span class=\"ss_action\" title=\"Add to allow list\" onclick=\"sfs_ajax_process('$comment->comment_author_IP','log','add_white','$ajaxurl');return false;\"><img src=\"" . SS_PLUGIN_URL . "images/tup.png\" class=\"icon-action\"> | </span>";
+	$action .= "<span class=\"ss_action\" title=\"Add to block list\" onclick=\"sfs_ajax_process('" . esc_js( $comment->comment_author_IP ) . "','log','add_black','" . esc_js( $ajaxurl ) . "');return false;\"><img src=\"" . esc_url( SS_PLUGIN_URL ) . "images/tdown.png\" class=\"icon-action\"></span> ";
+	$action .= "<span class=\"ss_action\" title=\"Add to allow list\" onclick=\"sfs_ajax_process('" . esc_js( $comment->comment_author_IP ) . "','log','add_white','" . esc_js( $ajaxurl ) . "');return false;\"><img src=\"" . esc_url( SS_PLUGIN_URL ) . "images/tup.png\" class=\"icon-action\"> | </span>";
 	if ( !empty( $email ) ) {
 		$action .= "<a $exst title=\"Report to Stop Forum Spam (SFS\" $target $href $onclick class='delete:the-comment-list:comment-$ID::delete=1 delete vim-d vim-destructive'>Report to SFS</a>";
 	}
@@ -544,15 +544,15 @@ function ss_sfs_ip_column( $value, $column_name, $user_id ) {
 			$useremail   = urlencode( $user_info->user_email ); // for reporting
 			$userurl	 = urlencode( $user_info->user_url );
 			$username	 = $user_info->display_name;
-			$stopper	 = "<a title=\"Check Stop Forum Spam (SFS)\" target=\"_stopspam\" href=\"https://www.stopforumspam.com/search.php?q=$signup_ip\"><img src=\"$stophand\" class=\"icon-action\"></a>";
-			$honeysearch = "<a title=\"Check Project HoneyPot\" target=\"_stopspam\" href=\"https://www.projecthoneypot.org/ip_$signup_ip\"><img src=\"$search\" class=\"icon-action\"></a>";
-			$botsearch   = "<a title=\"Check BotScout\" target=\"_stopspam\" href=\"https://botscout.com/search.htm?stype=q&sterm=$signup_ip\"><img src=\"$search\" class=\"icon-action\"></a>";
-			$who		 = "<br><a title=\"Look Up WHOIS\" target=\"_stopspam\" href=\"https://whois.domaintools.com/$signup_ip\"><img src=\"$whois\" class=\"icon-action\"></a>";
+			$stopper	 = "<a title=\"Check Stop Forum Spam (SFS)\" target=\"_stopspam\" href=\"https://www.stopforumspam.com/search.php?q=" . esc_attr( $signup_ip ) . "\"><img src=\"$stophand\" class=\"icon-action\"></a>";
+			$honeysearch = "<a title=\"Check Project HoneyPot\" target=\"_stopspam\" href=\"https://www.projecthoneypot.org/ip_" . esc_attr( $signup_ip ) . "\"><img src=\"$search\" class=\"icon-action\"></a>";
+			$botsearch   = "<a title=\"Check BotScout\" target=\"_stopspam\" href=\"https://botscout.com/search.htm?stype=q&sterm=" . esc_attr( $signup_ip ) . "\"><img src=\"$search\" class=\"icon-action\"></a>";
+			$who		 = "<br><a title=\"Look Up WHOIS\" target=\"_stopspam\" href=\"https://whois.domaintools.com/" . esc_attr( $signup_ip ) . "\"><img src=\"$whois\" class=\"icon-action\"></a>";
 			$action	     = " $who $stopper $honeysearch $botsearch";
 			$options	 = ss_get_options();
 			$apikey	     = $options['apikey'];
 			if ( !empty( $apikey ) ) {
-				$report  = "<a title=\"Report to SFS\" target=\"_stopspam\" href=\"https://www.stopforumspam.com/add.php?username=$username&email=$useremail&ip_addr=$signup_ip&evidence=$userurl&api_key=$apikey\"><img src=\"$stophand\" class=\"icon-action\"></a>";
+				$report  = "<a title=\"Report to SFS\" target=\"_stopspam\" href=\"https://www.stopforumspam.com/add.php?username=" . esc_attr( urlencode( $username ) ) . "&email=" . esc_attr( $useremail ) . "&ip_addr=" . esc_attr( $signup_ip ) . "&evidence=" . esc_attr( $userurl ) . "&api_key=" . esc_attr( $apikey ) . "\"><img src=\"$stophand\" class=\"icon-action\"></a>";
 				$action .= $report;
 			}
 			return $ipline . $action;
