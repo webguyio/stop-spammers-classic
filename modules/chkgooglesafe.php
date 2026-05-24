@@ -43,7 +43,7 @@ class chkgooglesafe extends be_module {
 			return false;
 		}
 		for ( $j = 0; $j < count( $urls3 ); $j ++ ) {
-			$urls3[$j] = urlencode( $urls3[$j] );
+			$urls3[$j] = rawurlencode( $urls3[$j] );
 		}
 		// $urls3 has the list of URLs found in content
 		for ( $j = 0; $j < count( $urls3 ) && $j < 4; $j ++ ) {

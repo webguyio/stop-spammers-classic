@@ -21,9 +21,9 @@ class chkakismet {
 		}
 		$agent = isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : '';
 		$blogurl = site_url();
-		$api_key = urlencode( $api_key );
-		$agent   = urlencode( $agent );
-		$blogurl = urlencode( $blogurl );
+		$api_key = rawurlencode( $api_key );
+		$agent   = rawurlencode( $agent );
+		$blogurl = rawurlencode( $blogurl );
 		if ( empty( $api_key ) || empty( $agent ) || empty( $blogurl ) ) {
 			return false;
 		}

@@ -48,11 +48,9 @@ class be_module {
 		if ( empty( $sname ) ) {
 			$_SERVER['REQUEST_URI'] = isset( $_SERVER['SCRIPT_NAME'] ) ? sanitize_url( wp_unslash( $_SERVER['SCRIPT_NAME'] ) ) : '';
 			$sname = isset( $_SERVER['SCRIPT_NAME'] ) ? sanitize_url( wp_unslash( $_SERVER['SCRIPT_NAME'] ) ) : '';
-			// phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- QUERY_STRING is sanitized with sanitize_query_var()
 			if ( isset( $_SERVER['QUERY_STRING'] ) && !empty( $_SERVER['QUERY_STRING'] ) ) {
-				$_SERVER['REQUEST_URI'] .= '?' . sanitize_query_var( wp_unslash( $_SERVER['QUERY_STRING'] ) );
+				$_SERVER['REQUEST_URI'] .= '?' . sanitize_text_field( wp_unslash( $_SERVER['QUERY_STRING'] ) );
 			}
-			// phpcs:enable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		}
 		return empty( $sname ) ? '' : $sname;
 	}

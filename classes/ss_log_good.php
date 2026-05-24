@@ -9,9 +9,12 @@ if ( !defined( 'ABSPATH' ) ) {
 class ss_log_good extends be_module {
 	public function process( $ip, &$stats = array(), &$options = array(), &$post = array() ) {
 		// are we getting stats?
-		$chk = "error";
-		extract( $stats );
-		extract( $post );
+		$chk     = isset( $post['chk'] ) ? $post['chk'] : 'error';
+		$reason  = isset( $post['reason'] ) ? $post['reason'] : '';
+		$email   = isset( $post['email'] ) ? $post['email'] : '';
+		$author  = isset( $post['author'] ) ? $post['author'] : '';
+		$goodips = isset( $stats['goodips'] ) ? $stats['goodips'] : array();
+		$hist    = isset( $stats['hist'] ) ? $stats['hist'] : array();
 		// reason and chk are from the post array
 		if ( array_key_exists( 'cnt' . $chk, $stats ) ) {
 			$stats['cnt' . $chk] ++;

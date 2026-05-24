@@ -357,7 +357,7 @@ $nonce = wp_create_nonce( 'ss_stopspam_update' );
 			exit;
 		}
 		if ( !function_exists( 'ss_reset_options' ) ) {
-			ss_require( 'includes/ss-init-options.php' );
+			ss_sp_require( 'includes/ss-init-options.php' );
 		}
 		ss_reset_options();
 		// clear the cache

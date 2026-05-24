@@ -118,7 +118,7 @@ function ss_sp_rightnow() {
 function ss_row( $actions, $comment ) {
 	$options  = get_option( 'ss_stop_sp_reg_options' ); // for some reason the main call is not available?
 	$apikey   = $options['apikey'];
-	$email	  = urlencode( $comment->comment_author_email );
+	$email	  = rawurlencode( $comment->comment_author_email );
 	$ip	      = $comment->comment_author_IP;
 	$action   = "";
 	// $action .= "|";
@@ -130,14 +130,14 @@ function ss_row( $actions, $comment ) {
 	$stop	  = "<a title=\"Check Stop Forum Spam (SFS)\" target=\"_stopspam\" href=\"https://www.stopforumspam.com/search.php?q=" . esc_attr( $ip ) . "\"><img src=\"$stophand\" class=\"icon-action\"></a> ";
 	$action  .= " $who $stop";
 	// now add the report function
-	$email = urlencode( $comment->comment_author_email );
+	$email = rawurlencode( $comment->comment_author_email );
 	if ( empty( $email ) ) {
 		$actions['check_spam'] = $action;
 		return $actions;
 	}
 	$ID	      = $comment->comment_ID;
 	$exst	  = '';
-	$uname	  = urlencode( $comment->comment_author );
+	$uname	  = rawurlencode( $comment->comment_author );
 	$content  = $comment->comment_content;
 	$evidence = $comment->comment_author_url;
 	if ( empty( $evidence ) ) {
@@ -160,7 +160,7 @@ function ss_row( $actions, $comment ) {
 	if ( is_array( $urls3 ) ) {
 		$evidence .= "\r\n" . implode( "\r\n", $urls3 );
 	}
-	$evidence = urlencode( trim( $evidence, "\r\n" ) );
+	$evidence = rawurlencode( trim( $evidence, "\r\n" ) );
 	if ( strlen( $evidence ) > 128 ) {
 		$evidence = substr( $evidence, 0, 125 ) . '...';
 	}
@@ -249,8 +249,8 @@ function sfs_handle_ajax_sub( $data ) {
 		}
 	}
 	// print_r( $comment );
-	$email	  = urlencode( $comment['comment_author_email'] );
-	$uname	  = urlencode( $comment['comment_author'] );
+	$email	  = rawurlencode( $comment['comment_author_email'] );
+	$uname	  = rawurlencode( $comment['comment_author'] );
 	$ip_addr  = $comment['comment_author_IP'];
 	// code added as per Paul at Stop Forum Spam
 	$content  = $comment['comment_content'];
@@ -282,7 +282,7 @@ function sfs_handle_ajax_sub( $data ) {
 	if ( is_array( $urls3 ) ) {
 		$evidence .= "\r\n" . implode( "\r\n", $urls3 );
 	}
-	$evidence = urlencode( trim( $evidence, "\r\n" ) );
+	$evidence = rawurlencode( trim( $evidence, "\r\n" ) );
 	if ( strlen( $evidence ) > 128 ) {
 		$evidence = substr( $evidence, 0, 125 ) . '...';
 	}
@@ -325,7 +325,7 @@ function sfs_get_urls( $content ) {
 		return array();
 	}
 	for ( $j = 0; $j < count( $urls3 ); $j ++ ) {
-		$urls3[$j] = urlencode( $urls3[$j] );
+		$urls3[$j] = rawurlencode( $urls3[$j] );
 	}
 	return $urls3;
 }
@@ -541,8 +541,8 @@ function ss_sfs_ip_column( $value, $column_name, $user_id ) {
 			$ipline = apply_filters( 'ip2link', $signup_ip2 ); // if the ip2link plugin is installed
 			// now add the check
 			$user_info   = get_userdata( $user_id );
-			$useremail   = urlencode( $user_info->user_email ); // for reporting
-			$userurl	 = urlencode( $user_info->user_url );
+			$useremail   = rawurlencode( $user_info->user_email ); // for reporting
+			$userurl	 = rawurlencode( $user_info->user_url );
 			$username	 = $user_info->display_name;
 			$stopper	 = "<a title=\"Check Stop Forum Spam (SFS)\" target=\"_stopspam\" href=\"https://www.stopforumspam.com/search.php?q=" . esc_attr( $signup_ip ) . "\"><img src=\"$stophand\" class=\"icon-action\"></a>";
 			$honeysearch = "<a title=\"Check Project HoneyPot\" target=\"_stopspam\" href=\"https://www.projecthoneypot.org/ip_" . esc_attr( $signup_ip ) . "\"><img src=\"$search\" class=\"icon-action\"></a>";
@@ -552,7 +552,7 @@ function ss_sfs_ip_column( $value, $column_name, $user_id ) {
 			$options	 = ss_get_options();
 			$apikey	     = $options['apikey'];
 			if ( !empty( $apikey ) ) {
-				$report  = "<a title=\"Report to SFS\" target=\"_stopspam\" href=\"https://www.stopforumspam.com/add.php?username=" . esc_attr( urlencode( $username ) ) . "&email=" . esc_attr( $useremail ) . "&ip_addr=" . esc_attr( $signup_ip ) . "&evidence=" . esc_attr( $userurl ) . "&api_key=" . esc_attr( $apikey ) . "\"><img src=\"$stophand\" class=\"icon-action\"></a>";
+				$report  = "<a title=\"Report to SFS\" target=\"_stopspam\" href=\"https://www.stopforumspam.com/add.php?username=" . esc_attr( rawurlencode( $username ) ) . "&email=" . esc_attr( $useremail ) . "&ip_addr=" . esc_attr( $signup_ip ) . "&evidence=" . esc_attr( $userurl ) . "&api_key=" . esc_attr( $apikey ) . "\"><img src=\"$stophand\" class=\"icon-action\"></a>";
 				$action .= $report;
 			}
 			return $ipline . $action;

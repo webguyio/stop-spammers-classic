@@ -8,11 +8,14 @@ if ( !defined( 'ABSPATH' ) ) {
 
 class ss_log_bad extends be_module {
 	public function process( $ip, &$stats = array(), &$options = array(), &$post = array() ) {
-		$chk = 'error';
-		extract( $stats );
-		extract( $post );
-		$sname = $this->getSname();
-		$now   = gmdate( 'Y/m/d H:i:s', time() + ( get_option( 'gmt_offset' ) * 3600 ) );
+		$chk    = isset( $post['chk'] ) ? $post['chk'] : 'error';
+		$reason = isset( $post['reason'] ) ? $post['reason'] : '';
+		$email  = isset( $post['email'] ) ? $post['email'] : '';
+		$author = isset( $post['author'] ) ? $post['author'] : '';
+		$badips = isset( $stats['badips'] ) ? $stats['badips'] : array();
+		$hist   = isset( $stats['hist'] ) ? $stats['hist'] : array();
+		$sname  = $this->getSname();
+		$now    = gmdate( 'Y/m/d H:i:s', time() + ( get_option( 'gmt_offset' ) * 3600 ) );
 		// updates counters - adds to log list - adds to Bad Cache - then updates stats when done
 		// start with the counters - does some extra checks in case the stats file gets corrupted
 		if ( array_key_exists( 'spcount', $stats ) ) {

@@ -58,7 +58,7 @@ class ss_addtoallowlist {
 		$wlrequests = $stats['wlrequests'];
 		$request    = array();
 		foreach ( $wlrequests as $r ) {
-			if ( $r[0] === $_POST['ip'] ) {
+			if ( $r[0] === sanitize_text_field( wp_unslash( $_POST['ip'] ) ) ) {
 				$request = $r;
 				break;
 			}
